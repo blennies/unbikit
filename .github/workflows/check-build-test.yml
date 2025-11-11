@@ -3,7 +3,8 @@ description: Format/lint/type-check the source code, build it and then test it
 
 on:
   push:
-    branches: [$default-branch]
+    branches:
+      - main
   pull_request:
     types:
       - opened
