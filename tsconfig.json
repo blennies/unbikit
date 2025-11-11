@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    // Environment setup & latest features
+    "lib": ["ESNext", "DOM", "WebWorker"],
+    "target": "esnext",
+    "module": "preserve",
+    "moduleDetection": "force",
+    "types": ["vite/client", "node", "audioworklet"],
+    "allowJs": false,
+
+    // Bundler mode
+    "allowImportingTsExtensions": true,
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "declarationMap": false,
+    "isolatedDeclarations": true,
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "verbatimModuleSyntax": false,
+
+    // Best practices
+    "skipLibCheck": true,
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
+
+    // Some stricter flags (disabled by default)
+    "noPropertyAccessFromIndexSignature": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "exclude": ["archive", "dist", "docs", "public", "src/bik-player.ts"]
+}

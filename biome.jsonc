@@ -1,0 +1,66 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.3.4/schema.json",
+  "files": {
+    "ignoreUnknown": false,
+    "includes": [
+      "**/*.css",
+      "index.html",
+      // "**/*.html",
+      "**/*.mjs",
+      "**/*.mts",
+      "**/*.js",
+      "**/*.json",
+      "**/*.jsonc",
+      "**/*.ts",
+      "!archive",
+      "!dist",
+      "!docs"
+    ]
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on",
+        "useSortedKeys": "off"
+      }
+    },
+    "enabled": true
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "lineWidth": 100
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
+  },
+  "vcs": {
+    "clientKind": "git",
+    "defaultBranch": "main",
+    "enabled": false,
+    "useIgnoreFile": true
+  },
+  "css": {
+    "formatter": { "enabled": true },
+    "linter": { "enabled": true },
+    "assist": { "enabled": true }
+  },
+  "html": {
+    "formatter": { "enabled": true },
+    "linter": { "enabled": true },
+    "assist": { "enabled": true }
+  },
+  "javascript": {
+    "formatter": { "enabled": true },
+    "linter": { "enabled": true },
+    "assist": { "enabled": true }
+  },
+  "json": {
+    "formatter": { "enabled": true },
+    "linter": { "enabled": true },
+    "assist": { "enabled": false }
+  }
+}

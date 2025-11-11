@@ -1,0 +1,22 @@
+version: 2
+
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    groups:
+      updates:
+        applies-to: version-updates
+      security:
+        applies-to: security-updates
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    groups:
+      updates:
+        applies-to: version-updates
+      security:
+        applies-to: security-updates
+    schedule:
+      interval: "weekly"
