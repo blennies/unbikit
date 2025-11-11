@@ -1,0 +1,79 @@
+name: check-build-test
+description: Format/lint/type-check the source code, build it and then test it
+
+on:
+  push:
+    branches: [$default-branch]
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+permissions:
+  contents: read
+
+# on:
+#   workflow_run:
+#     workflows: ["Check source code"]
+#     branches: [main]
+#     types:
+#       - completed
+
+jobs:
+  check-build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm i --frozen-lockfile
+
+      - name: Validate current commit (last commit) with commitlint
+        if: github.event_name == 'push'
+        run: pnpm commitlint --last --verbose
+
+      - name: Validate pull-request commits with commitlint
+        if: github.event_name == 'pull_request'
+        run: pnpm commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
+      - name: Check formatting and lint files with Biome and Prettier, and type-check with tsc
+        run: pnpm ci:check
+
+      - name: Build package
+        run: pnpm build
+
+      # - name: Run tests
+      #   run: pnpm test
+
+      - name: Build the package deliverable
+        run: pnpm pack
+
+      - name: Upload built package
+        uses: actions/upload-artifact@v5
+        with:
+          name: built-package
+          path: unbikit-*.tgz
+
+  # TODO: test against matrix of Node versions, Bun, Deno, etc.
+
+  # test:
+  #   if: ${{ github.event.workflow_run.conclusion == 'success' }}
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name:
+  #       uses: actions/download-artifact@v6
+  #       with:
+  #         name: built-package

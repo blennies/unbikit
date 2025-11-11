@@ -1,0 +1,10 @@
+*.css
+*.html
+*.mjs
+*.mts
+*.js
+*.json
+*.jsonc
+*.ts
+
+pnpm-lock.yaml
