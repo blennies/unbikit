@@ -1,0 +1,122 @@
+{
+  "name": "unbikit",
+  "version": "0.0.0",
+  "description": "Decoder for .bik format video/audio files.",
+  "keywords": [
+    "audio",
+    "bik",
+    "bink",
+    "codec",
+    "decoder",
+    "decompress",
+    "media",
+    "player",
+    "video"
+  ],
+  "author": "Blennies <blennies.dev@gmail.com>",
+  "license": "(MIT OR Apache-2.0)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blennies/unbikit.git"
+  },
+  "type": "module",
+  "module": "./dist/unbikit.js",
+  "main": "./dist/unbikit.cjs",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "packageManager": "pnpm@10.21.0+sha512.da3337267e400fdd3d479a6c68079ac6db01d8ca4f67572083e722775a796788a7a9956613749e000fac20d424b594f7a791a5f4e2e13581c5ef947f26968a40",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsdown",
+    "build:docs": "typedoc",
+    "check": "biome check && prettier -c . && tsc",
+    "ci:check": "biome ci && prettier -c . && tsc",
+    "preview": "vite preview",
+    "preview:docs": "vite ./docs --port 6173"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/core": "^0.18.2",
+    "@biomejs/biome": "2.3.4",
+    "@commitlint/config-conventional": "^20.0.0",
+    "@commitlint/types": "^20.0.0",
+    "@mitata/counters": "0.0.8",
+    "@types/audioworklet": "0.0.91",
+    "@types/node": "24.10.0",
+    "commitlint": "^20.1.0",
+    "globals": "16.5.0",
+    "imghash": "1.1.0",
+    "mitata": "1.0.34",
+    "prettier": "3.6.2",
+    "publint": "^0.3.15",
+    "pureimage": "0.4.18",
+    "rolldown": "1.0.0-beta.49",
+    "rollup-plugin-esbuild": "6.2.1",
+    "tsdown": "0.16.1",
+    "type-fest": "5.2.0",
+    "typedoc": "0.28.14",
+    "typedoc-theme-fresh": "0.2.1",
+    "typescript": "5.9.3",
+    "unplugin-unused": "^0.5.6",
+    "vite": "npm:rolldown-vite@7.2.2"
+  },
+  "overrides": {
+    "rolldown": "$rolldown",
+    "vite": "$vite"
+  },
+  "exports": {
+    ".": {
+      "development": "./src/bik-decoder.ts",
+      "import": {
+        "types": "./dist/unbikit.d.ts",
+        "default": "./dist/unbikit.js"
+      },
+      "require": {
+        "types": "./dist/unbikit.d.cts",
+        "default": "./dist/unbikit.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "import": {
+          "types": "./dist/unbikit.d.ts",
+          "default": "./dist/unbikit.js"
+        },
+        "require": {
+          "types": "./dist/unbikit.d.cts",
+          "default": "./dist/unbikit.cjs"
+        }
+      },
+      "./package.json": "./package.json"
+    }
+  },
+  "files": [
+    "dist/**/*.d.cts",
+    "dist/**/*.d.ts",
+    "dist/**/*.cjs",
+    "dist/**/*.cjs.map",
+    "dist/**/*.js",
+    "dist/**/*.js.map"
+  ],
+  "typedocOptions": {
+    "entryPoints": [
+      "./src/bik-decoder.ts",
+      "./src/bik-video-decoder.ts",
+      "./src/bik-audio-decoder.ts"
+    ],
+    "includeVersion": true,
+    "name": "unbikit",
+    "plugin": [
+      "typedoc-theme-fresh"
+    ],
+    "theme": "fresh"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  }
+}
