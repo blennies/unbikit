@@ -2,7 +2,8 @@ name: release-and-publish
 
 on:
   push:
-    branches: [$default-branch]
+    branches:
+      - main
 
   # Allows workflow to be run manually from the Actions tab
   workflow_dispatch:
