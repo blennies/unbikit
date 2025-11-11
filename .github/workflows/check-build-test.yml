@@ -60,11 +60,11 @@ jobs:
       - name: Build the package deliverable
         run: pnpm pack
 
-      - name: Upload built package
-        uses: actions/upload-artifact@v5
-        with:
-          name: built-package
-          path: unbikit-*.tgz
+      # - name: Upload built package
+      #   uses: actions/upload-artifact@v5
+      #   with:
+      #     name: built-package
+      #     path: unbikit-*.tgz
 
   # TODO: test against matrix of Node versions, Bun, Deno, etc.
 
