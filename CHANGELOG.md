@@ -1,0 +1,12 @@
+# Changelog
+
+## 1.0.0 (2025-11-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* add initial implementation of the `.bik` video decoder
+
+### Features
+
+* add initial implementation of the `.bik` video decoder ([d3a4813](https://github.com/blennies/unbikit/commit/d3a48134a279a47c8fe426753defa32de254ed8c))
