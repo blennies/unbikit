@@ -6,8 +6,10 @@ updates:
     groups:
       updates:
         applies-to: version-updates
+        patterns: ["*"]
       security:
         applies-to: security-updates
+        patterns: ["*"]
     schedule:
       interval: "weekly"
 
@@ -16,7 +18,9 @@ updates:
     groups:
       updates:
         applies-to: version-updates
+        patterns: ["*"]
       security:
         applies-to: security-updates
+        patterns: ["*"]
     schedule:
       interval: "weekly"
