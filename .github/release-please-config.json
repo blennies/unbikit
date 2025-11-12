@@ -4,11 +4,12 @@
   "bump-patch-for-minor-pre-major": true,
   "draft": true,
   "prerelease": false,
-  "always-update": true,
+  "always-update": false,
   "packages": {
     ".": {
       "changelog-path": "CHANGELOG.md",
-      "release-type": "node"
+      "release-type": "node",
+      "release-as": "0.1.0"
     }
   }
 }
