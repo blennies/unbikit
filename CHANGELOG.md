@@ -1,10 +1,20 @@
 # Changelog
 
+## [0.2.0](https://github.com/blennies/unbikit/compare/unbikit-v0.1.0...unbikit-v0.2.0) (2025-11-13)
+
+### Features
+
+- Add `skipFrames()` method for skipping multiple decoded frames
+  ([6d564dd](https://github.com/blennies/unbikit/commit/6d564dd873da1c95e5cbfb4bdb1ec16d865dcf73))
+
+Regression testing has also been improved significantly.
+
 ## 0.1.0 (2025-11-12)
 
 ### Features
 
-- Add initial implementation of the `.bik` video decoder ([124c3b9](https://github.com/blennies/unbikit/commit/124c3b952e8944ace6beb7f8d0e34ee7a77bae93)).
+- Add initial implementation of the `.bik` video decoder
+  ([124c3b9](https://github.com/blennies/unbikit/commit/124c3b952e8944ace6beb7f8d0e34ee7a77bae93))
 
   Consists of a stream reader, header parser, demuxer, and audio/video decoders. Version 1 of the
   `.bik` video format is supported, except for revision `b`. DCT and DFT compressed audio are both
