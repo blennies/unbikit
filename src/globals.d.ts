@@ -1,7 +1,10 @@
+// Fix interface definition from Web types library
 declare interface VideoFrameBufferInit {
   transfer: ArrayBuffer[];
 }
 
+// Declare the existence of "defined" values that are inlined by the build tool. This prevents
+// tsc from raising errors due to undefined identifiers.
 declare const BIK_BLOCK_TYPE_SKIP: 0;
 declare const BIK_BLOCK_TYPE_SCALED: 1;
 declare const BIK_BLOCK_TYPE_MOTION: 2;
