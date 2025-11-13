@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0](https://github.com/blennies/unbikit/compare/unbikit-v0.2.0...unbikit-v0.3.0) (2025-11-13)
+
+
+### Features
+
+* Add `skipFrames()` method for skipping multiple decoded frames ([6d564dd](https://github.com/blennies/unbikit/commit/6d564dd873da1c95e5cbfb4bdb1ec16d865dcf73))
+* Add initial implementation of the `.bik` video decoder ([124c3b9](https://github.com/blennies/unbikit/commit/124c3b952e8944ace6beb7f8d0e34ee7a77bae93))
+
 ## [0.2.0](https://github.com/blennies/unbikit/compare/unbikit-v0.1.0...unbikit-v0.2.0) (2025-11-13)
 
 ### Features
