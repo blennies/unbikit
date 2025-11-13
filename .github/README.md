@@ -23,7 +23,7 @@ A decoder for `.bik` video files that can be used to play or transcode videos.
 ### Limitations
 
 - No support for Bink 2 or for revision `b` of Bink 1
-- Some image corruption has been observed for a small proportion of videos
+- Some image corruption has been observed with some non-`i` revision videos
 
 ## Getting started
 
