@@ -31,5 +31,5 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false
   },
-  "exclude": ["archive", "dist", "docs", "public", "src/bik-player.ts"]
+  "exclude": ["archive", "dist", "docs", "public"]
 }

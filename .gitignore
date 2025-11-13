@@ -26,6 +26,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .eslintcache
 .cache
 *.tsbuildinfo
+tests/.asset-cache
 
 # IntelliJ based IDEs
 .idea
@@ -38,4 +39,3 @@ docs
 
 # local archive
 archive
-
