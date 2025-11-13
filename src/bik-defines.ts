@@ -1,6 +1,10 @@
+/**
+ * Various timing-critical constants used by the decoder.
+ *
+ * This file is not imported directly in the decoder source code but is instead processed by
+ * the build tool and the constants inlined in the output code (to boost performance).
+ */
 export const BIK_DEFINES = {
-  "import.meta.vitest": undefined,
-
   /**
    * DCT transform values.
    *

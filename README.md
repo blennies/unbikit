@@ -1,6 +1,6 @@
 # unbikit
 
-> [!CAUTION]
+> ⚠️
 > This package is at a very early development stage. Expect **_major_** API changes!
 
 A decoder for `.bik` video files that can be used to play or transcode videos.

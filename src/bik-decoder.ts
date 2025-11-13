@@ -8,7 +8,7 @@
 import { BikAudioDecoder } from "./bik-audio-decoder.ts";
 import { BikVideoDecoder, type BikVideoFrame } from "./bik-video-decoder.ts";
 
-export interface BikHeader {
+interface BikHeader {
   version: 1 | 2;
   subVersion: number;
   fileSize: number;
@@ -27,7 +27,7 @@ export interface BikHeader {
   frames: BikFrameHeader[];
 }
 
-export interface BikAudioTrackHeader {
+interface BikAudioTrackHeader {
   trackId: number;
   numChannels: number;
   sampleRate: number;
@@ -36,20 +36,20 @@ export interface BikAudioTrackHeader {
     useDCT: boolean;
   };
 }
-export interface BikFrameHeader {
+interface BikFrameHeader {
   offset: number;
   size: number;
   keyframe: boolean;
 }
 
-export interface BikFrame {
+interface BikFrame {
   // Tracks containing audio data. Indexed by track number (_not_ track ID).
   audioTracks: BikAudioTrack[];
 
   // Decoded video frame image.
   videoFrame: BikVideoFrame | null;
 }
-export interface BikAudioTrack {
+interface BikAudioTrack {
   header: BikAudioTrackHeader;
   size: number; // in bytes
   numSamples: number;
@@ -60,12 +60,12 @@ export interface BikAudioTrack {
 }
 
 // Other types
-export type GetReadStreamFn = (
+type GetReadStreamFn = (
   offset: number,
   len?: number | undefined, // when undefined, stream until the end of the file
 ) => ReadableStream<Uint8Array> | Promise<ReadableStream<Uint8Array>>;
 
-export class BikDecoder {
+class BikDecoder {
   #getReadStreamFn: GetReadStreamFn;
 
   #streamReader: ReadableStreamDefaultReader<Uint8Array> | null = null;
@@ -354,6 +354,21 @@ export class BikDecoder {
   }
 
   /**
+   * Skip the specified number of frames of the media file. They will still be decoded as decoding
+   * a frame can effectively require data from any number of earlier frames.
+   * @param numFrames Number of frames to skip, but still decode.
+   */
+  async skipFrames(numFrames: number): Promise<void> {
+    let frame: BikFrame | null = null;
+    for (let i = 0; i < numFrames; i++) {
+      frame = await this.getNextFrame(frame);
+      if (!frame) {
+        return;
+      }
+    }
+  }
+
+  /**
    * Attempt to read and parse the headers of a media file. If successful, return an instance of
    * {@link BikDecoder} for decoding the rest of the file.
    * @param getReadStreamFn -
@@ -371,3 +386,14 @@ export class BikDecoder {
     return decoder;
   }
 }
+
+export { BikDecoder };
+export type {
+  BikAudioTrack,
+  BikAudioTrackHeader,
+  BikFrame,
+  BikFrameHeader,
+  BikHeader,
+  BikVideoFrame,
+  GetReadStreamFn,
+};

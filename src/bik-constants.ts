@@ -1,3 +1,6 @@
+/**
+ * Various constants used by the decoder.
+ */
 import type { IntRange, TupleOf } from "type-fest";
 
 /**
