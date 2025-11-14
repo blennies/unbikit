@@ -6,7 +6,7 @@
   "changelog-type": "github",
   "draft": true,
   "draft-pull-request": true,
-  "last-release-sha": "6ea8a20d060792f29f77028d341303d535190d25",
+  "last-release-sha": "6d564dd873da1c95e5cbfb4bdb1ec16d865dcf73",
   "prerelease": true,
   "signoff": "",
   "packages": {
