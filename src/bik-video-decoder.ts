@@ -119,9 +119,9 @@ class HuffTable {
 
   #decode(reader: BitReader): IntRange<0, 16> {
     // Peek at the bits
-    const savedPos = reader.savePos();
-    const peek = reader.readBits(this.#maxBits);
-    reader.restorePos(savedPos);
+    const savedPos = reader.savePos_();
+    const peek = reader.readBits_(this.#maxBits);
+    reader.restorePos_(savedPos);
 
     const len = this.#lens[peek] ?? 0;
     const symbol = this.#symbols[peek];
@@ -130,7 +130,7 @@ class HuffTable {
       throw new Error(`HuffTable decode error: invalid code ${peek}`);
     }
 
-    reader.skip(len);
+    reader.skip_(len);
     return symbol;
   }
 
@@ -248,30 +248,30 @@ export class BikVideoDecoder {
     existingFrame: BikVideoFrame | null = null,
   ): BikVideoFrame {
     const reader = this.#reader;
-    reader.reset(data);
+    reader.reset_(data);
     const frame = existingFrame ?? this.#createFrame();
 
     if (this.#hasAlpha) {
       if (this.#version >= 105) {
-        reader.skip(32);
+        reader.skip_(32);
       }
       this.#decodePlane(frame, 3);
     }
 
     if (this.#version >= 105) {
-      reader.skip(32);
+      reader.skip_(32);
     }
 
     for (let plane = 0; plane < 3; plane++) {
       const planeIndex = (plane && this.#hasSwappedUVPlanes ? plane ^ 3 : plane) as TPlaneIndex;
       this.#decodePlane(frame, planeIndex);
-      if (reader.bitsLeft() <= 0) break;
+      if (reader.bitsLeft_() <= 0) break;
     }
 
     // Store a copy of the YUVA planes for frame-relative decoding with the next frame.
     this.#prevFrame.set(frame.yuv);
     this.#data = EMPTY_UINT8_ARRAY;
-    this.#reader.reset(EMPTY_UINT8_ARRAY);
+    this.#reader.reset_(EMPTY_UINT8_ARRAY);
 
     return frame;
   }
@@ -373,7 +373,7 @@ export class BikVideoDecoder {
       this.#dataPtr += blockLineIncr;
     }
 
-    this.#reader.align32();
+    this.#reader.align32_();
   }
 
   #copyBlock(srcOffset: number) {
@@ -397,13 +397,13 @@ export class BikVideoDecoder {
 
   #decodeRunBlock(block: Uint8Array, offset = 0, stride = 8) {
     let i = 0;
-    let scanIndex = this.#reader.readBits(4) << 6;
+    let scanIndex = this.#reader.readBits_(4) << 6;
 
     do {
       const run = this.#getValue(BIK_PARAM_RUN) + 1;
       i += run;
 
-      if (this.#reader.readBit()) {
+      if (this.#reader.readBit_()) {
         // Decode a run of a single color
         const v = this.#getValue(BIK_PARAM_COLORS);
         for (let j = 0; j < run; j++) {
@@ -553,7 +553,7 @@ export class BikVideoDecoder {
   #readTree(tree: Tree) {
     const reader = this.#reader;
 
-    tree.tableNum = reader.readBits(4) as IntRange<0, 16>;
+    tree.tableNum = reader.readBits_(4) as IntRange<0, 16>;
     if (!tree.tableNum) {
       // Linear symbol mapping
       for (let i = 0; i < 16; i++) {
@@ -562,13 +562,13 @@ export class BikVideoDecoder {
       return;
     }
 
-    if (reader.readBit()) {
+    if (reader.readBit_()) {
       // Read the order of symbols from the bit-stream
-      let len = reader.readBits(3);
+      let len = reader.readBits_(3);
       const tmp = this.#inputTreeBuf.fill(0);
 
       for (let i = 0; i <= len; i++) {
-        tree.symbolMap[i] = reader.readBits(4);
+        tree.symbolMap[i] = reader.readBits_(4);
         tmp[tree.symbolMap[i] ?? 0] = 1;
       }
 
@@ -579,7 +579,7 @@ export class BikVideoDecoder {
       }
     } else {
       // Shuffle the symbols
-      const len = reader.readBits(2);
+      const len = reader.readBits_(2);
       let input = this.#inputTreeBuf;
       let output = this.#outputTreeBuf;
 
@@ -609,7 +609,7 @@ export class BikVideoDecoder {
     let destIndex = offset;
 
     while (size1 && size2) {
-      if (!this.#reader.readBit()) {
+      if (!this.#reader.readBit_()) {
         dest[destIndex++] = src[src1Index++] ?? 0;
         size1--;
       } else {
@@ -671,7 +671,7 @@ export class BikVideoDecoder {
     if (blockParamValues.curDec < 0 || blockParamValues.curDec > blockParamValues.curPtr) {
       return 0;
     }
-    const count = this.#reader.readBits(blockParamValues.len);
+    const count = this.#reader.readBits_(blockParamValues.len);
     if (count === 0) {
       blockParamValues.curDec = -1;
     }
@@ -685,8 +685,8 @@ export class BikVideoDecoder {
     }
     const reader = this.#reader;
 
-    if (reader.readBit()) {
-      const v = reader.readBits(4);
+    if (reader.readBit_()) {
+      const v = reader.readBits_(4);
       for (let i = 0; i < count; i++) {
         blockParamValues.items[blockParamValues.curDec++] = v;
       }
@@ -715,7 +715,7 @@ export class BikVideoDecoder {
     }
     const reader = this.#reader;
 
-    const isRun = !!reader.readBit();
+    const isRun = !!reader.readBit_();
     let loopCount = isRun ? 1 : count;
     do {
       const colHighValue = HuffTable.getHuff(reader, this.#colHigh[this.#colLastValue] as Tree);
@@ -762,10 +762,10 @@ export class BikVideoDecoder {
     }
     const reader = this.#reader;
 
-    if (reader.readBit()) {
-      let v = reader.readBits(4);
+    if (reader.readBit_()) {
+      let v = reader.readBits_(4);
       if (v) {
-        v = reader.applySign(v);
+        v = reader.applySign_(v);
       }
 
       for (let i = 0; i < count; i++) {
@@ -775,7 +775,7 @@ export class BikVideoDecoder {
       for (let i = 0; i < count; i++) {
         let v: number = HuffTable.getHuff(reader, blockParamValues.tree);
         if (v) {
-          v = reader.applySign(v);
+          v = reader.applySign_(v);
         }
         blockParamValues.items[blockParamValues.curDec++] = v & 0xff;
       }
@@ -795,9 +795,9 @@ export class BikVideoDecoder {
       blockParamValues.items.byteLength,
     );
 
-    let v = reader.readBits(hasSign ? 10 : 11);
+    let v = reader.readBits_(hasSign ? 10 : 11);
     if (v && hasSign) {
-      v = reader.applySign(v);
+      v = reader.applySign_(v);
     }
 
     view.setInt16(blockParamValues.curDec, v, true);
@@ -805,13 +805,13 @@ export class BikVideoDecoder {
 
     for (let i = 1; i < count; ) {
       const len = Math.min(count - i, 8);
-      const bsize = reader.readBits(4);
+      const bsize = reader.readBits_(4);
 
       if (bsize) {
         for (let j = 0; j < len; j++) {
-          let v2 = reader.readBits(bsize);
+          let v2 = reader.readBits_(bsize);
           if (v2) {
-            v2 = reader.applySign(v2);
+            v2 = reader.applySign_(v2);
           }
           v += v2;
           view.setInt16(blockParamValues.curDec, v, true);
@@ -835,8 +835,8 @@ export class BikVideoDecoder {
     }
     const reader = this.#reader;
 
-    if (reader.readBit()) {
-      const v = reader.readBits(4);
+    if (reader.readBit_()) {
+      const v = reader.readBits_(4);
       for (let i = 0; i < count; i++) {
         blockParamValues.items[blockParamValues.curDec++] = v;
       }
@@ -898,7 +898,7 @@ export class BikVideoDecoder {
     modeList.set([0, 0, 0], 64);
     if (isResidue) {
       listEnd = 68;
-      masksCount = this.#reader.readBits(7);
+      masksCount = this.#reader.readBits_(7);
       coeffList[67] = 0;
       modeList[67] = 2;
     } else {
@@ -907,12 +907,12 @@ export class BikVideoDecoder {
     }
 
     // bit count for DCT coeffs; bit mask for residue
-    let bits = isResidue ? 1 << reader.readBits(3) : reader.readBits(4) - 1;
+    let bits = isResidue ? 1 << reader.readBits_(3) : reader.readBits_(4) - 1;
 
     while (isResidue ? bits : bits >= 0) {
       if (isResidue) {
         for (let i = 0; i < coeffCount; i++) {
-          if (!reader.readBit()) continue;
+          if (!reader.readBit_()) continue;
 
           const curNzCoeff = coeffIndex[i] ?? 0;
           if ((block[curNzCoeff] ?? 0) < 0) {
@@ -932,7 +932,7 @@ export class BikVideoDecoder {
       while (listPos < listEnd) {
         let ccoeff = coeffList[listPos] ?? 0;
         const mode = modeList[listPos] ?? 0;
-        if (!(mode | ccoeff) || !reader.readBit()) {
+        if (!(mode | ccoeff) || !reader.readBit_()) {
           listPos++;
           continue;
         }
@@ -949,21 +949,21 @@ export class BikVideoDecoder {
             }
 
             for (let i = 0; i < 4; i++, ccoeff++) {
-              if (reader.readBit()) {
+              if (reader.readBit_()) {
                 coeffList[--listStart] = ccoeff;
                 modeList[listStart] = 3;
               } else {
                 if (isResidue) {
                   const offset = BIK_SCAN[ccoeff] ?? 0;
                   coeffIndex[coeffCount++] = offset;
-                  block[offset] = reader.applySign(bits);
+                  block[offset] = reader.applySign_(bits);
                   if (!masksCount--) {
                     return;
                   }
                 } else {
                   const offset = bits
-                    ? reader.applySign(reader.readBits(bits) | (1 << bits))
-                    : 1 - (reader.readBit() << 1);
+                    ? reader.applySign_(reader.readBits_(bits) | (1 << bits))
+                    : 1 - (reader.readBit_() << 1);
                   block[BIK_SCAN[ccoeff] ?? 0] = offset;
                   coeffIndex[coeffCount++] = ccoeff;
                 }
@@ -988,14 +988,14 @@ export class BikVideoDecoder {
             if (isResidue) {
               const offset = BIK_SCAN[ccoeff] ?? 0;
               coeffIndex[coeffCount++] = offset;
-              block[offset] = reader.applySign(bits);
+              block[offset] = reader.applySign_(bits);
               if (!masksCount--) {
                 return;
               }
             } else {
               const offset = bits
-                ? reader.applySign(reader.readBits(bits) | (1 << bits))
-                : 1 - (reader.readBit() << 1);
+                ? reader.applySign_(reader.readBits_(bits) | (1 << bits))
+                : 1 - (reader.readBit_() << 1);
               block[BIK_SCAN[ccoeff] ?? 0] = offset;
               coeffIndex[coeffCount++] = ccoeff;
             }
@@ -1010,7 +1010,7 @@ export class BikVideoDecoder {
     if (isResidue) {
       return;
     }
-    const quantIndex = reader.readBits(4);
+    const quantIndex = reader.readBits_(4);
     const quantOffset = (quantIndex << 6) + quantStartIndex;
     block[0] = ((block[0] ?? 0) * (BIK_QUANT[quantOffset] ?? 0)) >> 11;
     for (let i = 0; i < coeffCount; i++) {

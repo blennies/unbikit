@@ -1,13 +1,18 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "always-update": true,
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": false,
+  "changelog-type": "github",
   "draft": true,
+  "draft-pull-request": true,
+  "last-release-sha": "6ea8a20d060792f29f77028d341303d535190d25",
   "prerelease": true,
-  "always-update": true,
+  "signoff": "",
   "packages": {
     ".": {
       "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": false,
       "release-type": "node"
     }
   },

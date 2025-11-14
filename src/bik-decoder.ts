@@ -72,13 +72,13 @@ class BikDecoder {
   #bufBytes: Uint8Array | null = null;
   #bufPos = 0;
   #isInitDone = false;
-
   #curFrame = -1;
 
   #audioTrackDecoders: BikAudioDecoder[] = [];
   #videoDecoder: BikVideoDecoder | null = null;
 
   #header: BikHeader | null = null;
+  #isSupported = false;
 
   private constructor(getReadStreamFn: GetReadStreamFn) {
     this.#getReadStreamFn = getReadStreamFn;
@@ -178,8 +178,9 @@ class BikDecoder {
     // Verify the magic value (the FOURCC). If it's valid then read the expected fixed-length
     // header.
     const magicUint = headerWords[0] as number;
-    if ((magicUint & 0x00ffffff) !== 0x004b4942) {
-      throw new Error("Init failed: invalid magic header");
+    const version = ([0x004b4942, 0x0032424b].indexOf(magicUint & 0x00ffffff) + 1) as 0 | 1 | 2;
+    if (!version) {
+      throw new Error(`Init failed: invalid magic header 0x${version.toString(16)}`);
     }
     const subVersion = magicUint >>> 24;
     const numFrames = headerWords[2] as number;
@@ -252,9 +253,12 @@ class BikDecoder {
       hasSwappedUVPlanes,
     );
 
+    // Determine whether we can decode the rest of this media file or not.
+    this.#isSupported = version === 1 && [0x64, 0x66, 0x67, 0x68, 0x69].includes(subVersion);
+
     // Populate the full header structure
     this.#header = {
-      version: 1,
+      version,
       subVersion,
       fileSize: (headerWords[1] as number) + 8,
       numFrames,
@@ -285,12 +289,22 @@ class BikDecoder {
   }
 
   /**
+   * Whether the media file can be decoded by this decoder or not.
+   */
+  get isSupported(): boolean {
+    return this.#isSupported;
+  }
+
+  /**
    * Get the next frame of the media file and decode it.
    * @param prevFrame Optional data structure for a previously decoded frame to re-use (to reduce
    *   garbage collection).
    * @returns Next decoded frame (audio and video).
    */
   async getNextFrame(prevFrame: BikFrame | null = null): Promise<BikFrame | null> {
+    if (!this.#isSupported) {
+      return null;
+    }
     const frameHeader = this.#header?.frames[++this.#curFrame];
     if (!frameHeader) {
       this.#curFrame--;
@@ -359,6 +373,9 @@ class BikDecoder {
    * @param numFrames Number of frames to skip, but still decode.
    */
   async skipFrames(numFrames: number): Promise<void> {
+    if (!this.#isSupported) {
+      return;
+    }
     let frame: BikFrame | null = null;
     for (let i = 0; i < numFrames; i++) {
       frame = await this.getNextFrame(frame);
