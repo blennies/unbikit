@@ -3,10 +3,9 @@
   "always-update": true,
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": false,
-  "changelog-type": "github",
+  "changelog-type": "default",
   "draft": true,
   "draft-pull-request": true,
-  "last-release-sha": "6d564dd873da1c95e5cbfb4bdb1ec16d865dcf73",
   "prerelease": true,
   "signoff": "",
   "packages": {
