@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/blennies/unbikit/compare/v0.2.0...v0.3.0) (2025-11-14)
+
+### Features
+
+- Handle unsupported BIK versions and indicate status via the `isSupported` property
+  ([818ae04](https://github.com/blennies/unbikit/commit/818ae04eabf7ce46c08df361f6b19404f80c70c8))
+
 ## [0.2.0](https://github.com/blennies/unbikit/compare/unbikit-v0.1.0...unbikit-v0.2.0) (2025-11-13)
 
 ### Features
