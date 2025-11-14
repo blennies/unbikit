@@ -81,9 +81,9 @@ class BikAudioDecoder {
     const output = this.#output;
     const allOutput: Float32Array[][] = [];
 
-    while (reader.bitsLeft() > 0) {
+    while (reader.bitsLeft_() > 0) {
       if (this.#useDCT) {
-        reader.skip(2);
+        reader.skip_(2);
       }
 
       for (let ch = 0; ch < this.#numInternalChannels; ch++) {
@@ -96,7 +96,7 @@ class BikAudioDecoder {
         // Calculate the quantizers for each band for this frame
         const quant = new Float32Array(this.#numBands);
         for (let i = 0; i < quant.length; i++) {
-          quant[i] = this.#quantTable[Math.min(reader.readBits(8), 95)] as number;
+          quant[i] = this.#quantTable[Math.min(reader.readBits_(8), 95)] as number;
         }
 
         let k = 0;
@@ -105,8 +105,8 @@ class BikAudioDecoder {
 
         while (i < this.#frameLen) {
           let j: number;
-          if (reader.readBit()) {
-            const v = reader.readBits(4) as IntRange<0, 16>;
+          if (reader.readBit_()) {
+            const v = reader.readBits_(4) as IntRange<0, 16>;
             j = i + AUDIO_RLE_LENGTH_TABLE[v];
           } else {
             j = i + 8;
@@ -114,7 +114,7 @@ class BikAudioDecoder {
 
           j = ~~Math.min(j, this.#frameLen);
 
-          const width = reader.readBits(4);
+          const width = reader.readBits_(4);
           if (width === 0) {
             coeffs.fill(0, i, j);
             i = j;
@@ -126,9 +126,9 @@ class BikAudioDecoder {
               if (this.#bands[k] === i) {
                 q = quant[k++] ?? 0;
               }
-              const coeff = reader.readBits(width);
+              const coeff = reader.readBits_(width);
               if (coeff) {
-                const sign = reader.readBit();
+                const sign = reader.readBit_();
                 coeffs[i] = sign ? -q * coeff : q * coeff;
               } else {
                 coeffs[i] = 0;
@@ -190,7 +190,7 @@ class BikAudioDecoder {
       allOutput.push(outputBlock);
 
       this.#first = false;
-      reader.align32();
+      reader.align32_();
     }
 
     return allOutput;
@@ -203,9 +203,9 @@ class BikAudioDecoder {
    * @returns The floating point value as a regular 64-bit double.
    */
   #getFloat(reader: BitReader) {
-    const power = reader.readBits(5);
-    const f = reader.readBits(23) * Math.pow(2, power - 23);
-    return reader.readBit() ? -f : f;
+    const power = reader.readBits_(5);
+    const f = reader.readBits_(23) * Math.pow(2, power - 23);
+    return reader.readBit_() ? -f : f;
   }
 }
 

@@ -1,7 +1,7 @@
 {
   "name": "unbikit",
   "version": "0.2.0",
-  "description": "Decoder for .bik format video/audio files.",
+  "description": "Decoder for `.bik` video files.",
   "keywords": [
     "audio",
     "bik",
@@ -31,11 +31,13 @@
     "build": "tsdown",
     "build:docs": "typedoc",
     "check": "biome check && prettier -c . && tsc && vitest run",
-    "ci:check": "biome ci && prettier -c . && tsc && vitest run",
+    "ci:check": "biome ci && prettier -c . && tsc",
     "preview": "vite preview",
     "preview:docs": "vite ./docs --port 6173",
     "test": "vitest --ui",
-    "test:cli": "vitest"
+    "test:coverage": "vitest --ui --coverage --testTimeout 20000",
+    "test:cli": "vitest",
+    "ci:test": "vitest run --coverage --testTimeout 20000"
   },
   "devDependencies": {
     "@arethetypeswrong/core": "0.18.2",
@@ -46,6 +48,7 @@
     "@types/audioworklet": "0.0.91",
     "@types/node": "24.10.1",
     "@types/pngjs": "6.0.5",
+    "@vitest/coverage-v8": "^4.0.8",
     "@vitest/ui": "4.0.8",
     "commitlint": "20.1.0",
     "globals": "16.5.0",
@@ -108,15 +111,14 @@
   ],
   "typedocOptions": {
     "entryPoints": [
-      "./src/bik-decoder.ts",
-      "./src/bik-video-decoder.ts",
-      "./src/bik-audio-decoder.ts"
+      "./src/bik-decoder.ts"
     ],
     "includeVersion": true,
     "name": "unbikit",
     "plugin": [
       "typedoc-theme-fresh"
     ],
+    "readme": ".github/README.md",
     "theme": "fresh"
   },
   "commitlint": {

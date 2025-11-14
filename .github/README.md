@@ -1,14 +1,22 @@
-unbikit  
-[![Conventional Commits badge](https://img.shields.io/badge/Conventional%20Commits-1.0.0-FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)<br>
-![isomorphic](https://img.shields.io/badge/isomorphic-ECDC5A.svg?style=for-the-badge)
-![TypeScript](https://img.shields.io/badge/typescript-007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+# unbikit
+
+[![npm package minimized gzipped size](https://img.shields.io/bundlejs/size/unbikit)](https://bundlejs.com/?q=unbikit)
+![NPM Version](https://img.shields.io/npm/v/unbikit)
+[![NPM License](https://img.shields.io/npm/l/unbikit)](../LICENSE.md)
+<br>
+![isomorphic package badge](https://img.shields.io/badge/isomorphic-ECDC5A.svg?style=for-the-badge)
+![Rolldown](https://img.shields.io/badge/rolldown-FF7E17?style=for-the-badge&logo=rolldown&logoColor=white)
+![TypeScript badge](https://img.shields.io/badge/typescript-007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 [![PNPM badge](https://img.shields.io/badge/pnpm-4a4a4a.svg?style=for-the-badge&logo=pnpm&logoColor=f69220)](https://pnpm.io)
-===
+[![Conventional Commits badge](https://img.shields.io/badge/Conventional%20Commits-1.0.0-FE5196?style=for-the-badge&logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 
 > [!CAUTION]
 > This package is at a very early development stage. Expect **_major_** API changes!
 
-A decoder for `.bik` video files that can be used to play or transcode videos.
+## Introduction
+
+unbikit (_un-bik-ɪt_) is a decoder for `.bik` video files that can be used to play or transcode
+videos.
 
 ### Features
 
@@ -111,7 +119,7 @@ Sources of reference material about decoding the `.bik` format:
 This software is distributed under Apache License (Version 2.0) or MIT License
 terms, at your option.
 
-See [LICENSE](LICENSE.md) for details.
+See [LICENSE](../LICENSE.md) for details.
 
 **SPDX-License-Identifier: MIT OR Apache-2.0**
 

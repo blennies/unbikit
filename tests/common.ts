@@ -17,6 +17,8 @@ export const ASSET_CACHE_PATH: string = path.join(import.meta.dirname, ".asset-c
  */
 const MEDIA_SRC_URLS = {
   site01: "https://sembiance.com/fileFormatSamples/video/bink/",
+  site02: "https://samples.ffmpeg.org/game-formats/bink/",
+  site03: "https://samples.ffmpeg.org/game-formats/bink2/",
 } as const;
 type MediaSrc = keyof typeof MEDIA_SRC_URLS;
 
@@ -26,12 +28,6 @@ const MEDIA_FILES_INFO = {
     site: "site01",
     sha256: "d642466b19d8310a49d7b364fb8a088086e6108647d10a547ec72f595e0097c3",
   },
-  // This test file is BIK 1b format, which we don't support.
-  // testfile01b: {
-  //   filename: "DEFENDALL.BIK",
-  //   site: "site01",
-  //   sha256: "85f215f72d50c9fb14995707778ef2149a33b197070765cd901edb3e2f2733d7",
-  // },
   testfile02: {
     filename: "OpenPt1.bik",
     site: "site01",
@@ -61,6 +57,18 @@ const MEDIA_FILES_INFO = {
     filename: "phar_intro.bik",
     site: "site01",
     sha256: "c58b6b4cd8afb843e6a004c516e59de100494eafe75a295996af2f29047c4e1b",
+  },
+  // This test file is BIK 1b format, which we don't support.
+  testfile08bk1b: {
+    filename: "DEFENDALL.BIK",
+    site: "site01",
+    sha256: "85f215f72d50c9fb14995707778ef2149a33b197070765cd901edb3e2f2733d7",
+  },
+  // This test file is BIK 2 format, which we don't support
+  testfile09bk2: {
+    filename: "Open_Logos_partial.bik",
+    site: "site03",
+    sha256: "62edb59b3b36f1eb2ddffac39d62ab45cf8f3640f8aac7989882e9d20e911574",
   },
 } as const;
 type MediaFileIndex = keyof typeof MEDIA_FILES_INFO;
@@ -256,9 +264,9 @@ const frameToPng = (frame: BikFrame | null | undefined): Uint8Array<ArrayBuffer>
 /**
  * Extra fixtures.
  */
-type Fixtures = {};
+// type Fixtures = {};
 
-const test: TestAPI<Fixtures> = baseTest.extend<Fixtures>({});
-const it: TestAPI<Fixtures> = test;
+// const test: TestAPI<Fixtures> = baseTest.extend<Fixtures>({});
+// const it: TestAPI<Fixtures> = test;
 
-export { frameToPng, getShaSum, yuv420PlanarToRgb, mediaFiles, it, test };
+export { frameToPng, getShaSum, yuv420PlanarToRgb, mediaFiles, type MediaFile };

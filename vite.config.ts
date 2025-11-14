@@ -2,7 +2,7 @@ import esbuild from "rollup-plugin-esbuild";
 import { defineConfig, type Plugin, type ViteUserConfigExport } from "vitest/config";
 import { commonBuildInputOptions, commonBuildTestConfig } from "./common-build-test.config.ts";
 
-const config: ViteUserConfigExport = defineConfig(({ mode }) => {
+const config: ViteUserConfigExport = defineConfig(() => {
   // const isProduction = mode === "production";
 
   return {
@@ -10,27 +10,27 @@ const config: ViteUserConfigExport = defineConfig(({ mode }) => {
     plugins: [
       esbuild({
         mangleCache: {
-          align32: "u",
-          applySign: "i",
-          bitPos: "A",
-          bitsLeft: "f",
-          calculate: "c",
-          curDec: "e",
-          curPtr: "a",
-          getHuff: "r",
-          items: "s",
-          pos: "b",
-          readBit: "n",
-          readBits: "t",
-          reset: "l",
-          restorePos: "y",
-          savePos: "d",
-          skip: "h",
-          tell: "m",
-          tree: "o",
+          align32_: "u",
+          applySign_: "i",
+          bitPos_: "A",
+          bitsLeft_: "f",
+          calculate_: "c",
+          curDec_: "e",
+          curPtr_: "a",
+          getHuff_: "r",
+          items_: "s",
+          pos_: "b",
+          readBit_: "n",
+          readBits_: "t",
+          reset_: "l",
+          restorePos_: "y",
+          savePos_: "d",
+          skip_: "h",
+          tell_: "m",
+          tree_: "o",
         },
         mangleProps:
-          /^align32|applySign|bitPos|bitsLeft|calculate|curDec|curPtr|getHuff|items|pos|readBits?|reset|restorePos|savePos|skip|tell|tree$/,
+          /^(align32|applySign|bitPos|bitsLeft|calculate|curDec|curPtr|getHuff|items|pos|readBits?|reset|restorePos|savePos|skip|tell|tree)_$/,
         mangleQuoted: true,
         platform: "neutral",
         reserveProps: /^postMessage$/,
@@ -39,6 +39,7 @@ const config: ViteUserConfigExport = defineConfig(({ mode }) => {
     ],
     rolldownOptions: commonBuildInputOptions,
     test: {
+      coverage: { exclude: ["./tests/**/*"] },
       // globalSetup: "tests/global-setup.ts",
       // projects: [
       //   { extends: true, test: { name: "dev" } },

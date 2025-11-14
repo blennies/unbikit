@@ -12,13 +12,13 @@ class BitReader {
     this.#buffer = buffer;
   }
 
-  reset(buffer: Uint8Array | Uint8ClampedArray): void {
+  reset_(buffer: Uint8Array | Uint8ClampedArray): void {
     this.#buffer = buffer;
     this.#pos = 0;
     this.#bitPos = 0;
   }
 
-  readBits(n: number): number {
+  readBits_(n: number): number {
     let result = 0;
     let bitsRead = 0;
     let bitsRemaining = n;
@@ -41,7 +41,7 @@ class BitReader {
     return result;
   }
 
-  readBit(): number {
+  readBit_(): number {
     const bit = ((this.#buffer[this.#pos] ?? 0) >>> this.#bitPos++) & 1;
     if (this.#bitPos >= 8) {
       this.#pos++;
@@ -50,11 +50,11 @@ class BitReader {
     return bit;
   }
 
-  tell(): number {
+  tell_(): number {
     return this.#pos * 8 + this.#bitPos;
   }
 
-  skip(n: number): void {
+  skip_(n: number): void {
     this.#bitPos += n;
     while (this.#bitPos >= 8) {
       this.#pos++;
@@ -62,24 +62,24 @@ class BitReader {
     }
   }
 
-  align32(): void {
-    const n = (32 - (this.tell() & 31)) & 31;
-    if (n > 0) this.skip(n);
+  align32_(): void {
+    const n = (32 - (this.tell_() & 31)) & 31;
+    if (n > 0) this.skip_(n);
   }
 
-  bitsLeft(): number {
+  bitsLeft_(): number {
     return (this.#buffer.length - this.#pos) * 8 - this.#bitPos;
   }
 
-  applySign(v: number): number {
-    return this.readBit() ? -v : v;
+  applySign_(v: number): number {
+    return this.readBit_() ? -v : v;
   }
 
-  savePos(): { pos: number; bitPos: number } {
+  savePos_(): { pos: number; bitPos: number } {
     return { pos: this.#pos, bitPos: this.#bitPos };
   }
 
-  restorePos({ pos, bitPos }: { pos: number; bitPos: number }): void {
+  restorePos_({ pos, bitPos }: { pos: number; bitPos: number }): void {
     this.#pos = pos;
     this.#bitPos = bitPos;
   }
