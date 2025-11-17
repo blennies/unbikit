@@ -1,7 +1,8 @@
 {
+  "extends": ["astro/tsconfigs/strict"],
   "compilerOptions": {
     // Environment setup & latest features
-    "lib": ["ESNext"],
+    "lib": ["ESNext", "DOM", "WebWorker"],
     "target": "esnext",
     "module": "preserve",
     "moduleDetection": "force",
@@ -24,13 +25,7 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "noImplicitOverride": true,
-    "noUncheckedIndexedAccess": true,
-
-    // Some stricter flags (disabled by default)
-    "noPropertyAccessFromIndexSignature": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false
+    "noUncheckedIndexedAccess": true
   },
-  "include": ["app/.astro/types.d.ts", "src/**/*", "app/src/**/*"],
-  "exclude": ["archive", "dist", "dist-app", "app/public"]
+  "include": [".astro/types.d.ts", "./src/**/*", "../src/**/*"]
 }

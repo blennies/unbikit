@@ -1,6 +1,4 @@
-import { objectEntries } from "ts-extras";
-import { suite, test } from "vitest";
-// import type {Fixtures}
+import { suite, type TestContext, test } from "vitest";
 import { BikDecoder } from "../src/bik-decoder.ts";
 import { frameToPng, getShaSum, type MediaFile, mediaFiles } from "./common.ts";
 
@@ -9,7 +7,7 @@ const getMediaFileDecoder = async (file: MediaFile): Promise<BikDecoder> => {
 };
 const fetchSelectionOfFrames = async (
   fileIndex: keyof typeof mediaFiles,
-  { annotate, expect }: any,
+  { annotate, expect }: Pick<TestContext, "annotate" | "expect">,
 ): Promise<void> => {
   const file = mediaFiles[fileIndex];
   const decoder = await getMediaFileDecoder(mediaFiles[fileIndex]);
@@ -68,7 +66,7 @@ suite("decoding of media files of unsupported BIK versions", async () => {
     annotate,
     expect,
   }) => {
-    const decoder = await getMediaFileDecoder(mediaFiles["testfile08bk1b"]);
+    const decoder = await getMediaFileDecoder(mediaFiles.testfile08bk1b);
     const header = decoder.header;
     annotate(
       `header info -- version: ${header?.version}${String.fromCharCode(header?.subVersion ?? 63)}, frames: ${header?.numFrames}, image size: ${header?.width}x${header?.height}`,
@@ -84,7 +82,7 @@ suite("decoding of media files of unsupported BIK versions", async () => {
     annotate,
     expect,
   }) => {
-    const decoder = await getMediaFileDecoder(mediaFiles["testfile09bk2"]);
+    const decoder = await getMediaFileDecoder(mediaFiles.testfile09bk2);
     const header = decoder.header;
     annotate(
       `header info -- version: ${header?.version}${String.fromCharCode(header?.subVersion ?? 63)}, frames: ${header?.numFrames}, image size: ${header?.width}x${header?.height}`,

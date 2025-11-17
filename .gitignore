@@ -2,8 +2,10 @@
 node_modules
 
 # output
+app/.astro
 out
 dist
+dist-app
 *.tgz
 
 # code coverage

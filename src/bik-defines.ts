@@ -49,8 +49,3 @@ export const BIK_DEFINES = {
   BIK_PARAM_RUN: 8,
   NUM_BLOCK_PARAMS: 9,
 } as const;
-
-// // Import defines into the global namespace if the code has not been bundled.
-// if (!(import.meta as unknown as Record<string, boolean>).builtInDefines) {
-//   Object.assign(globalThis, BIK_DEFINES);
-// }

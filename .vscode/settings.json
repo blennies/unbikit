@@ -4,10 +4,10 @@
   "editor.formatOnSave": true,
   "eslint.enable": false,
   "prettier.enable": true,
-  "[css]": {
-    "editor.defaultFormatter": "biomejs.biome"
+  "[astro]": {
+    "editor.defaultFormatter": "astro-build.astro-vscode"
   },
-  "[html]": {
+  "[css]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
   "[javascript]": {

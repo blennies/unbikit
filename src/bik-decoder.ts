@@ -1,32 +1,109 @@
 /**
- * Top-level module of the "bik" decoder.
+ * Top-level module of the BIK decoder.
  *
- * Call the static method {@link BikDecoder.open} to start decoding a compatible media file.
+ * Call the static method {@link BikDecoder.open} to start decoding a BIK file. It should throw
+ * an exception if the file can't be accessed or is not a valid BIK file.
+ *
+ * The {@link BikDecoder.isSupported} property should be checked after opening a BIK file to
+ * verify that the decoder fully supports the version and sub-version of the BIK format used
+ * by the file.
  *
  * @packageDocumentation
  */
 import { BikAudioDecoder } from "./bik-audio-decoder.ts";
 import { BikVideoDecoder, type BikVideoFrame } from "./bik-video-decoder.ts";
 
+/**
+ * Decoded header of a BIK file.
+ */
 interface BikHeader {
+  /**
+   * Version of the encoded file format.
+   */
   version: 1 | 2;
+
+  /**
+   * Sub-version of the encoded file format.
+   */
   subVersion: number;
+
+  /**
+   * Total size of the encoded file (in bytes).
+   */
   fileSize: number;
+
+  /**
+   * Number of (video) frames stored in the file.
+   *
+   * Note that audio is stored with each frame but doesn't necessarily correspond to the audio
+   * that should be played when the video frame is shown.
+   */
   numFrames: number;
+
+  /**
+   * The total size of the largest frame (in bytes), including both audio and video that are
+   * stored with that frame.
+   */
   largestFrameSize: number;
+
+  /**
+   * Width of each video frame (in pixels).
+   */
   width: number;
+
+  /**
+   * Height of each video frame (in pixels).
+   */
   height: number;
+
+  /**
+   * Number of frames per second that the video in the file should be played at.
+   */
   fps: number;
+
+  /**
+   * Flags providing additional information about the encoded file.
+   */
   videoFlags: {
+    /**
+     * When `true`, the encoded file contains an alpha plane for each frame. Otherwise the file
+     * contains no alpha information.
+     */
     hasAlpha: boolean;
+
+    /**
+     * When `true`, the U and V planes in the encoded file should be swapped during the decoding
+     * process.
+     *
+     * This is a value intended for internal use by the decoder and should not be needed by
+     * applications that use the decoder.
+     */
     hasSwappedUVPlanes: boolean;
   };
+
+  /**
+   * Total number of audio tracks stored in the encoded file.
+   *
+   * Each track can have one or more channels (e.g. for stereo or surround sound).
+   */
   numAudioTracks: number;
 
+  /**
+   * Array containing decoded header information for each individual audio track stored in the
+   * encoded file.
+   */
   audioTracks: BikAudioTrackHeader[];
+
+  /**
+   * Array containing decoded header information for each individual video frame stored in the
+   * encoded file.
+   */
   frames: BikFrameHeader[];
 }
 
+/**
+ * Decoded header of an audio track of a BIK file.
+ */
 interface BikAudioTrackHeader {
   trackId: number;
   numChannels: number;
@@ -36,42 +113,101 @@ interface BikAudioTrackHeader {
     useDCT: boolean;
   };
 }
+
+/**
+ * Decoded header of a (video) frame of a BIK file.
+ */
 interface BikFrameHeader {
+  /**
+   * Offset of the start of the frame in the encoded file.
+   */
   offset: number;
+
+  /**
+   * Total size (in bytes) of the frame in the encoded file, including both audio and video that
+   * are stored with the frame.
+   */
   size: number;
+
+  /**
+   * When `true`, this frame is a "key frame" that can be used as a starting point for random
+   * access decoding. Should be `true` for at least the first frame of a BIK file.
+   */
   keyframe: boolean;
 }
 
+/**
+ * Decoded contents of a single frame of a BIK file.
+ */
 interface BikFrame {
-  // Tracks containing audio data. Indexed by track number (_not_ track ID).
+  /**
+   * Tracks containing audio data. Indexed by track number (_not_ track ID).
+   */
   audioTracks: BikAudioTrack[];
 
-  // Decoded video frame image.
+  /**
+   * Decoded video frame image data.
+   */
   videoFrame: BikVideoFrame | null;
 }
+
+/**
+ * Decoded contents of a single "packet" of data for an audio track in a BIK file.
+ *
+ * In each packet, audio samples are stored in one or more blocks, each block containing one or
+ * more stereo-interleaved channels (so the number of stereo-interleaved channels in a stereo
+ * audio block will be one, even though it should be played as two separate channels).
+ */
 interface BikAudioTrack {
+  /**
+   * Header associated with the audio track.
+   */
   header: BikAudioTrackHeader;
-  size: number; // in bytes
+
+  /**
+   * Total size (in bytes) of the samples in the packet.
+   */
+  size: number;
+
+  /**
+   * Total number of samples in the packet.
+   */
   numSamples: number;
 
-  // Actual audio data for the frame (PCM, float, interleaved stereo channels). Indexed by block
-  // number and then by (non-stereo) channel.
+  /**
+   * Actual audio data for the frame (PCM, floating-point, interleaved stereo channels).
+   * Indexed by block number and then by (non-stereo) channel.
+   */
   blocks: Float32Array[][];
 }
 
-// Other types
+/**
+ * Function for returning a Web Streams API readable stream for reading sequential data
+ * from a BIK file.
+ *
+ * At present, `offset` is always 0 and `len` is always undefined, so the function should just
+ * return a single stream for accessing the entire file.
+ *
+ * **Advance deprecation warning:** It is intended that this function will soon be replaced with
+ * a more flexible and easier to use system for accessing streams.
+ *
+ * @experimental
+ */
 type GetReadStreamFn = (
   offset: number,
   len?: number | undefined, // when undefined, stream until the end of the file
 ) => ReadableStream<Uint8Array> | Promise<ReadableStream<Uint8Array>>;
 
+/**
+ * Main class for managing the state of a BIK decoder instance. One instance can decode a single
+ * file at a time.
+ */
 class BikDecoder {
   #getReadStreamFn: GetReadStreamFn;
 
   #streamReader: ReadableStreamDefaultReader<Uint8Array> | null = null;
   #bufBytes: Uint8Array | null = null;
   #bufPos = 0;
-  #isInitDone = false;
   #curFrame = -1;
 
   #audioTrackDecoders: BikAudioDecoder[] = [];
@@ -157,11 +293,13 @@ class BikDecoder {
   }
 
   async #init(): Promise<void> {
-    if (this.#isInitDone) {
-      return;
+    if (this.#streamReader) {
+      await this.#streamReader.cancel();
+      this.#streamReader.releaseLock();
+      this.#streamReader = null;
     }
 
-    const streamReader = (await this.#getReadStreamFn(0)).getReader();
+    const streamReader = (await this.#getReadStreamFn(0))?.getReader();
     if (!streamReader) {
       throw new Error("Init failed: invalid stream reader");
     }
@@ -253,7 +391,10 @@ class BikDecoder {
       hasSwappedUVPlanes,
     );
 
-    // Determine whether we can decode the rest of this media file or not.
+    // `this.#bufPos` should now be pointing to the start of the first frame
+    this.#curFrame = -1;
+
+    // Determine whether we can decode the rest of this BIK file or not.
     this.#isSupported = version === 1 && [0x64, 0x66, 0x67, 0x68, 0x69].includes(subVersion);
 
     // Populate the full header structure
@@ -275,28 +416,24 @@ class BikDecoder {
       audioTracks,
       frames,
     };
-
-    // `this.#bufPos` should now be pointing to the start of the first frame
-    this.#curFrame = -1;
-    this.#isInitDone = true;
   }
 
   /**
-   * Decoded header of the media file.
+   * Decoded header of the BIK file.
    */
   get header(): BikHeader | null {
     return this.#header;
   }
 
   /**
-   * Whether the media file can be decoded by this decoder or not.
+   * Whether the audio/video streams in the BIK file can be processed by this decoder or not.
    */
   get isSupported(): boolean {
     return this.#isSupported;
   }
 
   /**
-   * Get the next frame of the media file and decode it.
+   * Get the next frame of the BIK file and decode it.
    * @param prevFrame Optional data structure for a previously decoded frame to re-use (to reduce
    *   garbage collection).
    * @returns Next decoded frame (audio and video).
@@ -368,7 +505,7 @@ class BikDecoder {
   }
 
   /**
-   * Skip the specified number of frames of the media file. They will still be decoded as decoding
+   * Skip the specified number of frames of the BIK file. They will still be decoded as decoding
    * a frame can effectively require data from any number of earlier frames.
    * @param numFrames Number of frames to skip, but still decode.
    */
@@ -386,7 +523,15 @@ class BikDecoder {
   }
 
   /**
-   * Attempt to read and parse the headers of a media file. If successful, return an instance of
+   * Reset the state of the decoder so it's ready to start decoding the BIK file from the
+   * beginning.
+   */
+  async reset(): Promise<void> {
+    await this.#init();
+  }
+
+  /**
+   * Attempt to read and parse the headers of a BIK file. If successful, return an instance of
    * {@link BikDecoder} for decoding the rest of the file.
    * @param getReadStreamFn -
    *   Function that returns a stream for linear access to part of the file.

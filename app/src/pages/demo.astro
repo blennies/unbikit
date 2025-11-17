@@ -1,0 +1,956 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+---
+
+<StarlightPage frontmatter={{ title: "BIK Video Player Demo", next: false, prev: false }}>
+  <style>
+    a:hover:not(disabled) {
+      color: var(--sl-color-accent-high);
+    }
+
+    button {
+      background: var(--sl-color-gray-6);
+      border: 1px solid var(--sl-color-gray-4);
+      color: var(--text-primary);
+      padding: 10px 16px;
+      margin: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition-property: background, border-color, color, opacity, transform;
+      transition-duration: 0.15s;
+      transition-timing-function: ease-in-out;
+    }
+
+    button:hover:not(:disabled) {
+      background: var(--sl-color-accent);
+      border-color: var(--sl-color-gray-3);
+      color: white;
+    }
+
+    button:active:not(:disabled) {
+      opacity: 0.8;
+    }
+
+    button:disabled {
+      cursor: default;
+    }
+
+    button:disabled > * {
+      opacity: 0.35;
+    }
+
+    button svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1280px;
+    }
+
+    .video-player {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .video-container {
+      position: relative;
+      width: 100%;
+      max-height: 720px;
+      aspect-ratio: 16 / 9;
+      display: flex;
+      align-self: center;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #video-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      zoom: 2;
+    }
+
+    .video-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      pointer-events: none;
+      padding: 0 20px;
+    }
+
+    .video-overlay svg {
+      display: inline-block;
+      width: 80px;
+      height: 80px;
+      opacity: 0.5;
+    }
+
+    .video-overlay p {
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+
+    .controls {
+      padding: 24px 24px 6px 24px;
+      backdrop-filter: blur(10px);
+    }
+
+    .video-selector {
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--sl-color-gray-5);
+    }
+
+    .video-selector-label {
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .video-selector-buttons {
+      display: flex;
+      align-items: end;
+      flex-direction: row;
+      gap: 14px;
+    }
+
+    .video-selector-buttons button {
+      flex: 1;
+      width: 100%;
+    }
+
+    .progress-container {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .time-display {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.05em;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: var(--sl-color-gray-5);
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--sl-color-accent-high);
+      width: 0%;
+      transition: width 0.1s linear;
+      border-radius: 3px;
+    }
+
+    .control-buttons {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .toggle-btn-wrapper {
+      flex-shrink: 0;
+    }
+
+    .toggle-btn-wrapper button {
+      background: none;
+      min-width: 100px;
+      padding: 12px 20px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .toggle-btn-wrapper button svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--sl-color-accent);
+    }
+
+    .btn-stop:hover:not(:disabled) {
+      background: var(--sl-color-red);
+      border-color: var(--sl-color-red);
+    }
+
+    .btn-primary .toggle-state-stop {
+      display: none;
+    }
+
+    .btn-stop .toggle-state-play {
+      display: none;
+    }
+
+    .volume-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .volume-control svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    input[type="range"] {
+      width: 100px;
+      height: 6px;
+      border-radius: 3px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* input[type="range"]:focus-visible {
+      outline: solid 3px var(--sl-color-accent);
+      outline-offset: 5px;
+    } */
+
+    input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--sl-color-accent);
+      border: none;
+      transition: transform 0.15s ease;
+    }
+
+    input[type="range"]::-moz-range-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    input[type="range"]::-moz-range-thumb:active {
+      transform: scale(1.1);
+    }
+
+    input[type="range"]:disabled::-moz-range-thumb {
+      background: var(--sl-color-gray-5);
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--sl-color-accent);
+      transition: transform 0.15s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    input[type="range"]::-webkit-slider-thumb:active {
+      transform: scale(1.1);
+    }
+
+    input[type="range"]:disabled::-webkit-slider-thumb {
+      background: var(--sl-color-gray-5);
+    }
+
+    input[type="range"]:disabled {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .status-indicator {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--sl-color-gray-5);
+      text-align: center;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .status-indicator.active {
+      color: var(--sl-color-accent-high);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .modal {
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      max-height: none;
+      margin: 0;
+      border: none;
+      background: none;
+    }
+
+    .modal[open] {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal::backdrop {
+      background: rgba(26, 21, 18, 0.6);
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+      background: var(--sl-color-gray-7);
+      padding: 28px;
+      max-width: 400px;
+      max-height: 80vh;
+      overflow-y: auto;
+      border: 1px solid var(--sl-color-gray-4);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .modal-header h2 {
+      font-family: "Sora", sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .modal-close {
+      background: transparent;
+      padding: 4px;
+      cursor: pointer;
+      color: var(--sl-color-gray-1);
+      transition: all 0.15s ease;
+    }
+
+    .modal-close:hover {
+      color: var(--sl-color-accent);
+      background: transparent;
+      transform: none;
+    }
+
+    .modal-close:active {
+      opacity: 0.7;
+    }
+
+    .modal-info {
+      font-size: 15px;
+      font-weight: 400;
+      padding-bottom: 16px;
+    }
+
+    .video-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .video-list-item {
+      background: var(--sl-color-gray-5);
+      border: 1px solid var(--sl-color-gray-4);
+      padding: 16px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: left;
+    }
+
+    .video-list-item:hover {
+      background: var(--sl-color-accent);
+      border-color: var(--sl-color-accent);
+      color: white;
+    }
+
+    .video-list-item:active {
+      opacity: 0.8;
+    }
+
+    .video-list-item .video-title {
+      font-weight: 600;
+      font-size: 15px;
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+
+    .video-list-item .video-origin {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: 0.05em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .video-list-item:hover .video-origin {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    @media (max-width: 640px) {
+      .control-buttons {
+        flex-wrap: wrap;
+      }
+
+      .modal {
+        padding: 0;
+      }
+      .modal[open] {
+        display: block;
+      }
+      .modal-content {
+        max-width: none;
+        max-height: none;
+      }
+
+      .toggle-btn-wrapper {
+        width: 100%;
+        order: 1;
+      }
+
+      .toggle-btn-wrapper button {
+        width: 100%;
+      }
+
+      .progress-container {
+        width: 100%;
+        order: 2;
+        margin-top: 16px;
+      }
+
+      .video-player {
+        margin-inline: calc(-1 * var(--_breakout-margin));
+      }
+
+      .video-container {
+        aspect-ratio: 4 / 3;
+      }
+
+      .video-overlay {
+        width: 100%;
+      }
+
+      .video-overlay svg {
+        display: inline-block;
+        width: 60px;
+        height: 60px;
+      }
+
+      .volume-control {
+        width: 100%;
+        order: 3;
+        margin-top: 16px;
+        justify-content: center;
+      }
+
+      .volume-control input[type="range"] {
+        flex: 1;
+        max-width: 200px;
+      }
+
+      .video-selector-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+
+  <div class="video-player">
+    <div class="video-container">
+      <canvas id="video-canvas" width="1280px"></canvas>
+      <div class="video-overlay" id="video-overlay">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+          ></path>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <div id="video-overlay-text">
+          <p>Please select a BIK video file to play.</p>
+          <p>
+            You can either select one of the sample videos or a video on your local file system.
+            Your files will be processed on your computer and will
+            <b><i>not</i></b> be transferred to any external systems.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="video-selector">
+        <div class="video-selector-label">Select Video</div>
+        <div class="video-selector-buttons">
+          <button id="sample-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M22 1v2h-2v-2h-2v4h-12v-4h-2v2h-2v-2h-2v22h2v-2h2v2h2v-4h12v4h2v-2h2v2h2v-22h-2zm-18 18h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2v-2h2v2zm14 9h-12v-8h12v8zm4 3h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2v-2h2v2z"
+              ></path>
+            </svg>
+            <span>Sample Video</span>
+          </button>
+          <button id="upload-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M12 24c6.627 0 12-5.373 12-12s-5.373-12-12-12-12 5.373-12 12 5.373 12 12 12zm0-22c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm2 14h-4v-1h4v1zm0 1v1h-4v-1h4zm-4-6h-4l6-6 6 6h-4v3h-4v-3z"
+              ></path>
+            </svg>
+            <span>Local Video</span>
+          </button>
+        </div>
+        <input type="file" id="file-input" accept=".bik" />
+      </div>
+
+      <div class="control-buttons">
+        <div class="toggle-btn-wrapper">
+          <button id="toggle-btn" class="btn-primary" disabled>
+            <svg
+              class="toggle-state-stop"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M2 2h20v20h-20z"></path>
+            </svg>
+            <span class="toggle-state-stop">Stop</span>
+            <svg
+              class="toggle-state-play"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M3 22v-20l18 10-18 10z"></path>
+            </svg>
+            <span class="toggle-state-play">Play</span>
+          </button>
+        </div>
+
+        <div class="progress-container">
+          <div class="time-display">
+            <span id="current-time">00:00</span>
+            <span id="duration">00:00</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+        </div>
+
+        <div class="volume-control">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              d="M10 3.75a.75.75 0 00-1.264-.546L4.703 7H3.167a.75.75 0 00-.7.48A6.985 6.985 0 002 10c0 .887.165 1.737.468 2.52.111.29.39.48.7.48h1.535l4.033 3.796A.75.75 0 0010 16.25V3.75zM15.95 5.05a.75.75 0 00-1.06 1.061 5.5 5.5 0 010 7.778.75.75 0 001.06 1.06 7 7 0 000-9.899z"
+            ></path>
+            <path
+              d="M13.829 7.172a.75.75 0 00-1.061 1.06 2.5 2.5 0 010 3.536.75.75 0 001.06 1.06 4 4 0 000-5.656z"
+            ></path>
+          </svg>
+          <input type="range" id="volume-slider" min="0" max="100" value="100" disabled />
+        </div>
+      </div>
+
+      <div class="status-indicator" id="status-indicator">Ready to play</div>
+    </div>
+  </div>
+
+  <!-- Video sample list dialog -->
+  <dialog class="modal" id="video-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>BIK Video Samples</h2>
+        <button class="modal-close" id="modal-close">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-info"><b>Warning:</b> some of these videos contain flashing lights.</div>
+      <div class="modal-info">
+        All trademarks, copyrights, and intellectual property rights associated with these
+        third-party media remain the property of their respective owners.
+      </div>
+      <div class="video-list" id="video-list">
+        <div
+          class="video-list-item"
+          data-video-url="https://sembiance.com/fileFormatSamples/video/bink/ATI-9700-Animusic-Movie-v1.0.bik"
+          data-video-origin="https://sembiance.com"
+          data-video-origin-name="sembiance.com"
+        >
+          <div class="video-title">ATI 9700 Animusic Movie</div>
+          <div class="video-origin">source: sembiance.com</div>
+        </div>
+        <div
+          class="video-list-item"
+          data-video-url="https://sembiance.com/fileFormatSamples/video/bink/logo_lucas.bik"
+          data-video-origin="https://sembiance.com"
+          data-video-origin-name="sembiance.com"
+        >
+          <div class="video-title">Lucas Arts logo</div>
+          <div class="video-origin">source: sembiance.com</div>
+        </div>
+        <div
+          class="video-list-item"
+          data-video-url="https://raw.githubusercontent.com/dimhotepus/Bink-1-and-2-async-media-player/refs/heads/master/valve.bik"
+          data-video-origin="https://github.com/dimhotepus/Bink-1-and-2-async-media-player"
+          data-video-origin-name="source"
+        >
+          <div class="video-title">Valve logo</div>
+          <div class="video-origin">source: GitHub repository</div>
+        </div>
+        <div
+          class="video-list-item"
+          data-video-url="https://sembiance.com/fileFormatSamples/video/bink/original.bik"
+          data-video-origin="https://sembiance.com"
+          data-video-origin-name="sembiance.com"
+        >
+          <div class="video-title">Bugbear Entertainment intro</div>
+          <div class="video-origin">source: sembiance.com</div>
+        </div>
+        <div
+          class="video-list-item"
+          data-video-url="https://sembiance.com/fileFormatSamples/video/bink/intro.bik"
+          data-video-origin="https://sembiance.com"
+          data-video-origin-name="sembiance.com"
+        >
+          <div class="video-title">intro.bik (anime-style)</div>
+          <div class="video-origin">source: sembiance.com</div>
+        </div>
+        <div
+          class="video-list-item"
+          data-video-url="https://sembiance.com/fileFormatSamples/video/bink/OpenPt1.bik"
+          data-video-origin="https://sembiance.com"
+          data-video-origin-name="sembiance.com"
+        >
+          <div class="video-title">OpenPt1.bik</div>
+          <div class="video-origin">source: sembiance.com</div>
+        </div>
+        <div
+          class="video-list-item"
+          data-video-url="https://sembiance.com/fileFormatSamples/video/bink/end_victory.bik"
+          data-video-origin="https://sembiance.com"
+          data-video-origin-name="sembiance.com"
+        >
+          <div class="video-title">end_victory.bik</div>
+          <div class="video-origin">source: sembiance.com</div>
+        </div>
+        <!-- Video has some corruption and doesn't play when using VideoFrame from the
+               web API, so exclude for now. -->
+        <!-- <div
+            class="video-list-item"
+            data-video-url="https://sembiance.com/fileFormatSamples/video/bink/phar_intro.bik"
+            data-video-origin="https://sembiance.com"
+            data-video-origin-name="sembiance.com"
+          >
+            <div class="video-title">phar_intro.bik</div>
+            <div class="video-origin">Source: sembiance.com</div>
+          </div> -->
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    import { BikPlayer } from "../components/bik-player.ts";
+
+    interface PlayerState {
+      playing: boolean;
+      currentVideo: string | null;
+      currentVideoOrigin: string | null;
+      currentVideoOriginName: string | null;
+      currentTime: number;
+      currentFrame: number;
+      totalFrames: number;
+      targetFps: number;
+      volume: number;
+    }
+
+    const playerState: PlayerState = {
+      playing: false,
+      currentVideo: null,
+      currentVideoOrigin: null,
+      currentVideoOriginName: null,
+      currentTime: 0,
+      currentFrame: 0,
+      totalFrames: 0,
+      targetFps: 0,
+      volume: 100,
+    };
+    let player: BikPlayer | null = null;
+
+    // Create the video player (with the decoder), supplying it with the video canvas.
+    const canvas = document.getElementById("video-canvas") as HTMLCanvasElement | undefined;
+    if (canvas) {
+      player = new BikPlayer({
+        canvas,
+        onAspectRatioSet: (ratio) => {
+          const videoContainer = document.getElementsByClassName("video-container")?.[0] as
+            | HTMLDivElement
+            | undefined;
+          if (videoContainer) {
+            videoContainer.style = `aspect-ratio: ${ratio}`;
+          }
+        },
+        onUpdateUI,
+      });
+    }
+
+    // UI Elements
+    const uploadBtn = document.getElementById("upload-btn") as HTMLButtonElement;
+    const sampleBtn = document.getElementById("sample-btn") as HTMLButtonElement;
+    const fileInput = document.getElementById("file-input") as HTMLInputElement;
+    const toggleBtn = document.getElementById("toggle-btn") as HTMLButtonElement;
+    const progressFill = document.getElementById("progress-fill") as HTMLDivElement;
+    const currentTimeEl = document.getElementById("current-time") as HTMLDivElement;
+    const durationEl = document.getElementById("duration") as HTMLDivElement;
+    const volumeSlider = document.getElementById("volume-slider") as HTMLInputElement;
+    const statusIndicator = document.getElementById("status-indicator") as HTMLDivElement;
+    const videoOverlay = document.getElementById("video-overlay") as HTMLDivElement;
+    const videoOverlayText = document.getElementById("video-overlay-text") as HTMLDivElement;
+    const videoModal = document.getElementById("video-modal") as HTMLDialogElement;
+    const videoList = document.getElementById("video-list") as HTMLDivElement;
+    const modalClose = document.getElementById("modal-close") as HTMLButtonElement;
+
+    // Handlers for events from the video player module
+    async function onUpdateUI({
+      currentFrame,
+      totalFrames,
+      fps,
+    }: {
+      currentFrame: number;
+      totalFrames: number;
+      fps: number;
+    }) {
+      playerState.currentFrame = currentFrame;
+      playerState.totalFrames = totalFrames;
+      playerState.targetFps = fps;
+      updateTimeDisplay();
+
+      if (playerState.currentFrame >= playerState.totalFrames - 1) {
+        await stopVideo();
+      }
+
+      // Enable the play button and update the overlay if we're now ready to play a video
+      if (toggleBtn.disabled) {
+        toggleBtn.disabled = false;
+        await playVideo();
+      }
+    }
+
+    // Format time helper
+    function formatTime(seconds: number) {
+      if (Number.isFinite(seconds)) {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+      } else {
+        return "00:00";
+      }
+    }
+
+    // Update display
+    function updateTimeDisplay() {
+      currentTimeEl.textContent = formatTime(playerState.currentFrame / playerState.targetFps);
+      durationEl.textContent = formatTime(playerState.totalFrames / playerState.targetFps);
+      progressFill.style.width = `${(playerState.currentFrame / playerState.totalFrames) * 100}%`;
+    }
+
+    // Update toggle button appearance
+    function updateToggleButton() {
+      if (playerState.playing) {
+        toggleBtn.classList.add("btn-stop");
+        toggleBtn.classList.remove("btn-primary");
+        uploadBtn.disabled = true;
+        sampleBtn.disabled = true;
+      } else {
+        toggleBtn.classList.add("btn-primary");
+        toggleBtn.classList.remove("btn-stop");
+        uploadBtn.disabled = false;
+        sampleBtn.disabled = false;
+      }
+    }
+
+    function getVideoOriginLink() {
+      return `<a href="${playerState.currentVideoOrigin}" rel="noreferrer noopener" target="_blank" style="pointer-events: all">${playerState.currentVideoOriginName}</a>`;
+    }
+
+    // Placeholder functions for controls
+    async function playVideo() {
+      await player?.play();
+
+      playerState.playing = true;
+      videoOverlay.style.display = "none";
+      updateToggleButton();
+      updateStatus(
+        `Playing: ${playerState.currentVideo}${playerState.currentVideoOrigin ? ` (${getVideoOriginLink()})` : ""}`,
+        true
+      );
+    }
+
+    async function stopVideo() {
+      await player?.stop();
+
+      playerState.playing = false;
+      playerState.currentTime = 0;
+      updateToggleButton();
+      videoOverlay.style.display = "block";
+      updateTimeDisplay();
+      updateStatus(
+        `Stopped: ${playerState.currentVideo}${playerState.currentVideoOrigin ? ` (${getVideoOriginLink()})` : ""}`,
+        false
+      );
+
+      videoOverlayText.innerHTML = `<p>Ready to play: ${playerState.currentVideo}</p>`;
+      if (playerState.currentVideoOrigin) {
+        videoOverlayText.innerHTML += `<p>Video streamed from:</p><p>${getVideoOriginLink()}</p>`;
+      }
+    }
+
+    async function togglePlayStop() {
+      if (playerState.playing) {
+        await stopVideo();
+      } else {
+        await playVideo();
+      }
+    }
+
+    function selectVideo(videoName: string, videoOrigin: string, videoOriginName: string) {
+      playerState.currentVideo = videoName;
+      playerState.currentVideoOrigin = videoOrigin;
+      playerState.currentVideoOriginName = videoOriginName;
+      setReadyingVideoState();
+    }
+
+    function uploadVideoFile(file: File) {
+      playerState.currentVideo = file.name;
+      playerState.currentVideoOrigin = null;
+      playerState.currentVideoOriginName = null;
+      setReadyingVideoState();
+    }
+
+    function setReadyingVideoState() {
+      playerState.currentTime = 0;
+      playerState.playing = false;
+      toggleBtn.disabled = true;
+
+      updateToggleButton();
+      updateStatus(
+        `Selected: ${playerState.currentVideo}${playerState.currentVideoOrigin ? ` (${getVideoOriginLink()})` : ""}`,
+        false
+      );
+
+      // Update overlay
+      videoOverlayText.innerHTML = "Preparing video...";
+    }
+
+    function changeVolume(volume: number) {
+      playerState.volume = volume;
+    }
+
+    // Update status indicator
+    function updateStatus(message: string, isActive: boolean) {
+      statusIndicator.innerHTML = message;
+      statusIndicator.classList.toggle("active", isActive);
+    }
+
+    // Event listeners
+    toggleBtn.addEventListener("click", (e) => {
+      togglePlayStop();
+      (e?.target as HTMLButtonElement | undefined)?.blur();
+    });
+
+    uploadBtn.addEventListener("click", (e) => {
+      fileInput.click();
+      (e?.target as HTMLButtonElement | undefined)?.blur();
+    });
+
+    fileInput.addEventListener("change", async (e) => {
+      const files = (e?.target as HTMLInputElement | undefined)?.files;
+      if (files && files[0]) {
+        if (playerState.playing) {
+          await stopVideo();
+        }
+        uploadVideoFile(files[0]);
+        await player?.loadFile(files[0]);
+      }
+    });
+
+    sampleBtn.addEventListener("click", () => {
+      videoModal.showModal();
+    });
+
+    modalClose.addEventListener("click", () => {
+      videoModal.close();
+    });
+
+    videoModal.addEventListener("click", (e) => {
+      if (e.target === videoModal) {
+        videoModal.close();
+      }
+    });
+
+    videoList.addEventListener("click", async (e) => {
+      const item = (e?.target as HTMLDivElement | undefined)?.closest(".video-list-item") as
+        | HTMLElement
+        | undefined;
+      if (item) {
+        const videoUrl = item.dataset.videoUrl ?? "";
+        const videoOrigin = item.dataset.videoOrigin ?? "";
+        const videoOriginName = item.dataset.videoOriginName ?? "Unknown";
+        const videoTitle = item.querySelector(".video-title")?.textContent ?? "Unknown";
+        if (playerState.playing) {
+          await stopVideo();
+        }
+        selectVideo(videoTitle, videoOrigin, videoOriginName);
+        videoModal.close();
+        await player?.loadFile(videoUrl);
+      }
+    });
+
+    volumeSlider.addEventListener("input", (e) => {
+      changeVolume(((e?.target as HTMLInputElement | undefined)?.value as number | undefined) ?? 0);
+    });
+
+    // Initialize
+    updateTimeDisplay();
+    updateToggleButton();
+    updateStatus("Select a video to play", false);
+  </script>
+</StarlightPage>

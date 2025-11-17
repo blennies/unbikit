@@ -8,3 +8,6 @@
 *.ts
 
 pnpm-lock.yaml
+
+dist
+dist-app
