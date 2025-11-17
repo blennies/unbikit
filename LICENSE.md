@@ -1,11 +1,13 @@
 # License
 
+## unbikit
+
 unbikit, a decoder for `.bik` format video files, is licensed under
 Apache 2.0 or MIT terms, at your option.
 
 SPDX-License-Identifier: MIT OR Apache-2.0
 
-## Apache 2.0 License
+### Apache 2.0 License
 
 Copyright 2025 David Hart, blennies.dev@gmail.com
 
@@ -21,7 +23,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-## MIT License
+### MIT License
 
 Copyright 2025 David Hart, blennies.dev@gmail.com
 
@@ -31,7 +33,7 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-# Bink Video Licensing
+## Bink Video Licensing
 
 The redistribution of Bink Video files may require an additional license from
 [Epic Games Tools](https://www.radgametools.com). More information can be found at

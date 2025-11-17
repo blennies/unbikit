@@ -2,9 +2,14 @@
 node_modules
 
 # output
+app/.astro
 out
 dist
+dist-app
 *.tgz
+
+# generated API docs
+app/src/content/docs/api
 
 # code coverage
 coverage
@@ -33,9 +38,6 @@ tests/.asset-cache
 
 # Finder (MacOS) folder config
 .DS_Store
-
-# generated documentation
-docs
 
 # local archive
 archive

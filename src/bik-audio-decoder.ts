@@ -1,3 +1,6 @@
+/**
+ * Module holding audio decoding logic for the BIK decoder.
+ */
 import type { IntRange } from "type-fest";
 import { AUDIO_CRITICAL_FREQS, AUDIO_RLE_LENGTH_TABLE } from "./bik-constants.ts";
 import { BitReader } from "./bik-decoder-utils.ts";
@@ -138,7 +141,7 @@ class BikAudioDecoder {
           }
         }
 
-        this.#idt.calculate(coeffs);
+        this.#idt.calculate_(coeffs);
         if (this.#useDCT) {
           const dctModifier = 4 * this.#baseQuant;
           for (let i = 0; i < coeffs.length; i++) {
@@ -204,7 +207,7 @@ class BikAudioDecoder {
    */
   #getFloat(reader: BitReader) {
     const power = reader.readBits_(5);
-    const f = reader.readBits_(23) * Math.pow(2, power - 23);
+    const f = reader.readBits_(23) * 2 ** (power - 23);
     return reader.readBit_() ? -f : f;
   }
 }
@@ -234,7 +237,7 @@ class IDCT {
    * @param data Real-valued frequency domain samples of length `n`, which are converted in-place
    *   to real-valued time domain samples.
    */
-  calculate(data: Float32Array) {
+  calculate_(data: Float32Array) {
     if (data.length < this.#n) {
       return;
     }
@@ -299,7 +302,7 @@ class IRDFT {
    * @param data Real-valued frequency domain samples of length `n`, which are converted in-place
    *   to real-valued time domain samples.
    */
-  calculate(data: Float32Array): void {
+  calculate_(data: Float32Array): void {
     const n = this.#n;
     const nDiv4 = this.#nDiv4;
     if (data.length < n) {
@@ -338,7 +341,7 @@ class IRDFT {
     }
 
     // Apply scaling then call forward FFT.
-    this.#fft.calculate(data);
+    this.#fft.calculate_(data);
   }
 }
 
@@ -390,7 +393,7 @@ class FFT {
    *
    * Data format: [Re[0], Im[0], Re[1], Im[1], ..., Re[n-1], Im[n-1]]
    */
-  calculate(data: Float32Array): void {
+  calculate_(data: Float32Array): void {
     const n = this.#n;
 
     // Perform bit-reversal permutation.

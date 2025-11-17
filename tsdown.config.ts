@@ -4,6 +4,7 @@ import { commonBuildInputOptions, commonBuildTestConfig } from "./common-build-t
 const config: UserConfig[] = defineConfig([
   {
     ...commonBuildTestConfig,
+    attw: true,
     dts: true,
     entry: {
       unbikit: "./src/bik-decoder.ts",
@@ -11,6 +12,8 @@ const config: UserConfig[] = defineConfig([
     format: ["esm", "commonjs"],
     fromVite: true, // import plugins from the Vite config
     inputOptions: commonBuildInputOptions,
+    publint: true,
+    unused: true,
   },
 ]);
 

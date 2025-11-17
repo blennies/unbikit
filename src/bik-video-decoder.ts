@@ -1,3 +1,6 @@
+/**
+ * Module holding video decoding logic for the BIK decoder.
+ */
 import type { IntRange, TupleOf } from "type-fest";
 import {
   BIK_PATTERNS,
@@ -8,16 +11,6 @@ import {
   RLE_LENGTHS,
 } from "./bik-constants.ts";
 import { BitReader } from "./bik-decoder-utils.ts";
-
-// // Import defines into the global namespace if the code has not been bundled and we are running
-// // in a Worker thread (as expected).
-// if (
-//   !(import.meta as unknown as Record<string, boolean>).builtInDefines &&
-//   typeof WorkerGlobalScope !== "undefined" &&
-//   globalThis instanceof WorkerGlobalScope
-// ) {
-//   await import("./bik-defines.ts");
-// }
 
 const EMPTY_UINT8_ARRAY = new Uint8Array();
 
@@ -36,12 +29,12 @@ interface Tree {
   /**
    * Index of the pre-defined variable length code table to use.
    */
-  tableNum: IntRange<0, 16>;
+  tableNum_: IntRange<0, 16>;
 
   /**
    * Mapping of symbols decoded from the table to final decoded values.
    */
-  symbolMap: FixedLenUint8Array<16>;
+  symbolMap_: FixedLenUint8Array<16>;
 }
 
 /**
@@ -49,11 +42,11 @@ interface Tree {
  * row (video width / block width) of blocks.
  */
 interface BlockParamValues {
-  len: number;
-  tree: Tree;
-  items: Uint8Array;
-  curDec: number;
-  curPtr: number;
+  len_: number;
+  tree_: Tree;
+  items_: Uint8Array;
+  curDec_: number;
+  curPtr_: number;
 }
 
 interface FixedLenInt32Array<T extends number> extends Int32Array {
@@ -140,9 +133,9 @@ class HuffTable {
    * @param tree Huffman tree to use for decoding.
    * @returns 4-bit value, Huffman-decoded from the bit-stream.
    */
-  static getHuff(reader: BitReader, tree: Tree): IntRange<0, 16> {
-    const symbol = HuffTable.#predefinedTables[tree.tableNum].#decode(reader);
-    return (tree.symbolMap[symbol] ?? 0) as IntRange<0, 16>;
+  static getHuff_(reader: BitReader, tree: Tree): IntRange<0, 16> {
+    const symbol = HuffTable.#predefinedTables[tree.tableNum_].#decode(reader);
+    return (tree.symbolMap_[symbol] ?? 0) as IntRange<0, 16>;
   }
 }
 
@@ -163,7 +156,7 @@ export class BikVideoDecoder {
   // ------------------
 
   // Decoded data from the previous frame (for inter-frame decompression)
-  #prevFrame = EMPTY_UINT8_ARRAY;
+  #prevFrame: Uint8Array<ArrayBuffer>;
 
   // Coordinates of the current block (in number of blocks)
   #blockXPos = 0;
@@ -227,18 +220,18 @@ export class BikVideoDecoder {
     const blocks = (numPixels + 63) >>> 6;
     for (let i = 0; i < NUM_BLOCK_PARAMS; i++) {
       (this.#blockParams[i as IntRange<0, typeof NUM_BLOCK_PARAMS>] as BlockParamValues) = {
-        len: 0,
-        tree: { tableNum: 0, symbolMap: new Uint8Array(16) as FixedLenUint8Array<16> },
-        items: new Uint8Array(blocks * 64),
-        curDec: 0,
-        curPtr: 0,
+        len_: 0,
+        tree_: { tableNum_: 0, symbolMap_: new Uint8Array(16) as FixedLenUint8Array<16> },
+        items_: new Uint8Array(blocks * 64),
+        curDec_: 0,
+        curPtr_: 0,
       };
     }
 
     for (let i = 0; i < 16; i++) {
       this.#colHigh[i as IntRange<0, 16>] = {
-        tableNum: 0,
-        symbolMap: new Uint8Array(16) as FixedLenUint8Array<16>,
+        tableNum_: 0,
+        symbolMap_: new Uint8Array(16) as FixedLenUint8Array<16>,
       };
     }
   }
@@ -487,7 +480,7 @@ export class BikVideoDecoder {
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
         this.#data[this.#dataPtr + i * this.#stride + j] =
-          blockParamValues.items[blockParamValues.curPtr++] ?? 0;
+          blockParamValues.items_[blockParamValues.curPtr_++] ?? 0;
       }
     }
   }
@@ -553,11 +546,11 @@ export class BikVideoDecoder {
   #readTree(tree: Tree) {
     const reader = this.#reader;
 
-    tree.tableNum = reader.readBits_(4) as IntRange<0, 16>;
-    if (!tree.tableNum) {
+    tree.tableNum_ = reader.readBits_(4) as IntRange<0, 16>;
+    if (!tree.tableNum_) {
       // Linear symbol mapping
       for (let i = 0; i < 16; i++) {
-        tree.symbolMap[i] = i;
+        tree.symbolMap_[i] = i;
       }
       return;
     }
@@ -568,13 +561,13 @@ export class BikVideoDecoder {
       const tmp = this.#inputTreeBuf.fill(0);
 
       for (let i = 0; i <= len; i++) {
-        tree.symbolMap[i] = reader.readBits_(4);
-        tmp[tree.symbolMap[i] ?? 0] = 1;
+        tree.symbolMap_[i] = reader.readBits_(4);
+        tmp[tree.symbolMap_[i] ?? 0] = 1;
       }
 
       for (let i = 0; i < 16; i++) {
         if (!tmp[i]) {
-          tree.symbolMap[++len] = i;
+          tree.symbolMap_[++len] = i;
         }
       }
     } else {
@@ -595,7 +588,7 @@ export class BikVideoDecoder {
         [input, output] = [output, input];
       }
 
-      tree.symbolMap.set(input);
+      tree.symbolMap_.set(input);
     }
 
     return;
@@ -627,7 +620,7 @@ export class BikVideoDecoder {
   }
 
   #setBlockParamValuesLen(blockParamNum: IntRange<0, typeof NUM_BLOCK_PARAMS>, rawValue: number) {
-    this.#blockParams[blockParamNum].len = ~~Math.log2(rawValue) + 1;
+    this.#blockParams[blockParamNum].len_ = ~~Math.log2(rawValue) + 1;
   }
 
   /**
@@ -659,21 +652,21 @@ export class BikVideoDecoder {
       }
 
       if (blockParamNum !== BIK_PARAM_INTRA_DC && blockParamNum !== BIK_PARAM_INTER_DC) {
-        this.#readTree(blockParamValues.tree);
+        this.#readTree(blockParamValues.tree_);
       }
 
-      blockParamValues.curDec = 0;
-      blockParamValues.curPtr = 0;
+      blockParamValues.curDec_ = 0;
+      blockParamValues.curPtr_ = 0;
     }
   }
 
   #readCodedDataCount(blockParamValues: BlockParamValues): number {
-    if (blockParamValues.curDec < 0 || blockParamValues.curDec > blockParamValues.curPtr) {
+    if (blockParamValues.curDec_ < 0 || blockParamValues.curDec_ > blockParamValues.curPtr_) {
       return 0;
     }
-    const count = this.#reader.readBits_(blockParamValues.len);
+    const count = this.#reader.readBits_(blockParamValues.len_);
     if (count === 0) {
-      blockParamValues.curDec = -1;
+      blockParamValues.curDec_ = -1;
     }
     return count;
   }
@@ -688,19 +681,19 @@ export class BikVideoDecoder {
     if (reader.readBit_()) {
       const v = reader.readBits_(4);
       for (let i = 0; i < count; i++) {
-        blockParamValues.items[blockParamValues.curDec++] = v;
+        blockParamValues.items_[blockParamValues.curDec_++] = v;
       }
     } else {
       let prevValue: IntRange<0, 12> = 0;
       for (let i = 0; i < count; i++) {
-        const v = HuffTable.getHuff(reader, blockParamValues.tree);
+        const v = HuffTable.getHuff_(reader, blockParamValues.tree_);
         if (v < 12) {
           prevValue = v as IntRange<0, 12>;
-          blockParamValues.items[blockParamValues.curDec++] = v as IntRange<0, 12>;
+          blockParamValues.items_[blockParamValues.curDec_++] = v as IntRange<0, 12>;
         } else {
           const runLength = RLE_LENGTHS[(v - 12) as IntRange<0, 4>];
           for (let j = 0; j < runLength; j++) {
-            blockParamValues.items[blockParamValues.curDec++] = prevValue;
+            blockParamValues.items_[blockParamValues.curDec_++] = prevValue;
           }
           i += runLength - 1;
         }
@@ -718,11 +711,9 @@ export class BikVideoDecoder {
     const isRun = !!reader.readBit_();
     let loopCount = isRun ? 1 : count;
     do {
-      const colHighValue = HuffTable.getHuff(reader, this.#colHigh[this.#colLastValue] as Tree);
-      let v = (HuffTable.getHuff(reader, blockParamValues.tree) | (colHighValue << 4)) as IntRange<
-        0,
-        256
-      >;
+      const colHighValue = HuffTable.getHuff_(reader, this.#colHigh[this.#colLastValue] as Tree);
+      let v = (HuffTable.getHuff_(reader, blockParamValues.tree_) |
+        (colHighValue << 4)) as IntRange<0, 256>;
       this.#colLastValue = colHighValue;
 
       if (this.#version < 105) {
@@ -732,10 +723,10 @@ export class BikVideoDecoder {
       }
 
       if (isRun) {
-        blockParamValues.items.fill(v, blockParamValues.curDec, blockParamValues.curDec + count);
-        blockParamValues.curDec += count;
+        blockParamValues.items_.fill(v, blockParamValues.curDec_, blockParamValues.curDec_ + count);
+        blockParamValues.curDec_ += count;
       } else {
-        blockParamValues.items[blockParamValues.curDec++] = v;
+        blockParamValues.items_[blockParamValues.curDec_++] = v;
       }
     } while (--loopCount);
   }
@@ -749,9 +740,9 @@ export class BikVideoDecoder {
 
     for (let i = 0; i < count; i++) {
       const v =
-        HuffTable.getHuff(reader, blockParamValues.tree) |
-        (HuffTable.getHuff(reader, blockParamValues.tree) << 4);
-      blockParamValues.items[blockParamValues.curDec++] = v;
+        HuffTable.getHuff_(reader, blockParamValues.tree_) |
+        (HuffTable.getHuff_(reader, blockParamValues.tree_) << 4);
+      blockParamValues.items_[blockParamValues.curDec_++] = v;
     }
   }
 
@@ -769,15 +760,15 @@ export class BikVideoDecoder {
       }
 
       for (let i = 0; i < count; i++) {
-        blockParamValues.items[blockParamValues.curDec++] = v & 0xff;
+        blockParamValues.items_[blockParamValues.curDec_++] = v & 0xff;
       }
     } else {
       for (let i = 0; i < count; i++) {
-        let v: number = HuffTable.getHuff(reader, blockParamValues.tree);
+        let v: number = HuffTable.getHuff_(reader, blockParamValues.tree_);
         if (v) {
           v = reader.applySign_(v);
         }
-        blockParamValues.items[blockParamValues.curDec++] = v & 0xff;
+        blockParamValues.items_[blockParamValues.curDec_++] = v & 0xff;
       }
     }
   }
@@ -790,9 +781,9 @@ export class BikVideoDecoder {
     const reader = this.#reader;
 
     const view = new DataView(
-      blockParamValues.items.buffer,
-      blockParamValues.items.byteOffset,
-      blockParamValues.items.byteLength,
+      blockParamValues.items_.buffer,
+      blockParamValues.items_.byteOffset,
+      blockParamValues.items_.byteLength,
     );
 
     let v = reader.readBits_(hasSign ? 10 : 11);
@@ -800,8 +791,8 @@ export class BikVideoDecoder {
       v = reader.applySign_(v);
     }
 
-    view.setInt16(blockParamValues.curDec, v, true);
-    blockParamValues.curDec += 2;
+    view.setInt16(blockParamValues.curDec_, v, true);
+    blockParamValues.curDec_ += 2;
 
     for (let i = 1; i < count; ) {
       const len = Math.min(count - i, 8);
@@ -814,13 +805,13 @@ export class BikVideoDecoder {
             v2 = reader.applySign_(v2);
           }
           v += v2;
-          view.setInt16(blockParamValues.curDec, v, true);
-          blockParamValues.curDec += 2;
+          view.setInt16(blockParamValues.curDec_, v, true);
+          blockParamValues.curDec_ += 2;
         }
       } else {
         for (let j = 0; j < len; j++) {
-          view.setInt16(blockParamValues.curDec, v, true);
-          blockParamValues.curDec += 2;
+          view.setInt16(blockParamValues.curDec_, v, true);
+          blockParamValues.curDec_ += 2;
         }
       }
 
@@ -838,13 +829,13 @@ export class BikVideoDecoder {
     if (reader.readBit_()) {
       const v = reader.readBits_(4);
       for (let i = 0; i < count; i++) {
-        blockParamValues.items[blockParamValues.curDec++] = v;
+        blockParamValues.items_[blockParamValues.curDec_++] = v;
       }
     } else {
       for (let i = 0; i < count; i++) {
-        blockParamValues.items[blockParamValues.curDec++] = HuffTable.getHuff(
+        blockParamValues.items_[blockParamValues.curDec_++] = HuffTable.getHuff_(
           reader,
-          blockParamValues.tree,
+          blockParamValues.tree_,
         );
       }
     }
@@ -859,18 +850,18 @@ export class BikVideoDecoder {
     const blockParamValues = this.#blockParams[blockParamNum];
 
     if (blockParamNum < BIK_PARAM_X_OFF || blockParamNum === BIK_PARAM_RUN) {
-      return blockParamValues.items[blockParamValues.curPtr++] ?? 0;
+      return blockParamValues.items_[blockParamValues.curPtr_++] ?? 0;
     }
     if (blockParamNum < BIK_PARAM_INTRA_DC) {
-      return ((blockParamValues.items[blockParamValues.curPtr++] ?? 0) << 24) >> 24; // sign extend the byte
+      return ((blockParamValues.items_[blockParamValues.curPtr_++] ?? 0) << 24) >> 24; // sign extend the byte
     }
     const view = new DataView(
-      blockParamValues.items.buffer,
-      blockParamValues.items.byteOffset,
-      blockParamValues.items.byteLength,
+      blockParamValues.items_.buffer,
+      blockParamValues.items_.byteOffset,
+      blockParamValues.items_.byteLength,
     );
-    const val = view.getInt16(blockParamValues.curPtr, true);
-    blockParamValues.curPtr += 2;
+    const val = view.getInt16(blockParamValues.curPtr_, true);
+    blockParamValues.curPtr_ += 2;
     return val;
   }
 

@@ -1,11 +1,10 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.6/schema.json",
   "files": {
     "ignoreUnknown": false,
     "includes": [
+      "**/*.astro",
       "**/*.css",
-      "index.html",
-      // "**/*.html",
       "**/*.mjs",
       "**/*.mts",
       "**/*.js",
@@ -14,7 +13,8 @@
       "**/*.ts",
       "!archive",
       "!dist",
-      "!docs"
+      "!dist-app",
+      "!app/.astro"
     ]
   },
   "assist": {
@@ -49,9 +49,13 @@
     "assist": { "enabled": true }
   },
   "html": {
-    "formatter": { "enabled": true },
-    "linter": { "enabled": true },
-    "assist": { "enabled": true }
+    "formatter": {
+      "enabled": false,
+      "indentScriptAndStyle": true,
+      "whitespaceSensitivity": "css"
+    },
+    "linter": { "enabled": false },
+    "assist": { "enabled": false }
   },
   "javascript": {
     "formatter": { "enabled": true },
@@ -62,5 +66,22 @@
     "formatter": { "enabled": true },
     "linter": { "enabled": true },
     "assist": { "enabled": false }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["**/*.astro"],
+      "linter": {
+        "rules": {
+          "style": {
+            // "useConst": "off",
+            // "useImportType": "off"
+          },
+          "correctness": {
+            "noUnusedVariables": "off",
+            "noUnusedImports": "off"
+          }
+        }
+      }
+    }
+  ]
 }

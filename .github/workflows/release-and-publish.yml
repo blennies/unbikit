@@ -85,8 +85,8 @@ jobs:
       - name: Install dependencies
         run: pnpm i --frozen-lockfile
 
-      - name: Build documentation
-        run: pnpm build:docs
+      - name: Build the demo webapp and docs
+        run: pnpm build:app
 
       - name: Setup Pages
         id: pages
@@ -95,7 +95,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: docs
+          path: dist-app
 
       - name: Deploy to GitHub Pages
         id: deployment

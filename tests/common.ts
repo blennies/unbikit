@@ -1,11 +1,13 @@
 import { Buffer } from "node:buffer";
 import { createHash } from "node:crypto";
-import { type CreateReadStreamOptions, mkdir, open, readFile, writeFile } from "node:fs/promises";
+import { createReadStream, ReadStream } from "node:fs";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import * as path from "node:path/posix";
 import { Readable } from "node:stream";
+import { pipeline } from "node:stream/promises";
 import { PNG } from "pngjs";
 import { objectEntries } from "ts-extras";
-import { test as baseTest, type TestAPI } from "vitest";
+// import { test as baseTest, type TestAPI } from "vitest";
 
 import type { BikFrame } from "../src/bik-decoder";
 
@@ -74,6 +76,9 @@ const MEDIA_FILES_INFO = {
 type MediaFileIndex = keyof typeof MEDIA_FILES_INFO;
 type MediaFileEntry = (typeof MEDIA_FILES_INFO)[MediaFileIndex];
 
+/**
+ * Class for managing fetching/reading of a media file.
+ */
 class MediaFile {
   #name: MediaFileIndex;
   #mediaFileInfo: MediaFileEntry;
@@ -119,7 +124,7 @@ class MediaFile {
   ) => Promise<ReadableStream<Uint8Array>> {
     return async (offset: number, len?: number | undefined) => {
       let fileStream: ReadableStream<Uint8Array> | undefined;
-      const streamOpts: CreateReadStreamOptions = {
+      const streamOpts: { start?: number; end?: number } = {
         start: offset,
       };
       if (typeof len !== "undefined") {
@@ -133,25 +138,19 @@ class MediaFile {
         `${this.#name}.bik`,
       );
       try {
-        let fileHandle = await open(fileCachePath);
         if (this.#mediaFileInfo.sha256) {
-          const fileHash: string = Buffer.concat(
-            await Array.fromAsync(
-              fileHandle.createReadStream(streamOpts).pipe(createHash("sha256")),
-            ),
-          ).toString("hex");
+          const hash = createHash("sha256");
+          hash.setEncoding("hex");
+          await pipeline(createReadStream(fileCachePath, streamOpts), hash);
+          const fileHash: string = hash.read();
           if (fileHash !== this.#mediaFileInfo.sha256) {
-            await fileHandle.close();
             throw new Error(
               `SHA-256 mismatch for ${this.#name}: expected ${this.#mediaFileInfo.sha256} but got ${fileHash}`,
             );
           }
-          await fileHandle.close();
-
-          fileHandle = await open(fileCachePath);
         }
         fileStream = Readable.toWeb(
-          fileHandle.createReadStream(streamOpts),
+          createReadStream(fileCachePath, streamOpts),
         ) as ReadableStream<Uint8Array>;
       } catch (_) {
         // Couldn't read cached file, so try fetching instead
@@ -160,24 +159,19 @@ class MediaFile {
         await mkdir(path.dirname(fileCachePath), { recursive: true });
         await writeFile(fileCachePath, fileData);
 
-        let fileHandle = await open(fileCachePath);
         if (this.#mediaFileInfo.sha256) {
-          const fileHash: string = Buffer.concat(
-            await Array.fromAsync(
-              fileHandle.createReadStream(streamOpts).pipe(createHash("sha256")),
-            ),
-          ).toString("hex");
+          const hash = createHash("sha256");
+          hash.setEncoding("hex");
+          await pipeline(createReadStream(fileCachePath, streamOpts), hash);
+          const fileHash: string = hash.read();
           if (fileHash !== this.#mediaFileInfo.sha256) {
-            await fileHandle.close();
             throw new Error(
               `SHA-256 mismatch for fetched file ${this.#name}: expected ${this.#mediaFileInfo.sha256} but got ${fileHash}`,
             );
           }
-          await fileHandle.close();
-          fileHandle = await open(fileCachePath);
         }
         fileStream = Readable.toWeb(
-          fileHandle.createReadStream(streamOpts),
+          createReadStream(fileCachePath, streamOpts),
         ) as ReadableStream<Uint8Array>;
       }
       return fileStream;

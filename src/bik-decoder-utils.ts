@@ -75,13 +75,13 @@ class BitReader {
     return this.readBit_() ? -v : v;
   }
 
-  savePos_(): { pos: number; bitPos: number } {
-    return { pos: this.#pos, bitPos: this.#bitPos };
+  savePos_(): { pos_: number; bitPos_: number } {
+    return { pos_: this.#pos, bitPos_: this.#bitPos };
   }
 
-  restorePos_({ pos, bitPos }: { pos: number; bitPos: number }): void {
-    this.#pos = pos;
-    this.#bitPos = bitPos;
+  restorePos_({ pos_, bitPos_ }: { pos_: number; bitPos_: number }): void {
+    this.#pos = pos_;
+    this.#bitPos = bitPos_;
   }
 }
 

@@ -1,0 +1,44 @@
+/* Custom Theme - "biscuit" palette with Sora variable font */
+
+:root,
+::backdrop {
+  /* Change default font */
+  --sl-font: "Sora Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --sl-font-headings: var(--sl-font);
+  --sl-font-system: var(--sl-font);
+
+  /* Dark mode colors */
+  --sl-hue-base: 40;
+  --sl-hue-accent: 80;
+
+  /* Width of main content on pages with sidebars */
+  --sl-content-width: 55rem;
+}
+
+/* Light mode colors */
+:root[data-theme="light"],
+[data-theme="light"] ::backdrop {
+  --sl-hue-accent: 90;
+}
+
+/* :root {
+  container-type: inline-size;
+}
+
+main {
+  --_breakout-margin: max(0, 50cqw - 400px / 2);
+  margin-inline: var(--_breakout-margin);
+}
+.breakout {
+  margin-inline: calc(-1 * var(--_breakout-margin));
+} */
+
+/* In Markdown content, allow multiple images, videos, etc. on the same line */
+.sl-markdown-content :is(img, picture, video, canvas, svg, iframe):not(:where(.not-content *)) {
+  display: inline-block;
+}
+
+/* Enable smooth page transitions */
+@view-transition {
+  navigation: auto;
+}
