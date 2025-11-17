@@ -6,6 +6,7 @@
   "changelog-type": "github",
   "draft": true,
   "draft-pull-request": true,
+  "include-v-in-tag": true,
   "prerelease": true,
   "signoff": "",
   "packages": {
