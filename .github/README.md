@@ -10,7 +10,7 @@
 [![PNPM badge](https://img.shields.io/badge/pnpm-4a4a4a.svg?style=for-the-badge&logo=pnpm&logoColor=f69220)](https://pnpm.io)
 [![Conventional Commits badge](https://img.shields.io/badge/Conventional%20Commits-1.0.0-FE5196?style=for-the-badge&logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 
-> [!CAUTION]
+> [!WARNING]
 > This package is at a very early development stage. Expect **_major_** API changes!
 
 ## Introduction

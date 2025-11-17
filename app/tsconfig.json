@@ -6,7 +6,7 @@
     "target": "esnext",
     "module": "preserve",
     "moduleDetection": "force",
-    "types": ["vite/client", "node", "audioworklet"],
+    "types": ["astro/client", "vite/client", "node", "audioworklet"],
     "allowJs": false,
 
     // Bundler mode

@@ -2,8 +2,10 @@ import mdx from "@astrojs/mdx";
 import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
 import starlightThemeRapide from "starlight-theme-rapide";
-import starlightTypeDoc, { typeDocSidebarGroup } from "starlight-typedoc";
+import { createStarlightTypeDocPlugin } from "starlight-typedoc";
 import viteConfig from "./app/vite.config";
+
+const [publicStarlightTypeDoc, publicTypeDocSidebarGroup] = createStarlightTypeDocPlugin();
 
 const config: ReturnType<typeof defineConfig> = defineConfig({
   base: "/unbikit/",
@@ -14,9 +16,9 @@ const config: ReturnType<typeof defineConfig> = defineConfig({
     starlight({
       customCss: ["./src/styles/global.css", "@fontsource-variable/sora/index.css"],
       plugins: [
-        starlightTypeDoc({
+        publicStarlightTypeDoc({
           entryPoints: ["src/bik-decoder.ts"],
-          sidebar: { collapsed: false },
+          sidebar: { collapsed: false, label: "Module" },
           tsconfig: "app/tsconfig.json",
           typeDoc: { name: "API Overview" },
         }),
@@ -24,23 +26,42 @@ const config: ReturnType<typeof defineConfig> = defineConfig({
       ],
       sidebar: [
         {
-          label: "⭐ Demo",
-          link: "/demo",
+          label: "Start",
+          items: [
+            {
+              label: "Getting Started",
+              link: "/getting-started",
+            },
+            {
+              label: "⭐ Demo",
+              link: "/demo",
+              badge: { variant: "success", text: "new!" },
+            },
+          ],
         },
+
         {
-          label: "Changelog",
-          link: "/changelog",
+          label: "API",
+          items: [{ label: "Overview", link: "/api/readme" }, publicTypeDocSidebarGroup],
         },
+
         {
-          label: "License",
-          link: "/license",
+          label: "Reference",
+          items: [
+            {
+              label: "Development",
+              link: "/development",
+            },
+            {
+              label: "Changelog",
+              link: "/changelog",
+            },
+            {
+              label: "License",
+              link: "/license",
+            },
+          ],
         },
-        {
-          label: "API Overview",
-          link: "api/readme",
-        },
-        // Add the generated sidebar group to the sidebar.
-        typeDocSidebarGroup,
       ],
       social: [
         {

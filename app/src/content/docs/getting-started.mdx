@@ -1,0 +1,29 @@
+---
+title: Getting Started
+next: false
+prev: false
+---
+
+import { PackageManagers } from "starlight-package-managers";
+
+To install the decoder:
+
+<PackageManagers pkg="unbikit" pkgManagers={["npm", "pnpm", "yarn", "bun", "ni"]} />
+
+To use it:
+
+```typescript
+import { BikDecoder, type BikFrame } from "unbikit";
+
+let stream: ReadableStream;
+// ... assign a source to the stream
+const decoder = await BikDecoder.open(() => stream);
+let frame: BikFrame | null;
+while ((frame = await decoder?.getNextFrame())) {
+  // ... process frame
+}
+```
+
+## Next Steps
+
+- [API documentation](/unbikit/api/readme)

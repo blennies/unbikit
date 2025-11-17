@@ -1,9 +1,10 @@
 import { Buffer } from "node:buffer";
 import { createHash } from "node:crypto";
-import { createReadStream } from "node:fs";
+import { createReadStream, ReadStream } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import * as path from "node:path/posix";
 import { Readable } from "node:stream";
+import { pipeline } from "node:stream/promises";
 import { PNG } from "pngjs";
 import { objectEntries } from "ts-extras";
 // import { test as baseTest, type TestAPI } from "vitest";
@@ -75,6 +76,9 @@ const MEDIA_FILES_INFO = {
 type MediaFileIndex = keyof typeof MEDIA_FILES_INFO;
 type MediaFileEntry = (typeof MEDIA_FILES_INFO)[MediaFileIndex];
 
+/**
+ * Class for managing fetching/reading of a media file.
+ */
 class MediaFile {
   #name: MediaFileIndex;
   #mediaFileInfo: MediaFileEntry;
@@ -135,11 +139,10 @@ class MediaFile {
       );
       try {
         if (this.#mediaFileInfo.sha256) {
-          const fileHash: string = Buffer.concat(
-            await Array.fromAsync(
-              createReadStream(fileCachePath, streamOpts).pipe(createHash("sha256")),
-            ),
-          ).toString("hex");
+          const hash = createHash("sha256");
+          hash.setEncoding("hex");
+          await pipeline(createReadStream(fileCachePath, streamOpts), hash);
+          const fileHash: string = hash.read();
           if (fileHash !== this.#mediaFileInfo.sha256) {
             throw new Error(
               `SHA-256 mismatch for ${this.#name}: expected ${this.#mediaFileInfo.sha256} but got ${fileHash}`,
@@ -157,11 +160,10 @@ class MediaFile {
         await writeFile(fileCachePath, fileData);
 
         if (this.#mediaFileInfo.sha256) {
-          const fileHash: string = Buffer.concat(
-            await Array.fromAsync(
-              createReadStream(fileCachePath, streamOpts).pipe(createHash("sha256")),
-            ),
-          ).toString("hex");
+          const hash = createHash("sha256");
+          hash.setEncoding("hex");
+          await pipeline(createReadStream(fileCachePath, streamOpts), hash);
+          const fileHash: string = hash.read();
           if (fileHash !== this.#mediaFileInfo.sha256) {
             throw new Error(
               `SHA-256 mismatch for fetched file ${this.#name}: expected ${this.#mediaFileInfo.sha256} but got ${fileHash}`,
