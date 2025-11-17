@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/core": "0.18.2",
-    "@biomejs/biome": "2.3.5",
+    "@biomejs/biome": "2.3.6",
     "@commitlint/config-conventional": "20.0.0",
     "@commitlint/types": "20.0.0",
     "@mitata/counters": "0.0.8",
@@ -49,7 +49,7 @@
     "@types/node": "24.10.1",
     "@types/pngjs": "6.0.5",
     "@vitest/coverage-v8": "^4.0.8",
-    "@vitest/ui": "4.0.8",
+    "@vitest/ui": "4.0.10",
     "commitlint": "20.1.0",
     "globals": "16.5.0",
     "mitata": "1.0.34",
@@ -59,14 +59,14 @@
     "rolldown": "1.0.0-beta.50",
     "rollup-plugin-esbuild": "6.2.1",
     "ts-extras": "0.16.0",
-    "tsdown": "0.16.4",
+    "tsdown": "0.16.5",
     "type-fest": "5.2.0",
     "typedoc": "0.28.14",
     "typedoc-theme-fresh": "0.2.1",
     "typescript": "5.9.3",
     "unplugin-unused": "0.5.6",
     "vite": "npm:rolldown-vite@7.2.5",
-    "vitest": "4.0.8"
+    "vitest": "4.0.10"
   },
   "overrides": {
     "rolldown": "$rolldown",
