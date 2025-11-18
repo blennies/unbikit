@@ -117,11 +117,7 @@ class HuffTable {
     reader.restorePos_(savedPos);
 
     const len = this.#lens[peek] ?? 0;
-    const symbol = this.#symbols[peek];
-
-    if (typeof symbol === "undefined") {
-      throw new Error(`HuffTable decode error: invalid code ${peek}`);
-    }
+    const symbol = this.#symbols[peek] ?? 0;
 
     reader.skip_(len);
     return symbol;
@@ -356,7 +352,8 @@ export class BikVideoDecoder {
             this.#decodeRawBlock();
             break;
           default:
-            throw new Error(`Unrecognised block type ${blockType}`);
+            // Unrecognized block type
+            throw new Error(`Invalid block type ${blockType}`);
         }
 
         this.#dataPtr += 8;
@@ -519,7 +516,8 @@ export class BikVideoDecoder {
         break;
       }
       default:
-        throw new Error(`Unrecognised sub-block type ${subBlk}`);
+        // Unrecognized sub-block type
+        throw new Error(`Invalid sub-block type ${subBlk}`);
     }
 
     // Copy 8x8 result to the destination buffer, enlarging it to 16x16 in the process

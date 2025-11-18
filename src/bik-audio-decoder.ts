@@ -23,7 +23,7 @@ class BikAudioDecoder {
   #idt: IDCT | IRDFT;
 
   constructor(sampleRate: number, numChannels: number, useDCT: boolean) {
-    let frameLenBits: number;
+    let frameLenBits: 9 | 10 | 11 | 12 | 13 | 14;
     if (sampleRate < 22050) frameLenBits = 9;
     else if (sampleRate < 44100) frameLenBits = 10;
     else frameLenBits = 11;
@@ -32,7 +32,9 @@ class BikAudioDecoder {
     let numInternalChannels = numChannels;
     if (!useDCT) {
       sampleRate *= numChannels;
-      frameLenBits += Math.ceil(Math.log2(numChannels));
+      // support up to 8 channels
+      frameLenBits += Math.ceil(Math.log2(numChannels)) & 3;
+      frameLenBits = frameLenBits as 9 | 10 | 11 | 12 | 13 | 14;
       numInternalChannels = 1;
     }
     this.#numInternalChannels = numInternalChannels;
@@ -222,11 +224,7 @@ class IDCT {
   #n: number;
   #tempBuf: Float32Array;
 
-  constructor(nbits: number) {
-    if (nbits < 1) {
-      throw new Error(`Invalid nbits: ${nbits}. Must be greater than 0.`);
-    }
-
+  constructor(nbits: IntRange<1, 17>) {
     this.#n = 1 << nbits;
     this.#tempBuf = new Float32Array(this.#n);
   }
@@ -279,16 +277,12 @@ class IRDFT {
   #nDiv4: number;
   #fft: FFT;
 
-  constructor(nbits: number) {
-    if (nbits < 4 || nbits > 16) {
-      throw new Error(`Invalid nbits: ${nbits}. Must be between 4 and 16.`);
-    }
-
+  constructor(nbits: IntRange<4, 17>) {
     this.#n = 1 << nbits;
     this.#nDiv4 = this.#n >>> 2;
 
     // Initialize FFT with half size
-    this.#fft = new FFT(nbits - 1);
+    this.#fft = new FFT((nbits - 1) as IntRange<3, 16>);
   }
 
   /**
@@ -356,11 +350,7 @@ class FFT {
   #revTable: Uint16Array;
   #twiddle: Float32Array;
 
-  constructor(nbits: number) {
-    if (nbits < 2 || nbits > 16) {
-      throw new Error(`Invalid nbits: ${nbits}. Must be between 2 and 16.`);
-    }
-
+  constructor(nbits: IntRange<2, 17>) {
     this.#nbits = nbits;
     this.#n = 1 << nbits;
 
