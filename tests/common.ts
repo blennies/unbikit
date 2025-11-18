@@ -1,15 +1,18 @@
+/**
+ * Functions and constants that are common across multiple tests/benchmarks.
+ */
+
 import { Buffer } from "node:buffer";
 import { createHash } from "node:crypto";
-import { createReadStream, ReadStream } from "node:fs";
+import { createReadStream } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import * as path from "node:path/posix";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { PNG } from "pngjs";
 import { objectEntries } from "ts-extras";
-// import { test as baseTest, type TestAPI } from "vitest";
 
-import type { BikFrame } from "../src/bik-decoder";
+import { type BikFrame } from "../src/bik-decoder.ts";
 
 export const ASSET_CACHE_PATH: string = path.join(import.meta.dirname, ".asset-cache");
 
@@ -254,13 +257,5 @@ const frameToPng = (frame: BikFrame | null | undefined): Uint8Array<ArrayBuffer>
   png.data.set(rgba);
   return new Uint8Array(PNG.sync.write(png));
 };
-
-/**
- * Extra fixtures.
- */
-// type Fixtures = {};
-
-// const test: TestAPI<Fixtures> = baseTest.extend<Fixtures>({});
-// const it: TestAPI<Fixtures> = test;
 
 export { frameToPng, getShaSum, yuv420PlanarToRgb, mediaFiles, type MediaFile };

@@ -2,9 +2,15 @@ import { suite, type TestContext, test } from "vitest";
 import { BikDecoder } from "../src/bik-decoder.ts";
 import { frameToPng, getShaSum, type MediaFile, mediaFiles } from "./common.ts";
 
+/**
+ * Get a new instance of the BIK decoder for a given media file.
+ * @param file Media file to pass to the new decoder instance.
+ * @returns New decoder instance.
+ */
 const getMediaFileDecoder = async (file: MediaFile): Promise<BikDecoder> => {
   return await BikDecoder.open(file.getStreamFn());
 };
+
 const fetchSelectionOfFrames = async (
   fileIndex: keyof typeof mediaFiles,
   { annotate, expect }: Pick<TestContext, "annotate" | "expect">,
@@ -37,7 +43,7 @@ const fetchSelectionOfFrames = async (
   }
 };
 
-suite("decoding of BIK 1 (d, f, g, h, i) media files", async () => {
+suite("decode BIK 1 (d, f, g, h, i) media files", async () => {
   test("should decode frames from across the file (testfile01)", async ({ annotate, expect }) => {
     await fetchSelectionOfFrames("testfile01", { annotate, expect });
   });
@@ -61,7 +67,7 @@ suite("decoding of BIK 1 (d, f, g, h, i) media files", async () => {
   });
 });
 
-suite("decoding of media files of unsupported BIK versions", async () => {
+suite("decode media files of unsupported BIK versions", async () => {
   test("should decode header but refuse to decode BIK 1b (testfile08bk1b)", async ({
     annotate,
     expect,
