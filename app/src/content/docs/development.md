@@ -41,6 +41,12 @@ To run tests and generate a code coverage report:
 pnpm test:coverage
 ```
 
+To run the benchmarks:
+
+```sh
+pnpm bench
+```
+
 To build for production:
 
 ```sh

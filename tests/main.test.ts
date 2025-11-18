@@ -1,15 +1,12 @@
-import { suite, type TestContext, test } from "vitest";
-import { BikDecoder } from "../src/bik-decoder.ts";
-import { frameToPng, getShaSum, type MediaFile, mediaFiles } from "./common.ts";
-
 /**
- * Get a new instance of the BIK decoder for a given media file.
- * @param file Media file to pass to the new decoder instance.
- * @returns New decoder instance.
+ * Test a set of media files by decoding (most of) the frames in each and outputting screenshots
+ * of a small selection of the frames.
+ *
+ * Test valid BIK 1 files that should be decoded correctly, along with valid BIK 1b and 2 files
+ * that the decoder should refuse to decode but handle gracefully.
  */
-const getMediaFileDecoder = async (file: MediaFile): Promise<BikDecoder> => {
-  return await BikDecoder.open(file.getStreamFn());
-};
+import { suite, type TestContext, test } from "vitest";
+import { frameToPng, getMediaFileDecoder, getShaSum, mediaFiles } from "./common.ts";
 
 const fetchSelectionOfFrames = async (
   fileIndex: keyof typeof mediaFiles,
@@ -22,7 +19,7 @@ const fetchSelectionOfFrames = async (
   const frameQuarters = ~~(numFrames / 4);
   expect(header).toBeTruthy();
   annotate(
-    `header info for ${file.name} -- version: ${header?.version}${String.fromCharCode(header?.subVersion ?? 63)}, frames: ${header?.numFrames}, image size: ${header?.width}x${header?.height}`,
+    `header info for ${file.name} -- version: ${header?.version}${String.fromCharCode(header?.subVersion ?? 63)}, frames: ${header?.numFrames}, image size: ${header?.width}x${header?.height}, flags: ${JSON.stringify(header?.videoFlags)}`,
   );
 
   let frameNum = 0;
@@ -62,7 +59,10 @@ suite("decode BIK 1 (d, f, g, h, i) media files", async () => {
   test("should decode frames from across the file (testfile06)", async ({ annotate, expect }) => {
     await fetchSelectionOfFrames("testfile06", { annotate, expect });
   });
-  test("should decode frames from across the file (testfile07)", async ({ annotate, expect }) => {
+  test("should decode frames from across the file (testfile07; interlaced)", async ({
+    annotate,
+    expect,
+  }) => {
     await fetchSelectionOfFrames("testfile07", { annotate, expect });
   });
 });

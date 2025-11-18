@@ -34,7 +34,7 @@ transcode videos.
 ### Limitations
 
 - No support for Bink 2 or for revision `b` of Bink 1
-- Some slight image corruption has been observed with a small number of non-`i` revision videos
+- Scaling (when applicable) is not performed by the decoder
 
 ## Getting started
 
@@ -97,6 +97,12 @@ To run tests and generate a code coverage report:
 
 ```sh
 pnpm test:coverage
+```
+
+To run the benchmarks:
+
+```sh
+pnpm bench
 ```
 
 To build for production:

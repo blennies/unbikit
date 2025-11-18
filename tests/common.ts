@@ -1,7 +1,6 @@
 /**
  * Functions and constants that are common across multiple tests/benchmarks.
  */
-
 import { Buffer } from "node:buffer";
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
@@ -12,7 +11,7 @@ import { pipeline } from "node:stream/promises";
 import { PNG } from "pngjs";
 import { objectEntries } from "ts-extras";
 
-import { type BikFrame } from "../src/bik-decoder.ts";
+import { BikDecoder, type BikFrame } from "../src/bik-decoder.ts";
 
 export const ASSET_CACHE_PATH: string = path.join(import.meta.dirname, ".asset-cache");
 
@@ -194,6 +193,15 @@ for (const [fileIndex, fileInfo] of objectEntries(MEDIA_FILES_INFO)) {
 const mediaFiles = tmpMediaFiles as Record<MediaFileIndex, MediaFile>;
 
 /**
+ * Get a new instance of the BIK decoder for a given media file.
+ * @param file Media file to pass to the new decoder instance.
+ * @returns New decoder instance.
+ */
+const getMediaFileDecoder = async (file: MediaFile): Promise<BikDecoder> => {
+  return await BikDecoder.open(file.getStreamFn());
+};
+
+/**
  * Generate a SHA-256 digest (256-bit hash).
  * @param data Data to generate a SHA-256 digest from.
  * @returns The generated digest as a hex string.
@@ -218,7 +226,7 @@ const yuv420PlanarToRgb = (yuv: Uint8Array, width: number, height: number): Uint
   const frameSize = width * height;
   const halfWidth = width >>> 1;
   const uStart = frameSize;
-  const vStart = frameSize + (frameSize >>> 2);
+  const vStart = frameSize + ((width + 1) >>> 1) * ((height + 1) >>> 1);
   const rgba = new Uint8ClampedArray(frameSize << 2);
   let rgbaPtr = 0;
 
@@ -258,4 +266,11 @@ const frameToPng = (frame: BikFrame | null | undefined): Uint8Array<ArrayBuffer>
   return new Uint8Array(PNG.sync.write(png));
 };
 
-export { frameToPng, getShaSum, yuv420PlanarToRgb, mediaFiles, type MediaFile };
+export {
+  frameToPng,
+  getMediaFileDecoder,
+  getShaSum,
+  yuv420PlanarToRgb,
+  mediaFiles,
+  type MediaFile,
+};

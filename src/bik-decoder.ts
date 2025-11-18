@@ -79,6 +79,10 @@ interface BikHeader {
      * applications that use the decoder.
      */
     hasSwappedUVPlanes: boolean;
+
+    isGrayscale: boolean;
+
+    scaling: number;
   };
 
   /**
@@ -327,6 +331,8 @@ class BikDecoder {
     const videoFlags = headerWords[9] as number;
     const hasAlpha = !!(videoFlags & 0x100000);
     const hasSwappedUVPlanes = subVersion >= 104;
+    const isGrayscale = !!(videoFlags & 0x20000);
+    const scaling = (videoFlags >>> 28) & 0xf;
     const numAudioTracks = headerWords[10] as number;
     const audioTrackHeaderSize = numAudioTracks * 12;
     const frameListSize = (numFrames + 1) * 4;
@@ -410,6 +416,8 @@ class BikDecoder {
       videoFlags: {
         hasAlpha,
         hasSwappedUVPlanes,
+        isGrayscale,
+        scaling,
       },
       numAudioTracks,
 

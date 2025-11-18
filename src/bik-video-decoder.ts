@@ -210,7 +210,7 @@ export class BikVideoDecoder {
     this.#hasSwappedUVPlanes = hasSwappedUVPlanes;
 
     const numPixels = width * height;
-    const uvSize = numPixels >>> 2;
+    const uvSize = ((width + 1) >>> 1) * ((height + 1) >>> 1);
     const frameSize = (numPixels << (hasAlpha ? 1 : 0)) + (uvSize << 1);
 
     this.#numPixels = numPixels;
@@ -271,11 +271,10 @@ export class BikVideoDecoder {
 
   #createFrame(): BikVideoFrame {
     const numPixels = this.#width * this.#height;
-    const uvSize = numPixels >>> 2;
     return {
       width: this.#width,
       height: this.#height,
-      yuv: new Uint8Array((numPixels << (this.#hasAlpha ? 1 : 0)) + (uvSize << 1)),
+      yuv: new Uint8Array((numPixels << (this.#hasAlpha ? 1 : 0)) + (this.#uvSize << 1)),
       lineSize: [this.#width, this.#width >>> 1, this.#width >>> 1, this.#width],
     };
   }
