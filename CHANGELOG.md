@@ -1,12 +1,29 @@
 # Changelog
 
-## 0.4.0 (2025-11-18)
+## [0.4.0](https://github.com/blennies/unbikit/compare/v0.3.0...v0.4.0) (2025-11-18)
 
-## What's Changed
-* Add demo with an example video player and documentation by @blennies in https://github.com/blennies/unbikit/pull/26
+### Features
 
+- Add demo with an example video player and documentation
+  (by [@blennies](https://github.com/blennies) in
+  [#26](https://github.com/blennies/unbikit/pull/26),
+  [e747e37](https://github.com/blennies/unbikit/commit/e747e374df125b27d1e6ecd7cf06fa45643bb2ad))
 
-**Full Changelog**: https://github.com/blennies/unbikit/compare/v0.3.0...v0.4.0
+  The demo consists of a website with library documentation and an example video player for .bik
+  files. A pre-defined list of streamable videos is provided, or alternatively a video can be
+  uploaded to the browser.
+
+- Add support for CSS view transitions
+  (by [@blennies](https://github.com/blennies) in
+  [#26](https://github.com/blennies/unbikit/pull/26),
+  [e747e37](https://github.com/blennies/unbikit/commit/e747e374df125b27d1e6ecd7cf06fa45643bb2ad))
+
+### Performance
+
+- Optimize build settings to reduce the minified size of the decoder
+  (by [@blennies](https://github.com/blennies) in
+  [#26](https://github.com/blennies/unbikit/pull/26),
+  [e747e37](https://github.com/blennies/unbikit/commit/e747e374df125b27d1e6ecd7cf06fa45643bb2ad))
 
 ## [0.3.0](https://github.com/blennies/unbikit/compare/v0.2.0...v0.3.0) (2025-11-14)
 
