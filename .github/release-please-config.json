@@ -3,7 +3,7 @@
   "always-update": true,
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": false,
-  "changelog-type": "github",
+  "changelog-type": "default",
   "draft": true,
   "draft-pull-request": true,
   "include-v-in-tag": true,
