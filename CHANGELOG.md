@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0 (2025-11-18)
+
+## What's Changed
+* Add demo with an example video player and documentation by @blennies in https://github.com/blennies/unbikit/pull/26
+
+
+**Full Changelog**: https://github.com/blennies/unbikit/compare/v0.3.0...v0.4.0
+
 ## [0.3.0](https://github.com/blennies/unbikit/compare/v0.2.0...v0.3.0) (2025-11-14)
 
 ### Features
