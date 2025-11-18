@@ -2,16 +2,18 @@
 
 ## [0.4.0](https://github.com/blennies/unbikit/compare/v0.3.0...v0.4.0) (2025-11-18)
 
-
 ### Features
 
-* Add demo with an example video player and documentation ([e747e37](https://github.com/blennies/unbikit/commit/e747e374df125b27d1e6ecd7cf06fa45643bb2ad)), closes [#26](https://github.com/blennies/unbikit/issues/26)
-* Add support for CSS view transitions ([e747e37](https://github.com/blennies/unbikit/commit/e747e374df125b27d1e6ecd7cf06fa45643bb2ad))
-
+- Add demo with an example video player and documentation
+  ([e747e37](https://github.com/blennies/unbikit/commit/e747e374df125b27d1e6ecd7cf06fa45643bb2ad)),
+  closes [#26](https://github.com/blennies/unbikit/issues/26)
+- Add support for CSS view transitions
+  ([e747e37](https://github.com/blennies/unbikit/commit/e747e374df125b27d1e6ecd7cf06fa45643bb2ad))
 
 ### Performance Improvements
 
-* Optimize build settings to reduce the minified size of the decoder ([e747e37](https://github.com/blennies/unbikit/commit/e747e374df125b27d1e6ecd7cf06fa45643bb2ad))
+- Optimize build settings to reduce the minified size of the decoder
+  ([e747e37](https://github.com/blennies/unbikit/commit/e747e374df125b27d1e6ecd7cf06fa45643bb2ad))
 
 ## [0.3.0](https://github.com/blennies/unbikit/compare/v0.2.0...v0.3.0) (2025-11-14)
 
