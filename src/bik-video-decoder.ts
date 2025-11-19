@@ -151,9 +151,6 @@ export class BikVideoDecoder {
   // Frame decode state
   // ------------------
 
-  // Decoded data from the previous frame (for inter-frame decompression)
-  #prevFrame: Uint8Array<ArrayBuffer>;
-
   // Coordinates of the current block (in number of blocks)
   #blockXPos = 0;
   #blockYPos = 0;
@@ -161,10 +158,13 @@ export class BikVideoDecoder {
   // Value to add to a pointer to the data buffer to get to the same X position on the next line
   #stride = 0;
 
+  // Current plane is a chroma (U or V) frame
+  #isChroma: boolean = false;
+
   // Output data buffer for all planes in the current frame
   #data = EMPTY_UINT8_ARRAY;
 
-  // Output data buffer for all planes in the previous frame
+  // Output data buffer for all planes in the previous frame (for inter-frame decompression)
   #prevData = EMPTY_UINT8_ARRAY;
 
   // Current write position in the output data buffer
@@ -211,7 +211,7 @@ export class BikVideoDecoder {
 
     this.#numPixels = numPixels;
     this.#uvSize = uvSize;
-    this.#prevFrame = new Uint8Array(frameSize);
+    this.#prevData = new Uint8Array(frameSize);
 
     const blocks = (numPixels + 63) >>> 6;
     for (let i = 0; i < NUM_BLOCK_PARAMS; i++) {
@@ -232,45 +232,11 @@ export class BikVideoDecoder {
     }
   }
 
-  decodeFrame(
-    data: Uint8Array | Uint8Array,
-    existingFrame: BikVideoFrame | null = null,
-  ): BikVideoFrame {
-    const reader = this.#reader;
-    reader.reset_(data);
-    const frame = existingFrame ?? this.#createFrame();
-
-    if (this.#hasAlpha) {
-      if (this.#version >= 105) {
-        reader.skip_(32);
-      }
-      this.#decodePlane(frame, 3);
-    }
-
-    if (this.#version >= 105) {
-      reader.skip_(32);
-    }
-
-    for (let plane = 0; plane < 3; plane++) {
-      const planeIndex = (plane && this.#hasSwappedUVPlanes ? plane ^ 3 : plane) as TPlaneIndex;
-      this.#decodePlane(frame, planeIndex);
-      if (reader.bitsLeft_() <= 0) break;
-    }
-
-    // Store a copy of the YUVA planes for frame-relative decoding with the next frame.
-    this.#prevFrame.set(frame.yuv);
-    this.#data = EMPTY_UINT8_ARRAY;
-    this.#reader.reset_(EMPTY_UINT8_ARRAY);
-
-    return frame;
-  }
-
   #createFrame(): BikVideoFrame {
-    const numPixels = this.#width * this.#height;
     return {
       width: this.#width,
       height: this.#height,
-      yuv: new Uint8Array((numPixels << (this.#hasAlpha ? 1 : 0)) + (this.#uvSize << 1)),
+      yuv: new Uint8Array(this.#prevData),
       lineSize: [this.#width, this.#width >>> 1, this.#width >>> 1, this.#width],
     };
   }
@@ -283,12 +249,14 @@ export class BikVideoDecoder {
     const uvSize = this.#uvSize;
 
     const isChroma = planeIndex === 1 || planeIndex === 2;
+    this.#isChroma = isChroma;
     const planeWidth = isChroma ? Math.ceil(width / 2) : width;
     const blockWidth = isChroma ? Math.ceil(width / 16) : Math.ceil(width / 8);
     const blockHeight = isChroma ? Math.ceil(height / 16) : Math.ceil(height / 8);
 
     this.#readPlaneTrees(planeWidth, blockWidth);
 
+    this.#stride = frame.lineSize[planeIndex] ?? 0;
     const planeOffset =
       planeIndex === 0
         ? 0
@@ -297,13 +265,19 @@ export class BikVideoDecoder {
           : planeIndex === 2
             ? numPixels + uvSize
             : numPixels + (uvSize << 1);
-
-    this.#stride = frame.lineSize[planeIndex] ?? 0;
-    this.#data = frame.yuv;
-    this.#prevData = this.#prevFrame;
-    this.#dataPtr = planeOffset;
-
     const blockLineIncr = this.#stride * 7;
+
+    // Temporarily restrict the size of the data buffers for the current and previous frames to
+    // the plane being decoded. Restore the buffers at the end of the function.
+    const mainDataBuf = this.#data;
+    this.#data = new Uint8Array(this.#data.buffer, planeOffset, isChroma ? uvSize : numPixels);
+    this.#dataPtr = 0;
+    const prevMainDataBuf = this.#prevData;
+    this.#prevData = new Uint8Array(
+      this.#prevData.buffer,
+      planeOffset,
+      isChroma ? uvSize : numPixels,
+    );
 
     for (this.#blockYPos = 0; this.#blockYPos < blockHeight; this.#blockYPos++) {
       this.#readBlockTypes(blockParams[BIK_PARAM_BLOCK_TYPES]);
@@ -321,7 +295,7 @@ export class BikVideoDecoder {
 
         switch (blockType) {
           case BIK_BLOCK_TYPE_SKIP:
-            this.#copyBlock(this.#dataPtr);
+            // New frame starts as a copy of the previous frame, so no need to copy the data again
             break;
           case BIK_BLOCK_TYPE_SCALED:
             this.#decodeScaledBlock();
@@ -363,17 +337,24 @@ export class BikVideoDecoder {
     }
 
     this.#reader.align32_();
+    this.#prevData = prevMainDataBuf;
+    this.#data = mainDataBuf;
   }
 
   #copyBlock(srcOffset: number) {
-    let blockStride = 0;
+    // Skip the copy if we're copying from the block at the same position in the previous frame,
+    // as the new frame starts as a copy of the previous decoded frame.
+    if (this.#dataPtr === srcOffset) {
+      return;
+    }
+    let srcIndex = srcOffset;
+    let destIndex = this.#dataPtr;
     for (let y = 0; y < 8; y++) {
-      const destIndex = this.#dataPtr + blockStride;
-      const srcIndex = srcOffset + blockStride;
       for (let x = 0; x < 8; x++) {
         this.#data[destIndex + x] = this.#prevData[srcIndex + x] ?? 0;
       }
-      blockStride += this.#stride;
+      srcIndex += this.#stride;
+      destIndex += this.#stride;
     }
   }
 
@@ -409,7 +390,7 @@ export class BikVideoDecoder {
     } while (i < 63);
 
     if (i === 63) {
-      // Decode one more pixel in the block
+      // Decode one more pixels in the block
       const pos = BIK_PATTERNS[scanIndex] ?? 0;
       block[offset + (pos >>> 3) * stride + (pos & 7)] = this.#getValue(BIK_PARAM_COLORS);
     }
@@ -1123,5 +1104,51 @@ export class BikVideoDecoder {
       }
       destPos += stride;
     }
+  }
+
+  /**
+   * Decode a single encoded frame of video.
+   * @param data Encoded frame.
+   * @param existingFrame Decoded frame to re-use for the returned value.
+   * @returns Decoded frame.
+   */
+  decodeFrame_(
+    data: Uint8Array | Uint8Array,
+    existingFrame: BikVideoFrame | null = null,
+  ): BikVideoFrame {
+    const reader = this.#reader;
+    reader.reset_(data);
+    let frame: BikVideoFrame;
+    if (existingFrame) {
+      frame = existingFrame;
+      frame.yuv.set(this.#prevData);
+    } else {
+      frame = this.#createFrame();
+    }
+    this.#data = frame.yuv;
+
+    if (this.#hasAlpha) {
+      if (this.#version >= 105) {
+        reader.skip_(32);
+      }
+      this.#decodePlane(frame, 3);
+    }
+
+    if (this.#version >= 105) {
+      reader.skip_(32);
+    }
+
+    for (let plane = 0; plane < 3; plane++) {
+      const planeIndex = (plane && this.#hasSwappedUVPlanes ? plane ^ 3 : plane) as TPlaneIndex;
+      this.#decodePlane(frame, planeIndex);
+      if (reader.bitsLeft_() <= 0) break;
+    }
+
+    // Store a copy of the YUVA planes for frame-relative decoding with the next frame.
+    this.#prevData.set(frame.yuv);
+    this.#data = EMPTY_UINT8_ARRAY;
+    this.#reader.reset_(EMPTY_UINT8_ARRAY);
+
+    return frame;
   }
 }

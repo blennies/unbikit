@@ -38,12 +38,8 @@ There is also a
 - Supports Bink 1, revisions `c` to `i` inclusive
 - Handles demuxing and decompression of audio and video streams
 - TypeScript/JavaScript only (no WASM or native code)
+- No dependencies
 - Uses Web Streams API for efficient reading of video files
 - Isomorphic
   - runs on client/server runtimes that support at least ES2022
   - can be run with older runtimes by using the syntax lowering feature of some bundlers
-
-### Limitations
-
-- No support for Bink 2 or for revision `b` of Bink 1
-- Scaling (when applicable) is not performed by the decoder

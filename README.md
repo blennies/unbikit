@@ -7,16 +7,22 @@
 
 unbikit (_un-bik-ɪt_) is a decoder for `.bik` video files that can be used to play or
 transcode videos using the Web Streams API.
-Only version 1 of the BIK format is supported, all revisions except `b`.
-
-Written in TypeScript/JavaScript (no WASM or native code). The decoder is designed to be
-isomorphic and should work on all client/server runtimes that support at least ES2022 (or
-older runtimes with syntax lowering).
 
 ⭐ [Documentation](https://blennies.github.io/unbikit/) and a
 ⭐ [video player demo](https://blennies.github.io/unbikit/demo/)
 are available, as well as a
 [repository page on GitHub](https://github.com/blennies/unbikit)!
+
+### Features
+
+- Supports Bink 1, revisions `c` to `i` inclusive
+- Handles demuxing and decompression of audio and video streams
+- TypeScript/JavaScript only (no WASM or native code)
+- No dependencies
+- Uses Web Streams API for efficient reading of video files
+- Isomorphic
+  - runs on client/server runtimes that support at least ES2022
+  - can be run with older runtimes by using the syntax lowering feature of some bundlers
 
 ## License
 

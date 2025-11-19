@@ -77,11 +77,23 @@ class BikAudioDecoder {
   }
 
   /**
+   * Read a 29-bit floating point value (5 bits exponent, 23 bits mantissa, 1 bit sign) from a
+   * readable bit-stream.
+   * @param reader Bit-stream to read from.
+   * @returns The floating point value as a regular 64-bit double.
+   */
+  #getFloat(reader: BitReader) {
+    const power = reader.readBits_(5);
+    const f = reader.readBits_(23) * 2 ** (power - 23);
+    return reader.readBit_() ? -f : f;
+  }
+
+  /**
    * Decode all blocks and channels of a frame of audio data.
    * @param data Encoded frame audio data.
    * @returns Decoded data indexed by block number and then by channel number.
    */
-  decode(data: Uint8Array): Float32Array[][] {
+  decode_(data: Uint8Array): Float32Array[][] {
     const reader = new BitReader(data);
     const output = this.#output;
     const allOutput: Float32Array[][] = [];
@@ -200,18 +212,6 @@ class BikAudioDecoder {
 
     return allOutput;
   }
-
-  /**
-   * Read a 29-bit floating point value (5 bits exponent, 23 bits mantissa, 1 bit sign) from a
-   * readable bit-stream.
-   * @param reader Bit-stream to read from.
-   * @returns The floating point value as a regular 64-bit double.
-   */
-  #getFloat(reader: BitReader) {
-    const power = reader.readBits_(5);
-    const f = reader.readBits_(23) * 2 ** (power - 23);
-    return reader.readBit_() ? -f : f;
-  }
 }
 
 /**
@@ -227,19 +227,6 @@ class IDCT {
   constructor(nbits: IntRange<1, 17>) {
     this.#n = 1 << nbits;
     this.#tempBuf = new Float32Array(this.#n);
-  }
-
-  /**
-   * Calculate inverse DCT for a given array of real values.
-   *
-   * @param data Real-valued frequency domain samples of length `n`, which are converted in-place
-   *   to real-valued time domain samples.
-   */
-  calculate_(data: Float32Array) {
-    if (data.length < this.#n) {
-      return;
-    }
-    this.#inverseTransformInternal(data, 0, this.#n, this.#tempBuf);
   }
 
   #inverseTransformInternal(data: Float32Array, off: number, n: number, temp: Float32Array) {
@@ -263,6 +250,19 @@ class IDCT {
       data[off + i] = x + y;
       data[off + n - 1 - i] = x - y;
     }
+  }
+
+  /**
+   * Calculate inverse DCT for a given array of real values.
+   *
+   * @param data Real-valued frequency domain samples of length `n`, which are converted in-place
+   *   to real-valued time domain samples.
+   */
+  calculate_(data: Float32Array) {
+    if (data.length < this.#n) {
+      return;
+    }
+    this.#inverseTransformInternal(data, 0, this.#n, this.#tempBuf);
   }
 }
 
