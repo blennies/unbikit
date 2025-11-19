@@ -64,7 +64,7 @@ export class BikPlayer {
             (sampleRate !== null && sampleRate !== this.audioContext.sampleRate)
           ) {
             await this.audioContext?.close();
-            const opts: any = {};
+            const opts: AudioContextOptions = {};
             if (sampleRate !== null) {
               opts.sampleRate = sampleRate;
             }

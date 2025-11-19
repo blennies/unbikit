@@ -6,14 +6,16 @@
  * that the decoder should refuse to decode but handle gracefully.
  */
 import { suite, type TestContext, test } from "vitest";
+import type { BikDecoder } from "../src/bik-decoder.ts";
 import { frameToPng, getMediaFileDecoder, getShaSum, mediaFiles } from "./common.ts";
 
 const fetchSelectionOfFrames = async (
   fileIndex: keyof typeof mediaFiles,
   { annotate, expect }: Pick<TestContext, "annotate" | "expect">,
+  existingDecoder: BikDecoder | null = null,
 ): Promise<void> => {
   const file = mediaFiles[fileIndex];
-  const decoder = await getMediaFileDecoder(mediaFiles[fileIndex]);
+  const decoder = existingDecoder ?? (await getMediaFileDecoder(mediaFiles[fileIndex]));
   const header = decoder?.header;
   const numFrames = Math.min((header?.numFrames ?? 1) - 1, 500);
   const frameQuarters = ~~(numFrames / 4);
@@ -98,5 +100,17 @@ suite("decode media files of unsupported BIK versions", async () => {
     expect(decoder.isSupported).toEqual(false);
     expect(await decoder.getNextFrame()).toBeNull();
     await decoder.skipFrames(1000);
+  });
+});
+
+suite("decode corner cases", async () => {
+  test("should decode a video, reset the decoder then decode the video again", async ({
+    annotate,
+    expect,
+  }) => {
+    const decoder = await getMediaFileDecoder(mediaFiles["testfile07"]);
+    await fetchSelectionOfFrames("testfile07", { annotate, expect }, decoder);
+    decoder.reset();
+    await fetchSelectionOfFrames("testfile07", { annotate, expect }, decoder);
   });
 });

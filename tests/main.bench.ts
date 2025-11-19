@@ -4,6 +4,7 @@
  * Tests against a selection of media files. The benchmark will cycle repeatedly through all
  * the frames in each video until the benchmark ends.
  */
+import { hrtimeNow } from "tinybench";
 import { bench, suite } from "vitest";
 import { getMediaFileDecoder, mediaFiles } from "./common.ts";
 
@@ -14,12 +15,12 @@ import { getMediaFileDecoder, mediaFiles } from "./common.ts";
  */
 const createBench = async (fileIndex: keyof typeof mediaFiles): Promise<void> => {
   const decoder = await getMediaFileDecoder(mediaFiles[fileIndex]);
-  return bench(
+  bench(
     `decode of a frame of ${fileIndex}`,
     async (): Promise<any> => {
       let frame = await decoder.getNextFrame();
       if (!frame) {
-        await decoder.reset();
+        decoder.reset();
         frame = await decoder.getNextFrame();
         if (!frame) {
           throw new Error("Failed to reset decoder");
@@ -28,8 +29,9 @@ const createBench = async (fileIndex: keyof typeof mediaFiles): Promise<void> =>
       return frame;
     },
     {
-      iterations: 1000,
-      throws: true,
+      hrtimeNow,
+      iterations: 10000,
+      throws: false,
     },
   );
 };

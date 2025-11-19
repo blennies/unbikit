@@ -80,8 +80,23 @@ interface BikHeader {
      */
     hasSwappedUVPlanes: boolean;
 
+    /**
+     * When `true`, the encoded file doesn't contain U or V planes. Otherwise the file contains
+     * both U and V planes.
+     */
     isGrayscale: boolean;
 
+    /**
+     * Whether the decoded image data should be treated as scaled and/or interlaced.
+     *
+     * - 1 = double height
+     * - 2 = double height; interlaced
+     * - 3 = double width
+     * - 4 = double width and height
+     * - 5 = double width and height; interlaced
+     *
+     * Source: https://wiki.multimedia.cx/index.php/Bink_Container
+     */
     scaling: number;
   };
 
@@ -189,8 +204,8 @@ interface BikAudioTrack {
  * Function for returning a Web Streams API readable stream for reading sequential data
  * from a BIK file.
  *
- * At present, `offset` is always 0 and `len` is always undefined, so the function should just
- * return a single stream for accessing the entire file.
+ * Currently `len` is always undefined, so the function should just return a stream for
+ * accessing the rest of the file from the given start position.
  *
  * **Advance deprecation warning:** It is intended that this function will soon be replaced with
  * a more flexible and easier to use system for accessing streams.
@@ -225,20 +240,32 @@ class BikDecoder {
   }
 
   /**
-   * Set the current file read position to the specified position, invalidating the read buffer
-   * if the file read position actually changes.
+   * Set the current file read position to the specified position, updating the read buffer and
+   * potentially requesting a new readable stream if the file read position actually changes.
    * @param pos Position in the file to seek to. Specified in bytes from the start of the file.
    */
   async #seek(pos: number) {
-    if (pos === this.#bufPos) {
+    if (this.#bufBytes && pos === this.#bufPos) {
       return;
     }
     this.#bufPos = pos;
     this.#bufBytes = null;
+
+    if (this.#streamReader) {
+      await this.#streamReader.cancel();
+      this.#streamReader.releaseLock();
+      this.#streamReader = null;
+    }
+
+    const streamReader = (await this.#getReadStreamFn(pos))?.getReader();
+    if (!streamReader) {
+      throw new Error("Invalid stream reader");
+    }
+    this.#streamReader = streamReader;
   }
 
   /**
-   * Read data from the read stream.
+   * Read data from the readable stream.
    * @param len Number of bytes to read.
    * @returns The requested bytes of data. Will be at most `len` bytes, but may be fewer.
    */
@@ -297,18 +324,7 @@ class BikDecoder {
   }
 
   async #init(): Promise<void> {
-    if (this.#streamReader) {
-      await this.#streamReader.cancel();
-      this.#streamReader.releaseLock();
-      this.#streamReader = null;
-    }
-
-    const streamReader = (await this.#getReadStreamFn(0))?.getReader();
-    if (!streamReader) {
-      throw new Error("Invalid stream reader");
-    }
-    this.#streamReader = streamReader;
-    this.#seek(0); // should do nothing, but ensures that the read buffer is reset
+    await this.#seek(0);
 
     // Ensure we have sufficient data to read the fixed-size header.
     const headerBytes = await this.#ensureReadBytes(44);
@@ -397,13 +413,10 @@ class BikDecoder {
       hasSwappedUVPlanes,
     );
 
-    // `this.#bufPos` should now be pointing to the start of the first frame
-    this.#curFrame = -1;
-
     // Determine whether we can decode the rest of this BIK file or not.
     this.#isSupported = version === 1 && [0x64, 0x66, 0x67, 0x68, 0x69].includes(subVersion);
 
-    // Populate the full header structure
+    // Populate the full header structure.
     this.#header = {
       version,
       subVersion,
@@ -428,13 +441,16 @@ class BikDecoder {
 
   /**
    * Decoded header of the BIK file.
+   * @returns Decoded header.
    */
   get header(): BikHeader | null {
     return this.#header;
   }
 
   /**
-   * Whether the audio/video streams in the BIK file can be processed by this decoder or not.
+   * Whether the audio/video streams in the BIK file can be processed by the decoder or not.
+   * @returns `true` when the audio/video streams can be processed by the decoder, otherwise
+   *   `false`.
    */
   get isSupported(): boolean {
     return this.#isSupported;
@@ -492,7 +508,7 @@ class BikDecoder {
           header: audioHeader,
           size: audioTrackFrame.size,
           numSamples: audioTrackFrame.numSamples,
-          blocks: audioDecoder.decode(audioTrackFrame.bytes),
+          blocks: audioDecoder.decode_(audioTrackFrame.bytes),
         });
       }
     }
@@ -504,7 +520,7 @@ class BikDecoder {
 
     // Decode the actual video frame image data
     const videoFrame =
-      this.#videoDecoder?.decodeFrame(videoFrameBytes, prevFrame?.videoFrame) ?? null;
+      this.#videoDecoder?.decodeFrame_(videoFrameBytes, prevFrame?.videoFrame) ?? null;
 
     return {
       audioTracks,
@@ -531,11 +547,11 @@ class BikDecoder {
   }
 
   /**
-   * Reset the state of the decoder so it's ready to start decoding the BIK file from the
-   * beginning.
+   * Reset the current frame index so the decoder is ready to start decoding the BIK file from the
+   * beginning. Note that this will result in the decoder requesting a new readable stream.
    */
-  async reset(): Promise<void> {
-    await this.#init();
+  reset(): void {
+    this.#curFrame = -1;
   }
 
   /**

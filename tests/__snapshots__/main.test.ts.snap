@@ -62,10 +62,30 @@ exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from ac
 
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > screenshot_testfile07_frame_0.png 1`] = `"4850c08f1a7be3f7d7714590d303fede5a71a08d7d99713bb83fccc8e9795901"`;
 
-exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > screenshot_testfile07_frame_125.png 1`] = `"36216970048cf0aff0a611a6c3e78a2b1a7b990527695d1b0f4d0c0ffe9600fa"`;
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > screenshot_testfile07_frame_125.png 1`] = `"15f04dab53c55874d9cd1fa79381e684f9f3b51c21524b9077dd88a240f02525"`;
 
-exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > screenshot_testfile07_frame_250.png 1`] = `"d848c27a80f514d82d8d00b4df295bbb2192875dc701933178ccc13e2887ae09"`;
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > screenshot_testfile07_frame_250.png 1`] = `"665438667291942877b9c73b5fc47212083ba932f7bb597b60dbcc4820f10082"`;
 
-exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > screenshot_testfile07_frame_375.png 1`] = `"a2ed03f8f0e6622f2e930d1824cf12582399e5af5f274f22b2459029312240b4"`;
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > screenshot_testfile07_frame_375.png 1`] = `"71e27d6b2aed38c18ff8cd4f9e7fbe9e4f187be01d12ffdab1963407714afef7"`;
 
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > screenshot_testfile07_frame_500.png 1`] = `"63af766a6e28473748b782fb9fe0cbe2edf1e871d52209f21d57fa9ff2a752ff"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile07_frame_0.png 1`] = `"4850c08f1a7be3f7d7714590d303fede5a71a08d7d99713bb83fccc8e9795901"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile07_frame_0.png 2`] = `"4850c08f1a7be3f7d7714590d303fede5a71a08d7d99713bb83fccc8e9795901"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile07_frame_125.png 1`] = `"15f04dab53c55874d9cd1fa79381e684f9f3b51c21524b9077dd88a240f02525"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile07_frame_125.png 2`] = `"15f04dab53c55874d9cd1fa79381e684f9f3b51c21524b9077dd88a240f02525"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile07_frame_250.png 1`] = `"665438667291942877b9c73b5fc47212083ba932f7bb597b60dbcc4820f10082"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile07_frame_250.png 2`] = `"665438667291942877b9c73b5fc47212083ba932f7bb597b60dbcc4820f10082"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile07_frame_375.png 1`] = `"71e27d6b2aed38c18ff8cd4f9e7fbe9e4f187be01d12ffdab1963407714afef7"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile07_frame_375.png 2`] = `"71e27d6b2aed38c18ff8cd4f9e7fbe9e4f187be01d12ffdab1963407714afef7"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile07_frame_500.png 1`] = `"63af766a6e28473748b782fb9fe0cbe2edf1e871d52209f21d57fa9ff2a752ff"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile07_frame_500.png 2`] = `"63af766a6e28473748b782fb9fe0cbe2edf1e871d52209f21d57fa9ff2a752ff"`;

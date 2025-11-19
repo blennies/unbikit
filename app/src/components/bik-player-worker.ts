@@ -81,13 +81,13 @@ globalThis.onmessage = async (evt) => {
           clearTimeout(nextPlayLoopTimer);
           nextPlayLoopTimer = null;
         }
-        decoder = await BikDecoder.open(async () => {
+        decoder = await BikDecoder.open(async (offset: number) => {
           let stream: ReadableStream | null;
           if (typeof videoSrc === "string") {
-            stream = (await fetch(videoSrc))?.body;
+            stream = (await fetch(videoSrc, { headers: { range: `bytes=${offset}-` } }))?.body;
           } else {
             const file = videoSrc as File;
-            stream = file.stream();
+            stream = file.slice(offset).stream();
           }
           if (!stream) {
             throw new Error("Failed to fetch video stream");
@@ -133,7 +133,9 @@ globalThis.onmessage = async (evt) => {
         type: "discardAudioPackets",
         payload: null,
       });
-      await decoder?.reset();
+      decoder?.reset();
+      ctx?.reset();
+      imageData = null;
       updateUI();
       break;
     }

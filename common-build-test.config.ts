@@ -15,6 +15,8 @@ const MANGLE_CACHE = {
   calculate_: "k",
   curDec_: "b",
   curPtr_: "i",
+  decodeFrame_: "w",
+  decode_: "v",
   getHuff_: "f",
   items_: "c",
   len_: "p",
@@ -55,7 +57,7 @@ const commonEsbuildOptions: ESBuildOptions = {
   // such as when building the demo with Vite.
   define: defines,
   mangleCache: MANGLE_CACHE,
-  mangleProps: new RegExp(`^${objectKeys(MANGLE_CACHE).join("|")}_$`),
+  mangleProps: new RegExp(`^${objectKeys(MANGLE_CACHE).join("|")}$`),
   mangleQuoted: true,
   platform: "neutral",
   reserveProps: /^postMessage$/,

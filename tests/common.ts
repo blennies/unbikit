@@ -86,6 +86,8 @@ class MediaFile {
   #mediaFileInfo: MediaFileEntry;
   #url: string;
 
+  static #mediaFileVerified: Partial<Record<MediaFileIndex, boolean>> = {};
+
   constructor(fileIndex: MediaFileIndex, site: MediaSrc) {
     this.#name = fileIndex;
     this.#mediaFileInfo = MEDIA_FILES_INFO[fileIndex];
@@ -140,16 +142,17 @@ class MediaFile {
         `${this.#name}.bik`,
       );
       try {
-        if (this.#mediaFileInfo.sha256) {
+        if (this.#mediaFileInfo.sha256 && !MediaFile.#mediaFileVerified[this.#name]) {
           const hash = createHash("sha256");
           hash.setEncoding("hex");
-          await pipeline(createReadStream(fileCachePath, streamOpts), hash);
+          await pipeline(createReadStream(fileCachePath), hash);
           const fileHash: string = hash.read();
           if (fileHash !== this.#mediaFileInfo.sha256) {
             throw new Error(
               `SHA-256 mismatch for ${this.#name}: expected ${this.#mediaFileInfo.sha256} but got ${fileHash}`,
             );
           }
+          MediaFile.#mediaFileVerified[this.#name] = true;
         }
         fileStream = Readable.toWeb(
           createReadStream(fileCachePath, streamOpts),
@@ -161,16 +164,17 @@ class MediaFile {
         await mkdir(path.dirname(fileCachePath), { recursive: true });
         await writeFile(fileCachePath, fileData);
 
-        if (this.#mediaFileInfo.sha256) {
+        if (this.#mediaFileInfo.sha256 && !MediaFile.#mediaFileVerified[this.#name]) {
           const hash = createHash("sha256");
           hash.setEncoding("hex");
-          await pipeline(createReadStream(fileCachePath, streamOpts), hash);
+          await pipeline(createReadStream(fileCachePath), hash);
           const fileHash: string = hash.read();
           if (fileHash !== this.#mediaFileInfo.sha256) {
             throw new Error(
               `SHA-256 mismatch for fetched file ${this.#name}: expected ${this.#mediaFileInfo.sha256} but got ${fileHash}`,
             );
           }
+          MediaFile.#mediaFileVerified[this.#name] = true;
         }
         fileStream = Readable.toWeb(
           createReadStream(fileCachePath, streamOpts),
