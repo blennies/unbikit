@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.5.0](https://github.com/blennies/unbikit/compare/v0.4.0...v0.5.0) (2025-11-19)
+
+### Features
+
+- Add support for decoding interlaced videos
+  ([#33](https://github.com/blennies/unbikit/issues/33))
+  ([5aa71a1](https://github.com/blennies/unbikit/commit/5aa71a1fb82811655097648dacb4c07ae65e5934))
+- Add video flags for scaling and grayscale to the decoder's header data
+  ([5aa71a1](https://github.com/blennies/unbikit/commit/5aa71a1fb82811655097648dacb4c07ae65e5934))
+
+### Bundle Size Reductions
+
+- Reduce lengths of error messages
+  ([5aa71a1](https://github.com/blennies/unbikit/commit/5aa71a1fb82811655097648dacb4c07ae65e5934))
+- Replace internal runtime checks with type checks where possible
+  ([5aa71a1](https://github.com/blennies/unbikit/commit/5aa71a1fb82811655097648dacb4c07ae65e5934))
+
+### Robustness
+
+- Limit number of audio channels to a reasonable value (8) to guard against corrupted files
+  ([5aa71a1](https://github.com/blennies/unbikit/commit/5aa71a1fb82811655097648dacb4c07ae65e5934))
+
 ## [0.4.0](https://github.com/blennies/unbikit/compare/v0.3.0...v0.4.0) (2025-11-18)
 
 ### Features
@@ -10,7 +32,7 @@
 - Add support for CSS view transitions
   ([e747e37](https://github.com/blennies/unbikit/commit/e747e374df125b27d1e6ecd7cf06fa45643bb2ad))
 
-### Performance Improvements
+### Bundle Size Reductions
 
 - Optimize build settings to reduce the minified size of the decoder
   ([e747e37](https://github.com/blennies/unbikit/commit/e747e374df125b27d1e6ecd7cf06fa45643bb2ad))
