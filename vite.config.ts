@@ -13,6 +13,7 @@ const config: ViteUserConfig = defineConfig({
       ...commonEsbuildOptions,
     }),
   ],
+  // output: { minify: true },
   rolldownOptions: commonBuildInputOptions,
   test: {
     coverage: { exclude: ["./tests/**/*"] },

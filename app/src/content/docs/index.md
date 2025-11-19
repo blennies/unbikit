@@ -46,4 +46,4 @@ There is also a
 ### Limitations
 
 - No support for Bink 2 or for revision `b` of Bink 1
-- Some slight image corruption has been observed with a small number of non-`i` revision video
+- Scaling (when applicable) is not performed by the decoder

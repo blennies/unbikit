@@ -60,12 +60,12 @@ exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from ac
 
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile06) > screenshot_testfile06_frame_276.png 1`] = `"df56de7a7a097ebeffb4335851ad9903a7f4ba58fa39f185311ff1fc8856b4c2"`;
 
-exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07) > screenshot_testfile07_frame_0.png 1`] = `"76fdd10e3e3b47da01c4fc236be78fc6482f6e07175da571baa8fd7e1d9b4485"`;
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > screenshot_testfile07_frame_0.png 1`] = `"4850c08f1a7be3f7d7714590d303fede5a71a08d7d99713bb83fccc8e9795901"`;
 
-exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07) > screenshot_testfile07_frame_125.png 1`] = `"136afc27e6a0a4828a4a043c746ca96a19ae113c84922f4319c40d01593e964e"`;
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > screenshot_testfile07_frame_125.png 1`] = `"36216970048cf0aff0a611a6c3e78a2b1a7b990527695d1b0f4d0c0ffe9600fa"`;
 
-exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07) > screenshot_testfile07_frame_250.png 1`] = `"958fe3939bf2412a5e70279e0c6b82dd1a8abb6a53a312487391617e2e2dbe8c"`;
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > screenshot_testfile07_frame_250.png 1`] = `"d848c27a80f514d82d8d00b4df295bbb2192875dc701933178ccc13e2887ae09"`;
 
-exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07) > screenshot_testfile07_frame_375.png 1`] = `"49bd2c5ddb417ef88e25cdd1b662eeb6a44abf347fd50c0be15a63783afbe727"`;
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > screenshot_testfile07_frame_375.png 1`] = `"a2ed03f8f0e6622f2e930d1824cf12582399e5af5f274f22b2459029312240b4"`;
 
-exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07) > screenshot_testfile07_frame_500.png 1`] = `"7a2e151db11bc238c7f8bc41100ffdbc01f903e0cdc101f52381be9021a5c5b4"`;
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > screenshot_testfile07_frame_500.png 1`] = `"63af766a6e28473748b782fb9fe0cbe2edf1e871d52209f21d57fa9ff2a752ff"`;

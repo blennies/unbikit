@@ -26,7 +26,7 @@ const yuv420PlanarToRgb = (
   const frameSize = width * height;
   const halfWidth = width >>> 1;
   const uStart = frameSize;
-  const vStart = frameSize + (frameSize >>> 2);
+  const vStart = frameSize + ((width + 1) >>> 1) * ((height + 1) >>> 1);
   let rgbaPtr = 0;
 
   for (let y = 0; y < height; y++) {

@@ -638,6 +638,15 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
         </div>
         <div
           class="video-list-item"
+          data-video-url="https://sembiance.com/fileFormatSamples/video/bink/phar_intro.bik"
+          data-video-origin="https://sembiance.com"
+          data-video-origin-name="sembiance.com"
+        >
+          <div class="video-title">Pharaoh intro (interlaced)</div>
+          <div class="video-origin">source: sembiance.com</div>
+        </div>
+        <div
+          class="video-list-item"
           data-video-url="https://sembiance.com/fileFormatSamples/video/bink/original.bik"
           data-video-origin="https://sembiance.com"
           data-video-origin-name="sembiance.com"
@@ -672,17 +681,6 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
           <div class="video-title">end_victory.bik</div>
           <div class="video-origin">source: sembiance.com</div>
         </div>
-        <!-- Video has some corruption and doesn't play when using VideoFrame from the
-               web API, so exclude for now. -->
-        <!-- <div
-            class="video-list-item"
-            data-video-url="https://sembiance.com/fileFormatSamples/video/bink/phar_intro.bik"
-            data-video-origin="https://sembiance.com"
-            data-video-origin-name="sembiance.com"
-          >
-            <div class="video-title">phar_intro.bik</div>
-            <div class="video-origin">Source: sembiance.com</div>
-          </div> -->
       </div>
     </div>
   </dialog>

@@ -79,6 +79,10 @@ interface BikHeader {
      * applications that use the decoder.
      */
     hasSwappedUVPlanes: boolean;
+
+    isGrayscale: boolean;
+
+    scaling: number;
   };
 
   /**
@@ -287,7 +291,7 @@ class BikDecoder {
   async #ensureReadBytes(len: number): Promise<Uint8Array> {
     const bufBytes = await this.#readBytes(len);
     if (bufBytes?.byteLength !== len) {
-      throw new Error(`Expected ${len} bytes but read only ${bufBytes?.byteLength ?? 0}`);
+      throw new Error(`Read ${bufBytes?.byteLength ?? 0} bytes but expected ${len}`);
     }
     return bufBytes;
   }
@@ -301,7 +305,7 @@ class BikDecoder {
 
     const streamReader = (await this.#getReadStreamFn(0))?.getReader();
     if (!streamReader) {
-      throw new Error("Init failed: invalid stream reader");
+      throw new Error("Invalid stream reader");
     }
     this.#streamReader = streamReader;
     this.#seek(0); // should do nothing, but ensures that the read buffer is reset
@@ -318,7 +322,7 @@ class BikDecoder {
     const magicUint = headerWords[0] as number;
     const version = ([0x004b4942, 0x0032424b].indexOf(magicUint & 0x00ffffff) + 1) as 0 | 1 | 2;
     if (!version) {
-      throw new Error(`Init failed: invalid magic header 0x${version.toString(16)}`);
+      throw new Error(`Invalid format`);
     }
     const subVersion = magicUint >>> 24;
     const numFrames = headerWords[2] as number;
@@ -327,6 +331,8 @@ class BikDecoder {
     const videoFlags = headerWords[9] as number;
     const hasAlpha = !!(videoFlags & 0x100000);
     const hasSwappedUVPlanes = subVersion >= 104;
+    const isGrayscale = !!(videoFlags & 0x20000);
+    const scaling = (videoFlags >>> 28) & 0xf;
     const numAudioTracks = headerWords[10] as number;
     const audioTrackHeaderSize = numAudioTracks * 12;
     const frameListSize = (numFrames + 1) * 4;
@@ -410,6 +416,8 @@ class BikDecoder {
       videoFlags: {
         hasAlpha,
         hasSwappedUVPlanes,
+        isGrayscale,
+        scaling,
       },
       numAudioTracks,
 
@@ -539,12 +547,7 @@ class BikDecoder {
    */
   static async open(getReadStreamFn: GetReadStreamFn): Promise<BikDecoder> {
     const decoder = new BikDecoder(getReadStreamFn);
-    try {
-      await decoder.#init();
-    } catch (err) {
-      console.error("Error during parsing");
-      throw err;
-    }
+    await decoder.#init();
     return decoder;
   }
 }

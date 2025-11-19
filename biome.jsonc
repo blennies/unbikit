@@ -34,7 +34,11 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "recommended": true,
+      "correctness": {
+        // rule currently gets false-positives with static members
+        "noUnusedPrivateClassMembers": "off"
+      }
     }
   },
   "vcs": {
@@ -59,7 +63,9 @@
   },
   "javascript": {
     "formatter": { "enabled": true },
-    "linter": { "enabled": true },
+    "linter": {
+      "enabled": true
+    },
     "assist": { "enabled": true }
   },
   "json": {
