@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.6.0](https://github.com/blennies/unbikit/compare/v0.5.0...v0.6.0) (2025-11-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* public API change to `reset()` method
+
+### Performance Improvements
+
+* **speed:** Optimize block copy operations in videos ([#35](https://github.com/blennies/unbikit/issues/35)) ([5b531b7](https://github.com/blennies/unbikit/commit/5b531b7397d8fac5541568d0ab22e884602f43f8))
+* **speed:** Remove redundant operations from decoder `reset()` method ([5b531b7](https://github.com/blennies/unbikit/commit/5b531b7397d8fac5541568d0ab22e884602f43f8))
+
+
+### Miscellaneous Chores
+
+* Log a breaking change that was missed in an earlier commit ([#36](https://github.com/blennies/unbikit/issues/36)) ([74620f8](https://github.com/blennies/unbikit/commit/74620f870cbf568ae7bb8d60b937cf685b8ab1ec))
+
 ## [0.5.0](https://github.com/blennies/unbikit/compare/v0.4.0...v0.5.0) (2025-11-19)
 
 ### Features
