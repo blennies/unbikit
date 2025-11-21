@@ -6,11 +6,11 @@ prev: false
 
 <!-- REVISIT: grab most of this content from the GitHub README.md -->
 
-[![package minzipped size](https://flat.badgen.net/bundlephobia/minzip/unbikit)](https://bundlephobia.com/package/unbikit)
-[![version on NPM](https://flat.badgen.net/npm/v/unbikit)](https://www.npmjs.com/package/unbikit)
-[![dependency count](https://flat.badgen.net/bundlephobia/dependency-count/unbikit)](https://bundlephobia.com/package/unbikit)
-[![types included](https://flat.badgen.net/npm/types/unbikit)](https://www.npmjs.com/package/unbikit)
-[![license](https://flat.badgen.net/npm/license/unbikit)](/unbikit/license)<br />
+[![minzipped bundle size](https://img.shields.io/bundlephobia/minzip/unbikit?style=flat-square)](https://bundlephobia.com/package/unbikit)
+[![NPM Version](https://img.shields.io/npm/v/unbikit?style=flat-square)](https://www.npmjs.com/package/unbikit)
+[![dependency count](https://img.shields.io/badge/dependency%20count-0-blue?style=flat-square)](https://npmgraph.js.org/?q=unbikit)
+[![types included](https://img.shields.io/npm/types/unbikit?style=flat-square)](https://www.npmjs.com/package/unbikit)
+[![license](https://img.shields.io/npm/l/unbikit?style=flat-square&color=0088cc)](/unbikit/license)<br />
 ![isomorphic package badge](https://img.shields.io/badge/isomorphic-ECDC5A.svg?style=for-the-badge)
 ![Rolldown](https://img.shields.io/badge/rolldown-FF7E17?style=for-the-badge&logo=rolldown&logoColor=white)
 ![TypeScript

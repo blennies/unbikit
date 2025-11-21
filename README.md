@@ -1,8 +1,8 @@
 # unbikit
 
-[![package minzipped size](https://flat.badgen.net/bundlephobia/minzip/unbikit)](https://bundlephobia.com/package/unbikit)
-[![dependency count](https://flat.badgen.net/bundlephobia/dependency-count/unbikit)](https://bundlephobia.com/package/unbikit)
-[![types included](https://flat.badgen.net/npm/types/unbikit)](https://www.npmjs.com/package/unbikit)
+[![minzipped bundle size](https://img.shields.io/bundlephobia/minzip/unbikit?style=flat-square)](https://bundlephobia.com/package/unbikit)
+[![dependency count](https://img.shields.io/badge/dependency%20count-0-blue?style=flat-square)](https://npmgraph.js.org/?q=unbikit)
+[![types included](https://img.shields.io/npm/types/unbikit?style=flat-square)](https://www.npmjs.com/package/unbikit)
 
 > ⚠️
 > This package is at an early development stage. Expect API changes!
