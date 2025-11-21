@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.2](https://github.com/blennies/unbikit/compare/v0.6.1...v0.6.2) (2025-11-21)
+
+
+### Bug Fixes
+
+* **docs:** Replace badges that won't display on npm or GitHub ([#42](https://github.com/blennies/unbikit/issues/42)) ([92d522a](https://github.com/blennies/unbikit/commit/92d522aafe70e19d1107b79735ccde7ee395af08))
+
 ## [0.6.1](https://github.com/blennies/unbikit/compare/v0.6.0...v0.6.1) (2025-11-21)
 
 ### Performance Improvements
