@@ -30,13 +30,40 @@ const fetchSelectionOfFrames = async (
     expect(frame?.audioTracks).toBeDefined();
     expect(frame?.videoFrame).toBeDefined();
 
-    const frameName = `screenshot_${file.name}_frame_${frameNum}.png`;
+    // Convert video frame to a PNG and verify the hash
+    const videoFrameName = `screenshot_${file.name}_frame_${frameNum}.png`;
     const png = frameToPng(frame);
-    annotate(frameName, {
+    annotate(videoFrameName, {
       body: png,
       contentType: "image/png",
     });
-    expect(await getShaSum(png)).toMatchSnapshot(frameName);
+    expect(await getShaSum(png)).toMatchSnapshot(videoFrameName);
+
+    // Verify hash of the audio data attached to the frame
+    const audioFrameName = `audio_${file.name}_frame_${frameNum}`;
+    const tracks = frame?.audioTracks ?? [];
+    expect(tracks.length).toMatchSnapshot(`numTracks_${audioFrameName}`);
+    if (tracks.length) {
+      let totalBuffer = new Uint8Array(0);
+      for (const track of tracks) {
+        const buffers = track.blocks.flat();
+        const tmp = new Uint8Array(
+          totalBuffer.byteLength +
+            buffers.reduce((prevValue, buf) => prevValue + buf.byteLength, 0),
+        );
+        tmp.set(totalBuffer);
+        let offset = totalBuffer.byteLength;
+        for (const buffer of buffers) {
+          tmp.set(buffer, offset);
+          offset += buffer.byteLength;
+        }
+        totalBuffer = tmp;
+      }
+      expect(totalBuffer.byteLength).toMatchSnapshot(`sampleBytes_${audioFrameName}`);
+      expect(await getShaSum(totalBuffer)).toMatchSnapshot(`sampleHash_${audioFrameName}`);
+    }
+
+    // Skip to the next frame to test (or the end of the video)
     await decoder.skipFrames(frameQuarters - 1);
     frameNum += frameQuarters;
   }
@@ -108,9 +135,9 @@ suite("decode corner cases", async () => {
     annotate,
     expect,
   }) => {
-    const decoder = await getMediaFileDecoder(mediaFiles["testfile07"]);
-    await fetchSelectionOfFrames("testfile07", { annotate, expect }, decoder);
+    const decoder = await getMediaFileDecoder(mediaFiles["testfile06"]);
+    await fetchSelectionOfFrames("testfile06", { annotate, expect }, decoder);
     decoder.reset();
-    await fetchSelectionOfFrames("testfile07", { annotate, expect }, decoder);
+    await fetchSelectionOfFrames("testfile06", { annotate, expect }, decoder);
   });
 });

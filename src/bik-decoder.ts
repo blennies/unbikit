@@ -268,9 +268,11 @@ class BikDecoder {
    * Read data from the readable stream.
    * @param len Number of bytes to read.
    * @returns The requested bytes of data. Will be at most `len` bytes, but may be fewer.
+   * @throws {@link Error} Thrown if the stream ends before the requested number of bytes have
+   *   been read.
    */
   async #readBytes(len: number): Promise<Uint8Array | null> {
-    if (!this.#streamReader || len <= 0) {
+    if (!this.#streamReader || len < 1) {
       return null;
     }
 
@@ -315,6 +317,13 @@ class BikDecoder {
     return bufBytes;
   }
 
+  /**
+   * Read data from the readable stream.
+   * @param len Number of bytes to read.
+   * @returns The requested bytes of data.
+   * @throws {@link Error} Thrown if the stream ends before the requested number of bytes have
+   *   been read.
+   */
   async #ensureReadBytes(len: number): Promise<Uint8Array> {
     const bufBytes = await this.#readBytes(len);
     if (bufBytes?.byteLength !== len) {
@@ -346,7 +355,7 @@ class BikDecoder {
     const height = headerWords[6] as number;
     const videoFlags = headerWords[9] as number;
     const hasAlpha = !!(videoFlags & 0x100000);
-    const hasSwappedUVPlanes = subVersion >= 104;
+    const hasSwappedUVPlanes = subVersion > 103;
     const isGrayscale = !!(videoFlags & 0x20000);
     const scaling = (videoFlags >>> 28) & 0xf;
     const numAudioTracks = headerWords[10] as number;
@@ -414,7 +423,8 @@ class BikDecoder {
     );
 
     // Determine whether we can decode the rest of this BIK file or not.
-    this.#isSupported = version === 1 && [0x64, 0x66, 0x67, 0x68, 0x69].includes(subVersion);
+    this.#isSupported =
+      version === 1 && subVersion > 0x63 && subVersion < 0x6a && subVersion !== 0x65;
 
     // Populate the full header structure.
     this.#header = {
@@ -486,7 +496,7 @@ class BikDecoder {
     let audioFramePos = 0;
     for (const header of this.#header?.audioTracks ?? []) {
       const size = frameDataView.getUint32(audioFramePos, true);
-      const numSamples = size >= 4 ? frameDataView.getUint32(audioFramePos + 4, true) : 0;
+      const numSamples = size > 3 ? frameDataView.getUint32(audioFramePos + 4, true) : 0;
       audioFrameSize += size;
       const bytes = frameBytes.subarray(audioFramePos + 8, audioFramePos + size + 4);
       audioTracksFrame.push({
@@ -534,9 +544,6 @@ class BikDecoder {
    * @param numFrames Number of frames to skip, but still decode.
    */
   async skipFrames(numFrames: number): Promise<void> {
-    if (!this.#isSupported) {
-      return;
-    }
     let frame: BikFrame | null = null;
     for (let i = 0; i < numFrames; i++) {
       frame = await this.getNextFrame(frame);

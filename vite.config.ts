@@ -23,6 +23,8 @@ const config: ViteUserConfig = defineConfig({
     //   { extends: true, test: { name: "prod" } },
     // ],
     // typecheck: { enabled: true },
+    // fileParallelism: false,
+    // execArgv: ["--cpu-prof", "--cpu-prof-dir=test-runner-profile"],
   },
 } as ViteUserConfig);
 

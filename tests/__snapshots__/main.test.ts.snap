@@ -1,5 +1,35 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile01) > numTracks_audio_testfile01_frame_0 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile01) > numTracks_audio_testfile01_frame_125 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile01) > numTracks_audio_testfile01_frame_250 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile01) > numTracks_audio_testfile01_frame_375 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile01) > numTracks_audio_testfile01_frame_500 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile01) > sampleBytes_audio_testfile01_frame_0 1`] = `291840`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile01) > sampleBytes_audio_testfile01_frame_125 1`] = `15360`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile01) > sampleBytes_audio_testfile01_frame_250 1`] = `15360`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile01) > sampleBytes_audio_testfile01_frame_375 1`] = `15360`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile01) > sampleBytes_audio_testfile01_frame_500 1`] = `15360`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile01) > sampleHash_audio_testfile01_frame_0 1`] = `"469c1e5bcecf7628b988214ae5ffa331ca14d4de24dbfb06847c7705bd576da9"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile01) > sampleHash_audio_testfile01_frame_125 1`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile01) > sampleHash_audio_testfile01_frame_250 1`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile01) > sampleHash_audio_testfile01_frame_375 1`] = `"302a4cd812c4ddf6be7a3c4465f660bad543df10375b4857ef83261afa0f1b24"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile01) > sampleHash_audio_testfile01_frame_500 1`] = `"6d168317c1e01ce786f7db3925dff396af13000c2341d8ccc2dc48ec5be9719f"`;
+
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile01) > screenshot_testfile01_frame_0.png 1`] = `"cb41ceeabe67fb4aa21fd2343f2d9b4f2a8555d07080ba947fd17b3710a5fe33"`;
 
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile01) > screenshot_testfile01_frame_125.png 1`] = `"92a1945152ff1c73e3a4a91f3557c36800e99145b9097da0a621392014ea6e76"`;
@@ -9,6 +39,16 @@ exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from ac
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile01) > screenshot_testfile01_frame_375.png 1`] = `"5795e5cb3cc8566e581f0cb517354e620712ef06bdc91e16c8c245a5aceddff9"`;
 
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile01) > screenshot_testfile01_frame_500.png 1`] = `"09dca7cfe412193f9a93fff12f5e701bcd07afdd2e9282b0113447a55fe191ee"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile02) > numTracks_audio_testfile02_frame_0 1`] = `0`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile02) > numTracks_audio_testfile02_frame_42 1`] = `0`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile02) > numTracks_audio_testfile02_frame_84 1`] = `0`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile02) > numTracks_audio_testfile02_frame_126 1`] = `0`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile02) > numTracks_audio_testfile02_frame_168 1`] = `0`;
 
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile02) > screenshot_testfile02_frame_0.png 1`] = `"f3af0ab2b08a5de7419316d9ac0d2c38c118ae95e3a8547b03b2ea23e75c4484"`;
 
@@ -20,6 +60,16 @@ exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from ac
 
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile02) > screenshot_testfile02_frame_168.png 1`] = `"f3af0ab2b08a5de7419316d9ac0d2c38c118ae95e3a8547b03b2ea23e75c4484"`;
 
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile03) > numTracks_audio_testfile03_frame_0 1`] = `0`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile03) > numTracks_audio_testfile03_frame_62 1`] = `0`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile03) > numTracks_audio_testfile03_frame_124 1`] = `0`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile03) > numTracks_audio_testfile03_frame_186 1`] = `0`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile03) > numTracks_audio_testfile03_frame_248 1`] = `0`;
+
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile03) > screenshot_testfile03_frame_0.png 1`] = `"1094047983b8a6e3e106dcfeff5ae2a30b164306272b8c21c072154731defd4f"`;
 
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile03) > screenshot_testfile03_frame_62.png 1`] = `"544382683d9f90900fe6626abfd7e3b0fa1f95f400c79155f65adbdf855919cb"`;
@@ -29,6 +79,36 @@ exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from ac
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile03) > screenshot_testfile03_frame_186.png 1`] = `"544382683d9f90900fe6626abfd7e3b0fa1f95f400c79155f65adbdf855919cb"`;
 
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile03) > screenshot_testfile03_frame_248.png 1`] = `"e03d205fe4a2cd2840cdb1d0199a2c35b58c85a104eebbcb380026a3f519e74f"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile04) > numTracks_audio_testfile04_frame_0 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile04) > numTracks_audio_testfile04_frame_125 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile04) > numTracks_audio_testfile04_frame_250 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile04) > numTracks_audio_testfile04_frame_375 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile04) > numTracks_audio_testfile04_frame_500 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile04) > sampleBytes_audio_testfile04_frame_0 1`] = `276480`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile04) > sampleBytes_audio_testfile04_frame_125 1`] = `15360`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile04) > sampleBytes_audio_testfile04_frame_250 1`] = `30720`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile04) > sampleBytes_audio_testfile04_frame_375 1`] = `30720`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile04) > sampleBytes_audio_testfile04_frame_500 1`] = `15360`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile04) > sampleHash_audio_testfile04_frame_0 1`] = `"33adbc02ff11ffc118c4e927132c8b7839e372b66bffad14e2dd3b9106c475dd"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile04) > sampleHash_audio_testfile04_frame_125 1`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile04) > sampleHash_audio_testfile04_frame_250 1`] = `"4c7eea521d2218c5965fd3666c694a967a939e29a6928d528b6ed1101176b8ac"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile04) > sampleHash_audio_testfile04_frame_375 1`] = `"4c7eea521d2218c5965fd3666c694a967a939e29a6928d528b6ed1101176b8ac"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile04) > sampleHash_audio_testfile04_frame_500 1`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
 
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile04) > screenshot_testfile04_frame_0.png 1`] = `"df56de7a7a097ebeffb4335851ad9903a7f4ba58fa39f185311ff1fc8856b4c2"`;
 
@@ -40,6 +120,36 @@ exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from ac
 
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile04) > screenshot_testfile04_frame_500.png 1`] = `"e33727d883f807b80c1e2154773c8c1f7024b7b2e97b80ee671e8071c8fcad81"`;
 
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile05) > numTracks_audio_testfile05_frame_0 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile05) > numTracks_audio_testfile05_frame_66 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile05) > numTracks_audio_testfile05_frame_132 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile05) > numTracks_audio_testfile05_frame_198 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile05) > numTracks_audio_testfile05_frame_264 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile05) > sampleBytes_audio_testfile05_frame_0 1`] = `268800`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile05) > sampleBytes_audio_testfile05_frame_66 1`] = `15360`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile05) > sampleBytes_audio_testfile05_frame_132 1`] = `15360`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile05) > sampleBytes_audio_testfile05_frame_198 1`] = `7680`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile05) > sampleBytes_audio_testfile05_frame_264 1`] = `0`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile05) > sampleHash_audio_testfile05_frame_0 1`] = `"1f547c53c35bef43f464e1f2cd0e054f48fa4172732e66172fcf64539150a7e8"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile05) > sampleHash_audio_testfile05_frame_66 1`] = `"a12b8e8883485152c44799afd0e34e86fabb3bfb4451a0cbca0ad23183424687"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile05) > sampleHash_audio_testfile05_frame_132 1`] = `"f497db99a1f5d15556db98647f8246ab66327ce2ab143d32d1b1cb961e08a73b"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile05) > sampleHash_audio_testfile05_frame_198 1`] = `"f6e28ad1753237d42be72be187a88f09a269097eeda24bcf12908db6bd361246"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile05) > sampleHash_audio_testfile05_frame_264 1`] = `"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"`;
+
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile05) > screenshot_testfile05_frame_0.png 1`] = `"cb41ceeabe67fb4aa21fd2343f2d9b4f2a8555d07080ba947fd17b3710a5fe33"`;
 
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile05) > screenshot_testfile05_frame_66.png 1`] = `"7d967f44116d4bd9ad812ad1c16aefcde52468f6db95a3b0bca9eaf1e53098b6"`;
@@ -49,6 +159,36 @@ exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from ac
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile05) > screenshot_testfile05_frame_198.png 1`] = `"749666dc75cd270b32555bc5817920167c9c5907f320e9e2ccd818cc21b0481d"`;
 
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile05) > screenshot_testfile05_frame_264.png 1`] = `"cb41ceeabe67fb4aa21fd2343f2d9b4f2a8555d07080ba947fd17b3710a5fe33"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile06) > numTracks_audio_testfile06_frame_0 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile06) > numTracks_audio_testfile06_frame_69 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile06) > numTracks_audio_testfile06_frame_138 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile06) > numTracks_audio_testfile06_frame_207 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile06) > numTracks_audio_testfile06_frame_276 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile06) > sampleBytes_audio_testfile06_frame_0 1`] = `276480`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile06) > sampleBytes_audio_testfile06_frame_69 1`] = `15360`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile06) > sampleBytes_audio_testfile06_frame_138 1`] = `15360`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile06) > sampleBytes_audio_testfile06_frame_207 1`] = `15360`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile06) > sampleBytes_audio_testfile06_frame_276 1`] = `0`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile06) > sampleHash_audio_testfile06_frame_0 1`] = `"33adbc02ff11ffc118c4e927132c8b7839e372b66bffad14e2dd3b9106c475dd"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile06) > sampleHash_audio_testfile06_frame_69 1`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile06) > sampleHash_audio_testfile06_frame_138 1`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile06) > sampleHash_audio_testfile06_frame_207 1`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile06) > sampleHash_audio_testfile06_frame_276 1`] = `"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"`;
 
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile06) > screenshot_testfile06_frame_0.png 1`] = `"e8817a7782d0cabbdb5e1d2cad4995c67146a7765bbaf185ff9fe3f9ff43797d"`;
 
@@ -60,6 +200,36 @@ exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from ac
 
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile06) > screenshot_testfile06_frame_276.png 1`] = `"df56de7a7a097ebeffb4335851ad9903a7f4ba58fa39f185311ff1fc8856b4c2"`;
 
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > numTracks_audio_testfile07_frame_0 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > numTracks_audio_testfile07_frame_125 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > numTracks_audio_testfile07_frame_250 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > numTracks_audio_testfile07_frame_375 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > numTracks_audio_testfile07_frame_500 1`] = `1`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > sampleBytes_audio_testfile07_frame_0 1`] = `276480`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > sampleBytes_audio_testfile07_frame_125 1`] = `15360`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > sampleBytes_audio_testfile07_frame_250 1`] = `15360`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > sampleBytes_audio_testfile07_frame_375 1`] = `15360`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > sampleBytes_audio_testfile07_frame_500 1`] = `15360`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > sampleHash_audio_testfile07_frame_0 1`] = `"33adbc02ff11ffc118c4e927132c8b7839e372b66bffad14e2dd3b9106c475dd"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > sampleHash_audio_testfile07_frame_125 1`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > sampleHash_audio_testfile07_frame_250 1`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > sampleHash_audio_testfile07_frame_375 1`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
+
+exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > sampleHash_audio_testfile07_frame_500 1`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
+
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > screenshot_testfile07_frame_0.png 1`] = `"4850c08f1a7be3f7d7714590d303fede5a71a08d7d99713bb83fccc8e9795901"`;
 
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > screenshot_testfile07_frame_125.png 1`] = `"15f04dab53c55874d9cd1fa79381e684f9f3b51c21524b9077dd88a240f02525"`;
@@ -70,22 +240,82 @@ exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from ac
 
 exports[`decode BIK 1 (d, f, g, h, i) media files > should decode frames from across the file (testfile07; interlaced) > screenshot_testfile07_frame_500.png 1`] = `"63af766a6e28473748b782fb9fe0cbe2edf1e871d52209f21d57fa9ff2a752ff"`;
 
-exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile07_frame_0.png 1`] = `"4850c08f1a7be3f7d7714590d303fede5a71a08d7d99713bb83fccc8e9795901"`;
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > numTracks_audio_testfile06_frame_0 1`] = `1`;
 
-exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile07_frame_0.png 2`] = `"4850c08f1a7be3f7d7714590d303fede5a71a08d7d99713bb83fccc8e9795901"`;
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > numTracks_audio_testfile06_frame_0 2`] = `1`;
 
-exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile07_frame_125.png 1`] = `"15f04dab53c55874d9cd1fa79381e684f9f3b51c21524b9077dd88a240f02525"`;
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > numTracks_audio_testfile06_frame_69 1`] = `1`;
 
-exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile07_frame_125.png 2`] = `"15f04dab53c55874d9cd1fa79381e684f9f3b51c21524b9077dd88a240f02525"`;
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > numTracks_audio_testfile06_frame_69 2`] = `1`;
 
-exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile07_frame_250.png 1`] = `"665438667291942877b9c73b5fc47212083ba932f7bb597b60dbcc4820f10082"`;
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > numTracks_audio_testfile06_frame_138 1`] = `1`;
 
-exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile07_frame_250.png 2`] = `"665438667291942877b9c73b5fc47212083ba932f7bb597b60dbcc4820f10082"`;
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > numTracks_audio_testfile06_frame_138 2`] = `1`;
 
-exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile07_frame_375.png 1`] = `"71e27d6b2aed38c18ff8cd4f9e7fbe9e4f187be01d12ffdab1963407714afef7"`;
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > numTracks_audio_testfile06_frame_207 1`] = `1`;
 
-exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile07_frame_375.png 2`] = `"71e27d6b2aed38c18ff8cd4f9e7fbe9e4f187be01d12ffdab1963407714afef7"`;
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > numTracks_audio_testfile06_frame_207 2`] = `1`;
 
-exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile07_frame_500.png 1`] = `"63af766a6e28473748b782fb9fe0cbe2edf1e871d52209f21d57fa9ff2a752ff"`;
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > numTracks_audio_testfile06_frame_276 1`] = `1`;
 
-exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile07_frame_500.png 2`] = `"63af766a6e28473748b782fb9fe0cbe2edf1e871d52209f21d57fa9ff2a752ff"`;
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > numTracks_audio_testfile06_frame_276 2`] = `1`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > sampleBytes_audio_testfile06_frame_0 1`] = `276480`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > sampleBytes_audio_testfile06_frame_0 2`] = `276480`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > sampleBytes_audio_testfile06_frame_69 1`] = `15360`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > sampleBytes_audio_testfile06_frame_69 2`] = `15360`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > sampleBytes_audio_testfile06_frame_138 1`] = `15360`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > sampleBytes_audio_testfile06_frame_138 2`] = `15360`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > sampleBytes_audio_testfile06_frame_207 1`] = `15360`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > sampleBytes_audio_testfile06_frame_207 2`] = `15360`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > sampleBytes_audio_testfile06_frame_276 1`] = `0`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > sampleBytes_audio_testfile06_frame_276 2`] = `0`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > sampleHash_audio_testfile06_frame_0 1`] = `"33adbc02ff11ffc118c4e927132c8b7839e372b66bffad14e2dd3b9106c475dd"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > sampleHash_audio_testfile06_frame_0 2`] = `"33adbc02ff11ffc118c4e927132c8b7839e372b66bffad14e2dd3b9106c475dd"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > sampleHash_audio_testfile06_frame_69 1`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > sampleHash_audio_testfile06_frame_69 2`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > sampleHash_audio_testfile06_frame_138 1`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > sampleHash_audio_testfile06_frame_138 2`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > sampleHash_audio_testfile06_frame_207 1`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > sampleHash_audio_testfile06_frame_207 2`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > sampleHash_audio_testfile06_frame_276 1`] = `"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > sampleHash_audio_testfile06_frame_276 2`] = `"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile06_frame_0.png 1`] = `"e8817a7782d0cabbdb5e1d2cad4995c67146a7765bbaf185ff9fe3f9ff43797d"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile06_frame_0.png 2`] = `"e8817a7782d0cabbdb5e1d2cad4995c67146a7765bbaf185ff9fe3f9ff43797d"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile06_frame_69.png 1`] = `"e2a6c449292f77ef98f890e837da6a3257619c8f9c756ad6d8771fb47da9a260"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile06_frame_69.png 2`] = `"e2a6c449292f77ef98f890e837da6a3257619c8f9c756ad6d8771fb47da9a260"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile06_frame_138.png 1`] = `"43e0fc4e1d4c962cad5c940d629f211557b9cc9cde1ba8e0e3c60a8de40c0394"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile06_frame_138.png 2`] = `"43e0fc4e1d4c962cad5c940d629f211557b9cc9cde1ba8e0e3c60a8de40c0394"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile06_frame_207.png 1`] = `"35c612115979c5aabf3136b26103679df4ac3f00da311875682506ede6219088"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile06_frame_207.png 2`] = `"35c612115979c5aabf3136b26103679df4ac3f00da311875682506ede6219088"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile06_frame_276.png 1`] = `"df56de7a7a097ebeffb4335851ad9903a7f4ba58fa39f185311ff1fc8856b4c2"`;
+
+exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile06_frame_276.png 2`] = `"df56de7a7a097ebeffb4335851ad9903a7f4ba58fa39f185311ff1fc8856b4c2"`;

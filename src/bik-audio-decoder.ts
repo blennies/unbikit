@@ -222,31 +222,52 @@ class BikAudioDecoder {
  */
 class IDCT {
   #n: number;
+  #nBits: number;
   #tempBuf: Float32Array;
+  #reciprocalCosTables: Float32Array[] = [];
 
-  constructor(nbits: IntRange<1, 17>) {
-    this.#n = 1 << nbits;
+  constructor(nBits: IntRange<1, 17>) {
+    this.#nBits = nBits;
+    this.#n = 1 << nBits;
     this.#tempBuf = new Float32Array(this.#n);
+
+    // Precompute cosine tables.
+    for (let tableIndex = 0; tableIndex <= nBits; tableIndex++) {
+      const n = 1 << tableIndex;
+      const reciprocalCosTable = new Float32Array(n);
+      for (let i = 0; i < n; i++) {
+        reciprocalCosTable[i] = 0.5 / Math.cos(((i + 0.5) * Math.PI) / n);
+      }
+      this.#reciprocalCosTables.push(reciprocalCosTable);
+    }
   }
 
-  #inverseTransformInternal(data: Float32Array, off: number, n: number, temp: Float32Array) {
+  #inverseTransformInternal(
+    data: Float32Array,
+    off: number,
+    n: number,
+    nBits: number,
+    temp: Float32Array,
+  ) {
     if (n < 2) {
       return;
     }
+    const reciprocalCosTable = this.#reciprocalCosTables[nBits] as Float32Array;
     const halfLen = n >>> 1;
 
     temp[off + 0] = data[off] as number;
     temp[off + halfLen] = data[off + 1] as number;
     for (let i = 1; i < halfLen; i++) {
-      temp[off + i] = data[off + i * 2] as number;
+      const iDoubled = i << 1;
+      temp[off + i] = data[off + iDoubled] as number;
       temp[off + i + halfLen] =
-        (data[off + i * 2 - 1] as number) + (data[off + i * 2 + 1] as number);
+        (data[off - 1 + iDoubled] as number) + (data[off + 1 + iDoubled] as number);
     }
-    this.#inverseTransformInternal(temp, off, halfLen, data);
-    this.#inverseTransformInternal(temp, off + halfLen, halfLen, data);
+    this.#inverseTransformInternal(temp, off, halfLen, nBits - 1, data);
+    this.#inverseTransformInternal(temp, off + halfLen, halfLen, nBits - 1, data);
     for (let i = 0; i < halfLen; i++) {
       const x = temp[off + i] as number;
-      const y = (temp[off + i + halfLen] as number) / (Math.cos(((i + 0.5) * Math.PI) / n) * 2);
+      const y = (temp[off + i + halfLen] as number) * (reciprocalCosTable[i] as number);
       data[off + i] = x + y;
       data[off + n - 1 - i] = x - y;
     }
@@ -262,7 +283,7 @@ class IDCT {
     if (data.length < this.#n) {
       return;
     }
-    this.#inverseTransformInternal(data, 0, this.#n, this.#tempBuf);
+    this.#inverseTransformInternal(data, 0, this.#n, this.#nBits, this.#tempBuf);
   }
 }
 
@@ -275,14 +296,27 @@ class IDCT {
 class IRDFT {
   #n: number;
   #nDiv4: number;
+  #cosTable: Float32Array;
+  #sinTable: Float32Array;
   #fft: FFT;
 
-  constructor(nbits: IntRange<4, 17>) {
-    this.#n = 1 << nbits;
-    this.#nDiv4 = this.#n >>> 2;
+  constructor(nBits: IntRange<4, 17>) {
+    const n = 1 << nBits;
+    const nDiv4 = n >>> 2;
+    this.#n = n;
+    this.#nDiv4 = nDiv4;
+
+    // Precompute sine and cosine tables.
+    const theta = (2 * Math.PI) / n;
+    this.#cosTable = new Float32Array(nDiv4);
+    this.#sinTable = new Float32Array(nDiv4);
+    for (let i = 0; i < nDiv4; i++) {
+      this.#cosTable[i] = Math.cos(i * theta);
+      this.#sinTable[i] = Math.sin(i * theta);
+    }
 
     // Initialize FFT with half size
-    this.#fft = new FFT((nbits - 1) as IntRange<3, 16>);
+    this.#fft = new FFT((nBits - 1) as IntRange<3, 16>);
   }
 
   /**
@@ -298,11 +332,10 @@ class IRDFT {
    */
   calculate_(data: Float32Array): void {
     const n = this.#n;
-    const nDiv4 = this.#nDiv4;
     if (data.length < n) {
       return;
     }
-    const theta = (2 * Math.PI) / n;
+    const nDiv4 = this.#nDiv4;
 
     // Handle DC and Nyquist components.
     const dc = data[0] as number;
@@ -325,8 +358,8 @@ class IRDFT {
       const evenIm = 0.5 * (d11 - d12);
       const oddRe = -0.5 * (d11 + d12);
 
-      const cosVal = Math.cos(i * theta);
-      const sinVal = Math.sin(i * theta);
+      const cosVal = this.#cosTable[i] as number;
+      const sinVal = this.#sinTable[i] as number;
 
       data[i1] = evenRe + oddRe * cosVal - oddIm * sinVal;
       data[i1 + 1] = evenIm + oddIm * cosVal + oddRe * sinVal;
@@ -346,13 +379,13 @@ class IRDFT {
  */
 class FFT {
   #n: number;
-  #nbits: number;
+  #nBits: number;
   #revTable: Uint16Array;
   #twiddle: Float32Array;
 
-  constructor(nbits: IntRange<2, 17>) {
-    this.#nbits = nbits;
-    this.#n = 1 << nbits;
+  constructor(nBits: IntRange<2, 17>) {
+    this.#nBits = nBits;
+    this.#n = 1 << nBits;
 
     // Build bit-reversal table.
     this.#revTable = new Uint16Array(this.#n);
@@ -371,7 +404,7 @@ class FFT {
 
   #bitReverse(x: number): number {
     let result = 0;
-    for (let i = 0; i < this.#nbits; i++) {
+    for (let i = 0; i < this.#nBits; i++) {
       result = (result << 1) | (x & 1);
       x >>= 1;
     }
