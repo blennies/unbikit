@@ -1,8 +1,10 @@
 # unbikit
 
-[![npm package minimized gzipped size](https://img.shields.io/bundlejs/size/unbikit)](https://bundlejs.com/?q=unbikit)
-[![NPM Version](https://img.shields.io/npm/v/unbikit)](https://www.npmjs.com/package/unbikit)
-[![NPM License](https://img.shields.io/npm/l/unbikit)](../LICENSE.md)
+[![package minzipped size](https://flat.badgen.net/bundlephobia/minzip/unbikit)](https://bundlephobia.com/package/unbikit)
+[![version on NPM](https://flat.badgen.net/npm/v/unbikit)](https://www.npmjs.com/package/unbikit)
+[![dependency count](https://flat.badgen.net/bundlephobia/dependency-count/unbikit)](https://bundlephobia.com/package/unbikit)
+[![types included](https://flat.badgen.net/npm/types/unbikit)](https://www.npmjs.com/package/unbikit)
+[![license](https://flat.badgen.net/npm/license/unbikit)](/unbikit/license)
 <br>
 ![isomorphic package badge](https://img.shields.io/badge/isomorphic-ECDC5A.svg?style=for-the-badge)
 ![Rolldown](https://img.shields.io/badge/rolldown-FF7E17?style=for-the-badge&logo=rolldown&logoColor=white)
@@ -11,11 +13,11 @@
 [![Conventional Commits badge](https://img.shields.io/badge/Conventional%20Commits-1.0.0-FE5196?style=for-the-badge&logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 
 > [!WARNING]
-> This package is at a very early development stage. Expect **_major_** API changes!
+> This package is at an early development stage. Expect API changes!
 
 ## Introduction
 
-unbikit (_un-bik-ɪt_) is a decoder for `.bik` video files that can be used to play or
+unbikit (_un-bik-ɪt_) is a decoder for `.bik` (Bink) video files that can be used to play or
 transcode videos.
 
 ⭐ [Documentation](https://blennies.github.io/unbikit/) and a
@@ -126,7 +128,9 @@ Sources of reference material about decoding the `.bik` format:
 
 - [MultimediaWiki pages on the file format](https://wiki.multimedia.cx/index.php/Bink_Container)
 - [Kostya's Boring Codec World](https://codecs.multimedia.cx/)
-- libav (see the [FFmpeg website](https://ffmpeg.org/))
+- [libav](https://git.ffmpeg.org/gitweb/ffmpeg.git),
+  which contains a complete `.bik` decoder implementation
+  (see the [FFmpeg website](https://ffmpeg.org/) for more information)
 - [Wikipedia](https://www.wikipedia.org/) for overviews of the mathematical transformations
   involved with video decoding
 - research papers on efficient algorithm implementations (searchable online):

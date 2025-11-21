@@ -72,7 +72,9 @@ Sources of reference material about decoding the `.bik` format:
 
 - [MultimediaWiki pages on the file format](https://wiki.multimedia.cx/index.php/Bink_Container)
 - [Kostya's Boring Codec World](https://codecs.multimedia.cx/)
-- libav (see the [FFmpeg website](https://ffmpeg.org/))
+- [libav](https://git.ffmpeg.org/gitweb/ffmpeg.git),
+  which contains a complete `.bik` decoder implementation
+  (see the [FFmpeg website](https://ffmpeg.org/) for more information)
 - [Wikipedia](https://www.wikipedia.org/) for overviews of the mathematical transformations
   involved with video decoding
 - research papers on efficient algorithm implementations (searchable online):

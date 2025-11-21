@@ -14,6 +14,9 @@ const config: ReturnType<typeof defineConfig> = defineConfig({
   },
   integrations: [
     starlight({
+      components: {
+        Footer: "./src/components/Footer.astro",
+      },
       customCss: ["./src/styles/global.css", "@fontsource-variable/sora/index.css"],
       plugins: [
         publicStarlightTypeDoc({
