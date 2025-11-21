@@ -1,11 +1,13 @@
 # unbikit
 
-[![npm package minimized gzipped size](https://img.shields.io/bundlejs/size/unbikit)](https://bundlejs.com/?q=unbikit)
+[![package minzipped size](https://flat.badgen.net/bundlephobia/minzip/unbikit)](https://bundlephobia.com/package/unbikit)
+[![dependency count](https://flat.badgen.net/bundlephobia/dependency-count/unbikit)](https://bundlephobia.com/package/unbikit)
+[![types included](https://flat.badgen.net/npm/types/unbikit)](https://www.npmjs.com/package/unbikit)
 
 > ⚠️
-> This package is at a very early development stage. Expect **_major_** API changes!
+> This package is at an early development stage. Expect API changes!
 
-unbikit (_un-bik-ɪt_) is a decoder for `.bik` video files that can be used to play or
+unbikit (_un-bik-ɪt_) is a decoder for `.bik` (Bink) video files that can be used to play or
 transcode videos using the Web Streams API.
 
 ⭐ [Documentation](https://blennies.github.io/unbikit/) and a

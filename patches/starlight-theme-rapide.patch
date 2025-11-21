@@ -1,0 +1,13 @@
+diff --git a/styles/base.css b/styles/base.css
+index 4342fef79150825d97ef7a335d1a2cf7619ff9aa..db58356f85ef143b7ee19018e455622a9f23c7b1 100644
+--- a/styles/base.css
++++ b/styles/base.css
+@@ -203,7 +203,7 @@
+         }
+       }
+ 
+-      &:is(:hover, :focus-visible) + ul > li {
++      &:is(:hover, :focus-visible) ~ ul > li {
+         border-inline-start-color: var(--sl-color-accent-high);
+       }
+     }

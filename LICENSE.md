@@ -35,6 +35,10 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
 ## Bink Video Licensing
 
+The `.bik` file format is a proprietary format used by
+[Bink Video](https://www.radgametools.com/bnkmain.htm), developed by
+[Epic Games Tools](https://www.radgametools.com/) (formerly RAD Game Tools).
+
 The redistribution of Bink Video files may require an additional license from
 [Epic Games Tools](https://www.radgametools.com). More information can be found at
 

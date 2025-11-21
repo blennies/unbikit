@@ -39,6 +39,8 @@ main {
 }
 
 /* Enable smooth page transitions */
-@view-transition {
-  navigation: auto;
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
 }
