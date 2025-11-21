@@ -1,6 +1,6 @@
 {
   "name": "unbikit",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Decoder for `.bik` video files.",
   "keywords": [
     "audio",
