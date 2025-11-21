@@ -24,8 +24,6 @@ const MANGLE_CACHE = {
   readBit_: "d",
   readBits_: "a",
   reset_: "m",
-  restorePos_: "u",
-  savePos_: "r",
   skip_: "j",
   symbolMap_: "g",
   tableNum_: "l",

@@ -1,5 +1,5 @@
 /**
- * Various constants used by the decoder.
+ * This file contains various packed constants used by the decoder.
  */
 import type { IntRange, TupleOf } from "type-fest";
 
@@ -106,7 +106,7 @@ function generateQuantTables(baseMatrix: readonly number[]): number[] {
 
   for (let level = 0; level < 32; level++) {
     const factor = QUANT_FACTORS[level % 16];
-    const subTableOffset = level >= 16 ? 64 : 0;
+    const subTableOffset = level > 15 ? 64 : 0;
 
     for (let i = 0; i < 64; i++) {
       // Scale the base quantization value and round to nearest integer

@@ -18,32 +18,38 @@ class BitReader {
     this.#bitPos = 0;
   }
 
-  readBits_(n: number): number {
+  readBits_(n: number, peek: boolean = false): number {
     let result = 0;
+    let pos = this.#pos;
+    let bitPos = this.#bitPos;
     let bitsRead = 0;
     let bitsRemaining = n;
     do {
       const mask = ((1 << bitsRemaining) - 1) & 0xff;
-      const bits = ((this.#buffer[this.#pos] ?? 0) >>> this.#bitPos) & mask;
+      const bits = ((this.#buffer[pos] ?? 0) >>> bitPos) & mask;
       result |= bits << bitsRead;
-      const newBitPos = this.#bitPos + bitsRemaining;
-      if (newBitPos >= 8) {
-        const bitChange = 8 - this.#bitPos;
+      const newBitPos = bitPos + bitsRemaining;
+      if (newBitPos > 7) {
+        const bitChange = 8 - bitPos;
         bitsRead += bitChange;
         bitsRemaining -= bitChange;
-        this.#pos++;
-        this.#bitPos = 0;
+        pos++;
+        bitPos = 0;
       } else {
-        this.#bitPos = newBitPos;
+        bitPos = newBitPos;
         break;
       }
     } while (bitsRead < n);
+    if (!peek) {
+      this.#pos = pos;
+      this.#bitPos = bitPos;
+    }
     return result;
   }
 
-  readBit_(): number {
-    const bit = ((this.#buffer[this.#pos] ?? 0) >>> this.#bitPos++) & 1;
-    if (this.#bitPos >= 8) {
+  readBit_(): 0 | 1 {
+    const bit = (((this.#buffer[this.#pos] ?? 0) >>> this.#bitPos++) & 1) as 0 | 1;
+    if (this.#bitPos > 7) {
       this.#pos++;
       this.#bitPos = 0;
     }
@@ -51,12 +57,15 @@ class BitReader {
   }
 
   tell_(): number {
-    return this.#pos * 8 + this.#bitPos;
+    return (this.#pos << 3) + this.#bitPos;
   }
 
   skip_(n: number): void {
+    if (n < 1) {
+      return;
+    }
     this.#bitPos += n;
-    while (this.#bitPos >= 8) {
+    while (this.#bitPos > 7) {
       this.#pos++;
       this.#bitPos -= 8;
     }
@@ -64,24 +73,15 @@ class BitReader {
 
   align32_(): void {
     const n = (32 - (this.tell_() & 31)) & 31;
-    if (n > 0) this.skip_(n);
+    this.skip_(n);
   }
 
   bitsLeft_(): number {
-    return (this.#buffer.length - this.#pos) * 8 - this.#bitPos;
+    return ((this.#buffer.length - this.#pos) << 3) - this.#bitPos;
   }
 
   applySign_(v: number): number {
     return this.readBit_() ? -v : v;
-  }
-
-  savePos_(): { pos_: number; bitPos_: number } {
-    return { pos_: this.#pos, bitPos_: this.#bitPos };
-  }
-
-  restorePos_({ pos_, bitPos_ }: { pos_: number; bitPos_: number }): void {
-    this.#pos = pos_;
-    this.#bitPos = bitPos_;
   }
 }
 
