@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/blennies/unbikit/compare/v0.6.0...v0.6.1) (2025-11-21)
+
+
+### Performance Improvements
+
+* **speed:** Optimize IDCT and IRDFT implementations of the video and audio decoders ([#39](https://github.com/blennies/unbikit/issues/39)) ([82cccdc](https://github.com/blennies/unbikit/commit/82cccdcd7588303341728cd5bb55f1a79234441b))
+
 ## [0.6.0](https://github.com/blennies/unbikit/compare/v0.5.0...v0.6.0) (2025-11-20)
 
 ### Performance Improvements
