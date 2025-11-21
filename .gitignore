@@ -15,6 +15,9 @@ app/src/content/docs/api
 coverage
 *.lcov
 
+# performance logs
+test-runner-profile
+
 # logs
 logs
 _.log
