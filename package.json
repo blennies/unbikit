@@ -9,6 +9,7 @@
     "codec",
     "decoder",
     "decompress",
+    "games",
     "media",
     "player",
     "video"
@@ -20,6 +21,9 @@
     "url": "git+https://github.com/blennies/unbikit.git"
   },
   "homepage": "https://blennies.github.io/unbikit",
+  "bugs": {
+    "url": "https://github.com/blennies/unbikit/issues"
+  },
   "type": "module",
   "sideEffects": false,
   "module": "./dist/unbikit.js",
