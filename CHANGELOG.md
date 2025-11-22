@@ -1,5 +1,43 @@
 # Changelog
 
+## [0.7.0](https://github.com/blennies/unbikit/compare/v0.6.2...v0.7.0) (2025-11-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* public API change to `reset()` method
+
+### Features
+
+* Add `skipFrames()` method for skipping multiple decoded frames ([6d564dd](https://github.com/blennies/unbikit/commit/6d564dd873da1c95e5cbfb4bdb1ec16d865dcf73))
+* Add demo with an example video player and documentation ([e747e37](https://github.com/blennies/unbikit/commit/e747e374df125b27d1e6ecd7cf06fa45643bb2ad)), closes [#26](https://github.com/blennies/unbikit/issues/26)
+* Add initial implementation of the `.bik` video decoder ([124c3b9](https://github.com/blennies/unbikit/commit/124c3b952e8944ace6beb7f8d0e34ee7a77bae93))
+* Add support for CSS view transitions ([e747e37](https://github.com/blennies/unbikit/commit/e747e374df125b27d1e6ecd7cf06fa45643bb2ad))
+* Add support for decoding interlaced videos ([#33](https://github.com/blennies/unbikit/issues/33)) ([5aa71a1](https://github.com/blennies/unbikit/commit/5aa71a1fb82811655097648dacb4c07ae65e5934))
+* Add video flags for scaling and grayscale to the decoder's header data ([5aa71a1](https://github.com/blennies/unbikit/commit/5aa71a1fb82811655097648dacb4c07ae65e5934))
+* Handle unsupported BIK versions and indicate status via the `isSupported` property ([818ae04](https://github.com/blennies/unbikit/commit/818ae04eabf7ce46c08df361f6b19404f80c70c8)), closes [#21](https://github.com/blennies/unbikit/issues/21)
+* **robustness:** Limit number of audio channels to a reasonable value (8) to guard against corrupted files ([5aa71a1](https://github.com/blennies/unbikit/commit/5aa71a1fb82811655097648dacb4c07ae65e5934))
+
+
+### Bug Fixes
+
+* **docs:** Replace badges that won't display on npm or GitHub ([#42](https://github.com/blennies/unbikit/issues/42)) ([92d522a](https://github.com/blennies/unbikit/commit/92d522aafe70e19d1107b79735ccde7ee395af08))
+
+
+### Performance Improvements
+
+* Optimize build settings to reduce the minified size of the decoder ([e747e37](https://github.com/blennies/unbikit/commit/e747e374df125b27d1e6ecd7cf06fa45643bb2ad))
+* **size:** Reduce lengths of error messages ([5aa71a1](https://github.com/blennies/unbikit/commit/5aa71a1fb82811655097648dacb4c07ae65e5934))
+* **size:** Replace internal runtime checks with type checks where possible ([5aa71a1](https://github.com/blennies/unbikit/commit/5aa71a1fb82811655097648dacb4c07ae65e5934))
+* **speed:** Optimize block copy operations in videos ([#35](https://github.com/blennies/unbikit/issues/35)) ([5b531b7](https://github.com/blennies/unbikit/commit/5b531b7397d8fac5541568d0ab22e884602f43f8))
+* **speed:** Optimize IDCT and IRDFT implementations of the video and audio decoders ([#39](https://github.com/blennies/unbikit/issues/39)) ([82cccdc](https://github.com/blennies/unbikit/commit/82cccdcd7588303341728cd5bb55f1a79234441b))
+* **speed:** Remove redundant operations from decoder `reset()` method ([5b531b7](https://github.com/blennies/unbikit/commit/5b531b7397d8fac5541568d0ab22e884602f43f8))
+
+
+### Miscellaneous Chores
+
+* Log a breaking change that was missed in an earlier commit ([#36](https://github.com/blennies/unbikit/issues/36)) ([74620f8](https://github.com/blennies/unbikit/commit/74620f870cbf568ae7bb8d60b937cf685b8ab1ec))
+
 ## [0.6.2](https://github.com/blennies/unbikit/compare/v0.6.1...v0.6.2) (2025-11-21)
 
 ### Documentation Fixes
