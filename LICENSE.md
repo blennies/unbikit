@@ -2,8 +2,9 @@
 
 ## unbikit
 
-unbikit, a decoder for `.bik` format video files, is licensed under
-Apache 2.0 or MIT terms, at your option.
+unbikit, a decoder for `.bik` format video files, is licensed under Apache 2.0 or MIT terms,
+at your option. Graphical images in this repository are explicitly excluded from these two
+licenses.
 
 SPDX-License-Identifier: MIT OR Apache-2.0
 
@@ -32,6 +33,22 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+## unbikit logo
+
+The graphical image files in this repository that contain a copy of the unbikit logo are:
+
+- `app/public/favicon.ico`
+- `app/public/favicon.svg`
+- `app/src/images/unbikit-logo.svg`
+
+The unbikit logo © 2025 by David Hart (blennies.dev@gmail.com) is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>
+
+![](https://mirrors.creativecommons.org/presskit/buttons/88x31/svg/by.svg)
+
+To view a copy of this license, visit
+
+    https://creativecommons.org/licenses/by/4.0/
 
 ## Bink Video Licensing
 

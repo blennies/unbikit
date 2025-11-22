@@ -18,6 +18,19 @@ const config: ReturnType<typeof defineConfig> = defineConfig({
         Footer: "./src/components/Footer.astro",
       },
       customCss: ["./src/styles/global.css", "@fontsource-variable/sora/index.css"],
+      favicon: "/favicon.svg",
+      head: [
+        // Add favicon (logo) fallback
+        {
+          tag: "link",
+          attrs: {
+            rel: "icon",
+            href: "/unbikit/favicon.ico",
+            sizes: "32x32",
+          },
+        },
+      ],
+      logo: { src: "./src/images/unbikit-logo.svg", alt: "logo of unbikit" },
       plugins: [
         publicStarlightTypeDoc({
           entryPoints: ["src/bik-decoder.ts"],
