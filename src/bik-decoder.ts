@@ -10,6 +10,7 @@
  *
  * @packageDocumentation
  */
+
 import { BikAudioDecoder } from "./bik-audio-decoder.ts";
 import { BikVideoDecoder, type BikVideoFrame } from "./bik-video-decoder.ts";
 
