@@ -5,6 +5,7 @@
  * Test valid BIK 1 files that should be decoded correctly, along with valid BIK 1b and 2 files
  * that the decoder should refuse to decode but handle gracefully.
  */
+
 import { suite, type TestContext, test } from "vitest";
 import type { BikDecoder } from "../src/bik-decoder.ts";
 import { frameToPng, getMediaFileDecoder, getShaSum, mediaFiles } from "./common.ts";
@@ -142,14 +143,14 @@ suite("decode corner cases", async () => {
   });
 });
 
-suite("support require()", async () => {
+suite("support different usage options", async () => {
   test("should support the use of require(esm) for loading the package", async ({
     annotate,
     expect,
   }) => {
     // Load the decoder with `require()` and decode a video to verify the decoder is functioning.
-    const { BikDecoder } = require("unbikit");
-    const decoder = await BikDecoder.open(mediaFiles["testfile06"].getStreamFn());
-    await fetchSelectionOfFrames("testfile06", { annotate, expect }, decoder);
+    const { createBikDecoder } = require("unbikit");
+    const decoder = await createBikDecoder(await mediaFiles["testfile02"].getBlob());
+    await fetchSelectionOfFrames("testfile02", { annotate, expect }, decoder);
   });
 });

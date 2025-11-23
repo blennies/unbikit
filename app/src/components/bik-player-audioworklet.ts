@@ -61,7 +61,10 @@ class BikAudioProcessor extends AudioWorkletProcessor {
             for (const [channelIndex, channel] of outputChannels.entries()) {
               const audioData = queueAudioData[channelIndex];
               if (channelIndex > 0 && audioData) {
-                channel.set(audioData.subarray(this.#curPos, this.#curPos + samplesToCopy), outPos);
+                channel.set(
+                  audioData.subarray(this.#curPos, this.#curPos + samplesToCopy),
+                  outPos,
+                );
               }
             }
 

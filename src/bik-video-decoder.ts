@@ -206,7 +206,10 @@ export class BikVideoDecoder {
     for (let i = 0; i < NUM_BLOCK_PARAMS; i++) {
       (this.#blockParams[i as IntRange<0, typeof NUM_BLOCK_PARAMS>] as BlockParamValues) = {
         len_: 0,
-        tree_: { tableNum_: 0, symbolMap_: new Uint8Array(16) as FixedLenUint8Array<16> },
+        tree_: {
+          tableNum_: 0,
+          symbolMap_: new Uint8Array(16) as FixedLenUint8Array<16>,
+        },
         items_: new Uint8Array(blocks * 64),
         curDec_: 0,
         curPtr_: 0,
@@ -708,7 +711,11 @@ export class BikVideoDecoder {
       }
 
       if (isRun) {
-        blockParamValues.items_.fill(v, blockParamValues.curDec_, blockParamValues.curDec_ + count);
+        blockParamValues.items_.fill(
+          v,
+          blockParamValues.curDec_,
+          blockParamValues.curDec_ + count,
+        );
         blockParamValues.curDec_ += count;
       } else {
         blockParamValues.items_[blockParamValues.curDec_++] = v;

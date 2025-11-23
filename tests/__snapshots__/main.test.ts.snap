@@ -320,42 +320,22 @@ exports[`decode corner cases > should decode a video, reset the decoder then dec
 
 exports[`decode corner cases > should decode a video, reset the decoder then decode the video again > screenshot_testfile06_frame_276.png 2`] = `"df56de7a7a097ebeffb4335851ad9903a7f4ba58fa39f185311ff1fc8856b4c2"`;
 
-exports[`support require() > should support the use of require(esm) for loading the package > numTracks_audio_testfile06_frame_0 1`] = `1`;
+exports[`support different usage options > should support the use of require(esm) for loading the package > numTracks_audio_testfile02_frame_0 1`] = `0`;
 
-exports[`support require() > should support the use of require(esm) for loading the package > numTracks_audio_testfile06_frame_69 1`] = `1`;
+exports[`support different usage options > should support the use of require(esm) for loading the package > numTracks_audio_testfile02_frame_42 1`] = `0`;
 
-exports[`support require() > should support the use of require(esm) for loading the package > numTracks_audio_testfile06_frame_138 1`] = `1`;
+exports[`support different usage options > should support the use of require(esm) for loading the package > numTracks_audio_testfile02_frame_84 1`] = `0`;
 
-exports[`support require() > should support the use of require(esm) for loading the package > numTracks_audio_testfile06_frame_207 1`] = `1`;
+exports[`support different usage options > should support the use of require(esm) for loading the package > numTracks_audio_testfile02_frame_126 1`] = `0`;
 
-exports[`support require() > should support the use of require(esm) for loading the package > numTracks_audio_testfile06_frame_276 1`] = `1`;
+exports[`support different usage options > should support the use of require(esm) for loading the package > numTracks_audio_testfile02_frame_168 1`] = `0`;
 
-exports[`support require() > should support the use of require(esm) for loading the package > sampleBytes_audio_testfile06_frame_0 1`] = `276480`;
+exports[`support different usage options > should support the use of require(esm) for loading the package > screenshot_testfile02_frame_0.png 1`] = `"f3af0ab2b08a5de7419316d9ac0d2c38c118ae95e3a8547b03b2ea23e75c4484"`;
 
-exports[`support require() > should support the use of require(esm) for loading the package > sampleBytes_audio_testfile06_frame_69 1`] = `15360`;
+exports[`support different usage options > should support the use of require(esm) for loading the package > screenshot_testfile02_frame_42.png 1`] = `"ec33abba11e19da2b3effc10b1c14e5d7b2bf8acc1cbff1615ed55109d8717c2"`;
 
-exports[`support require() > should support the use of require(esm) for loading the package > sampleBytes_audio_testfile06_frame_138 1`] = `15360`;
+exports[`support different usage options > should support the use of require(esm) for loading the package > screenshot_testfile02_frame_84.png 1`] = `"229b794f104cfd0cd58397cc484e50d2c73082701529bc70f917650efba0f8c1"`;
 
-exports[`support require() > should support the use of require(esm) for loading the package > sampleBytes_audio_testfile06_frame_207 1`] = `15360`;
+exports[`support different usage options > should support the use of require(esm) for loading the package > screenshot_testfile02_frame_126.png 1`] = `"67dd689300abff49e9ef684f176fa66737a37b2f60e1c061c84d291fa677c0d4"`;
 
-exports[`support require() > should support the use of require(esm) for loading the package > sampleBytes_audio_testfile06_frame_276 1`] = `0`;
-
-exports[`support require() > should support the use of require(esm) for loading the package > sampleHash_audio_testfile06_frame_0 1`] = `"33adbc02ff11ffc118c4e927132c8b7839e372b66bffad14e2dd3b9106c475dd"`;
-
-exports[`support require() > should support the use of require(esm) for loading the package > sampleHash_audio_testfile06_frame_69 1`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
-
-exports[`support require() > should support the use of require(esm) for loading the package > sampleHash_audio_testfile06_frame_138 1`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
-
-exports[`support require() > should support the use of require(esm) for loading the package > sampleHash_audio_testfile06_frame_207 1`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
-
-exports[`support require() > should support the use of require(esm) for loading the package > sampleHash_audio_testfile06_frame_276 1`] = `"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"`;
-
-exports[`support require() > should support the use of require(esm) for loading the package > screenshot_testfile06_frame_0.png 1`] = `"e8817a7782d0cabbdb5e1d2cad4995c67146a7765bbaf185ff9fe3f9ff43797d"`;
-
-exports[`support require() > should support the use of require(esm) for loading the package > screenshot_testfile06_frame_69.png 1`] = `"e2a6c449292f77ef98f890e837da6a3257619c8f9c756ad6d8771fb47da9a260"`;
-
-exports[`support require() > should support the use of require(esm) for loading the package > screenshot_testfile06_frame_138.png 1`] = `"43e0fc4e1d4c962cad5c940d629f211557b9cc9cde1ba8e0e3c60a8de40c0394"`;
-
-exports[`support require() > should support the use of require(esm) for loading the package > screenshot_testfile06_frame_207.png 1`] = `"35c612115979c5aabf3136b26103679df4ac3f00da311875682506ede6219088"`;
-
-exports[`support require() > should support the use of require(esm) for loading the package > screenshot_testfile06_frame_276.png 1`] = `"df56de7a7a097ebeffb4335851ad9903a7f4ba58fa39f185311ff1fc8856b4c2"`;
+exports[`support different usage options > should support the use of require(esm) for loading the package > screenshot_testfile02_frame_168.png 1`] = `"f3af0ab2b08a5de7419316d9ac0d2c38c118ae95e3a8547b03b2ea23e75c4484"`;

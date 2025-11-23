@@ -1,7 +1,11 @@
 /**
  * Worker thread
  */
-import { type BikAudioTrackHeader, BikDecoder } from "../../../src/bik-decoder.ts";
+import {
+  type BikAudioTrackHeader,
+  type BikDecoder,
+  createBikDecoder,
+} from "../../../src/bik-decoder.ts";
 
 let offscreenCanvas: OffscreenCanvas | null = null;
 let ctx: OffscreenCanvasRenderingContext2D | null = null;
@@ -81,19 +85,9 @@ globalThis.onmessage = async (evt) => {
           clearTimeout(nextPlayLoopTimer);
           nextPlayLoopTimer = null;
         }
-        decoder = await BikDecoder.open(async (offset: number) => {
-          let stream: ReadableStream | null;
-          if (typeof videoSrc === "string") {
-            stream = (await fetch(videoSrc, { headers: { range: `bytes=${offset}-` } }))?.body;
-          } else {
-            const file = videoSrc as File;
-            stream = file.slice(offset).stream();
-          }
-          if (!stream) {
-            throw new Error("Failed to fetch video stream");
-          }
-          return stream;
-        });
+        const dataSource =
+          typeof videoSrc === "string" ? new URL(videoSrc, location.origin) : (videoSrc as File);
+        decoder = await createBikDecoder(dataSource);
 
         const videoWidth = decoder.header?.width ?? 100;
         const videoHeight = decoder.header?.height ?? 100;
@@ -176,7 +170,10 @@ async function playLoop() {
           transfer: [frame.yuv.buffer as ArrayBuffer],
         });
         try {
-          await videoFrame.copyTo(imageData.data, { format: "RGBA", colorSpace: "srgb" });
+          await videoFrame.copyTo(imageData.data, {
+            format: "RGBA",
+            colorSpace: "srgb",
+          });
         } catch (_err) {
           // ignore errors
         } finally {
