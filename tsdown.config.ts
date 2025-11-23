@@ -4,12 +4,12 @@ import { commonBuildInputOptions, commonBuildTestConfig } from "./common-build-t
 const config: UserConfig[] = defineConfig([
   {
     ...commonBuildTestConfig,
-    attw: true,
+    attw: { level: "error", profile: "esmOnly" },
     dts: true,
     entry: {
       unbikit: "./src/bik-decoder.ts",
     },
-    format: ["esm", "commonjs"],
+    format: ["esm"],
     fromVite: true, // import plugins from the Vite config
     inputOptions: commonBuildInputOptions,
     publint: true,

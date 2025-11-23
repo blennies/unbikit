@@ -141,3 +141,15 @@ suite("decode corner cases", async () => {
     await fetchSelectionOfFrames("testfile06", { annotate, expect }, decoder);
   });
 });
+
+suite("support require()", async () => {
+  test("should support the use of require(esm) for loading the package", async ({
+    annotate,
+    expect,
+  }) => {
+    // Load the decoder with `require()` and decode a video to verify the decoder is functioning.
+    const { BikDecoder } = require("unbikit");
+    const decoder = await BikDecoder.open(mediaFiles["testfile06"].getStreamFn());
+    await fetchSelectionOfFrames("testfile06", { annotate, expect }, decoder);
+  });
+});

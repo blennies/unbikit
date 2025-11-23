@@ -27,7 +27,6 @@
   "type": "module",
   "sideEffects": false,
   "module": "./dist/unbikit.js",
-  "main": "./dist/unbikit.cjs",
   "engines": {
     "node": ">=22.18"
   },
@@ -95,29 +94,17 @@
   },
   "exports": {
     ".": {
+      "types": "./dist/unbikit.d.ts",
       "development": "./src/bik-decoder.ts",
-      "import": {
-        "types": "./dist/unbikit.d.ts",
-        "default": "./dist/unbikit.js"
-      },
-      "require": {
-        "types": "./dist/unbikit.d.cts",
-        "default": "./dist/unbikit.cjs"
-      }
+      "default": "./dist/unbikit.js"
     },
     "./package.json": "./package.json"
   },
   "publishConfig": {
     "exports": {
       ".": {
-        "import": {
-          "types": "./dist/unbikit.d.ts",
-          "default": "./dist/unbikit.js"
-        },
-        "require": {
-          "types": "./dist/unbikit.d.cts",
-          "default": "./dist/unbikit.cjs"
-        }
+        "types": "./dist/unbikit.d.ts",
+        "default": "./dist/unbikit.js"
       },
       "./package.json": "./package.json"
     }

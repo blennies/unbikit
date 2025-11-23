@@ -6,9 +6,8 @@
 > ⚠️
 > This package is at an early development stage. Expect API changes!
 
-<img src="/app/src/images/unbikit-logo.svg" alt="logo of unbikit" width="24" height="24">
-unbikit (_un-bik-ɪt_) is a decoder for `.bik`
-([Bink Video](https://en.wikipedia.org/wiki/Bink_Video))
+<img src="/app/src/images/unbikit-logo.svg" alt="logo of unbikit" width="24" height="24"> unbikit
+(_un-bik-ɪt_) is a decoder for `.bik` ([Bink Video](https://en.wikipedia.org/wiki/Bink_Video))
 files that can be used to play or transcode videos using the Web Streams API.
 The format was first released in 1999 and has since been used in many classic computer games.
 
