@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.8.0](https://github.com/blennies/unbikit/compare/v0.7.0...v0.8.0) (2025-11-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove the API that required a "stream provider" function
+
+### Features
+
+* Modify API to use Blob/File/Request/URL as a video source ([#47](https://github.com/blennies/unbikit/issues/47)) ([8a4a44e](https://github.com/blennies/unbikit/commit/8a4a44e7c5de7737c48afe3a4f7df9dfc6f94b2c))
+
 ## [0.7.0](https://github.com/blennies/unbikit/compare/v0.6.2...v0.7.0) (2025-11-23)
 
 ### Features
