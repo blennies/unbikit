@@ -2,14 +2,14 @@
 
 ## [0.7.0](https://github.com/blennies/unbikit/compare/v0.6.2...v0.7.0) (2025-11-23)
 
-
-### ⚠ BREAKING CHANGES
-
-* remove CommonJS build and rely on require(esm) feature of modern runtimes/bundlers ([#45](https://github.com/blennies/unbikit/issues/45))
-
 ### Features
 
-* Remove CommonJS build and rely on require(esm) feature of modern runtimes/bundlers ([#45](https://github.com/blennies/unbikit/issues/45)) ([b71ee11](https://github.com/blennies/unbikit/commit/b71ee11efccde47a4fda8abcda6688d98b408ca7))
+- Remove CommonJS build and rely on the "require(esm)" feature of modern runtimes/bundlers
+  ([#45](https://github.com/blennies/unbikit/issues/45))
+  ([b71ee11](https://github.com/blennies/unbikit/commit/b71ee11efccde47a4fda8abcda6688d98b408ca7))
+
+  **BREAKING CHANGE:** CommonJS users instead need a modern bundler or runtime (like all Node.js
+  versions supported by unbikit) that supports the use of `require()` with the ESM build.
 
 ## [0.6.2](https://github.com/blennies/unbikit/compare/v0.6.1...v0.6.2) (2025-11-21)
 
