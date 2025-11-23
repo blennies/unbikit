@@ -13,13 +13,11 @@ To install the decoder:
 To use it:
 
 ```typescript
-import { BikDecoder, type BikFrame } from "unbikit";
+import { createBikDecoder, type BikFrame } from "unbikit";
 // or for CommonJS:
-//   const { BikDecoder } = require("unbikit");
+//   const { createBikDecoder } = require("unbikit");
 
-let stream: ReadableStream;
-// ... assign a source to the stream
-const decoder = await BikDecoder.open(() => stream);
+const decoder = await createBikDecoder(new URL("/some/source/of/video.bik"));
 let frame: BikFrame | null;
 while ((frame = await decoder?.getNextFrame())) {
   // ... process frame

@@ -12,15 +12,12 @@
 [![PNPM badge](https://img.shields.io/badge/pnpm-4a4a4a.svg?style=for-the-badge&logo=pnpm&logoColor=f69220)](https://pnpm.io)
 [![Conventional Commits badge](https://img.shields.io/badge/Conventional%20Commits-1.0.0-FE5196?style=for-the-badge&logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 
-> [!WARNING]
-> This package is at an early development stage. Expect API changes!
-
 ## Introduction
 
 <img src="/app/src/images/unbikit-logo.svg" alt="logo of unbikit" width="24" height="24"> unbikit
 (_un-bik-ɪt_) is a decoder for `.bik` ([Bink Video](https://en.wikipedia.org/wiki/Bink_Video))
-files that can be used to play or transcode videos using the Web Streams API.
-The format was first released in 1999 and has since been used in many classic computer games.
+files that can be used to play or transcode videos. The format was first released in 1999 and has
+since been used in many classic computer games.
 
 ⭐ [Documentation](https://blennies.github.io/unbikit/) and a
 ⭐ [video player demo](https://blennies.github.io/unbikit/demo/) are available!
@@ -29,9 +26,10 @@ The format was first released in 1999 and has since been used in many classic co
 
 - Supports Bink 1, revisions `c` to `i` inclusive
 - Handles demuxing and decompression of audio and video streams
-- TypeScript/JavaScript only (no WASM or native code)
+- TypeScript/JavaScript (no WASM or native code)
 - No dependencies
-- Uses Web Streams API for efficient reading of video data
+- Straightforward API: supply a video via `Blob`, `File`, `Request` or `URL`
+  - the Web Streams API will be used where possible for efficient reading of video data
 - Isomorphic
   - runs on client/server runtimes that support at least ES2022
   - can be run with older runtimes by using the syntax lowering feature of some bundlers
@@ -47,13 +45,11 @@ npm install unbikit
 To use it:
 
 ```typescript
-import { BikDecoder, type BikFrame } from "unbikit";
+import { createBikDecoder, type BikFrame } from "unbikit";
 // or for CommonJS:
-//   const { BikDecoder } = require("unbikit");
+//   const { createBikDecoder } = require("unbikit");
 
-let stream: ReadableStream;
-// ... assign a source to the stream
-const decoder = await BikDecoder.open(() => stream);
+const decoder = await createBikDecoder(new URL("/some/source/of/video.bik"));
 let frame: BikFrame | null;
 while ((frame = await decoder?.getNextFrame())) {
   // ... process frame

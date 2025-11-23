@@ -133,7 +133,10 @@ export class BikPlayer {
     if (this.audioContext && this.gainNode) {
       // Fade out audio rapidly to avoid "clicking"
       this.gainNode.gain.setValueAtTime(this.gainNode.gain.value, this.audioContext.currentTime);
-      this.gainNode.gain.exponentialRampToValueAtTime(0.0001, this.audioContext.currentTime + 0.03);
+      this.gainNode.gain.exponentialRampToValueAtTime(
+        0.0001,
+        this.audioContext.currentTime + 0.03,
+      );
       await sleep(0.03);
     }
     this.worker.postMessage({ type: "stop", payload: null });

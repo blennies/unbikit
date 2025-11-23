@@ -3,15 +3,15 @@
  */
 import { Buffer } from "node:buffer";
 import { createHash } from "node:crypto";
-import { createReadStream } from "node:fs";
+import { createReadStream, openAsBlob } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import * as path from "node:path/posix";
-import { Readable } from "node:stream";
+import { resolve } from "node:path/posix";
 import { pipeline } from "node:stream/promises";
 import { PNG } from "pngjs";
 import { objectEntries } from "ts-extras";
 
-import { BikDecoder, type BikFrame } from "../src/bik-decoder.ts";
+import { type BikDecoder, type BikFrame, createBikDecoder } from "../src/bik-decoder.ts";
 
 export const ASSET_CACHE_PATH: string = path.join(import.meta.dirname, ".asset-cache");
 
@@ -102,6 +102,12 @@ class MediaFile {
     return this.#url;
   }
 
+  get fileCachePath(): string {
+    return resolve(
+      path.join(ASSET_CACHE_PATH, this.#mediaFileInfo.site, this.#mediaFileInfo.filename),
+    );
+  }
+
   async getData(): Promise<Uint8Array> {
     // Try reading the file from the on-disk cache
     const fileCachePath = path.join(
@@ -122,66 +128,51 @@ class MediaFile {
     }
   }
 
-  getStreamFn(): (
-    offset: number,
-    len?: number | undefined, // when undefined, stream until the end of the file
-  ) => Promise<ReadableStream<Uint8Array>> {
-    return async (offset: number, len?: number | undefined) => {
-      let fileStream: ReadableStream<Uint8Array> | undefined;
-      const streamOpts: { start?: number; end?: number } = {
-        start: offset,
-      };
-      if (typeof len !== "undefined") {
-        streamOpts.end = offset + len;
-      }
+  async getBlob(): Promise<Blob> {
+    let blob: Blob | undefined;
 
-      // Try reading the file from the on-disk cache
-      const fileCachePath = path.join(
-        ASSET_CACHE_PATH,
-        this.#mediaFileInfo.site,
-        `${this.#name}.bik`,
-      );
-      try {
-        if (this.#mediaFileInfo.sha256 && !MediaFile.#mediaFileVerified[this.#name]) {
-          const hash = createHash("sha256");
-          hash.setEncoding("hex");
-          await pipeline(createReadStream(fileCachePath), hash);
-          const fileHash: string = hash.read();
-          if (fileHash !== this.#mediaFileInfo.sha256) {
-            throw new Error(
-              `SHA-256 mismatch for ${this.#name}: expected ${this.#mediaFileInfo.sha256} but got ${fileHash}`,
-            );
-          }
-          MediaFile.#mediaFileVerified[this.#name] = true;
+    // Try reading the file from the on-disk cache
+    const fileCachePath = path.join(
+      ASSET_CACHE_PATH,
+      this.#mediaFileInfo.site,
+      `${this.#name}.bik`,
+    );
+    try {
+      if (this.#mediaFileInfo.sha256 && !MediaFile.#mediaFileVerified[this.#name]) {
+        const hash = createHash("sha256");
+        hash.setEncoding("hex");
+        await pipeline(createReadStream(fileCachePath), hash);
+        const fileHash: string = hash.read();
+        if (fileHash !== this.#mediaFileInfo.sha256) {
+          throw new Error(
+            `SHA-256 mismatch for ${this.#name}: expected ${this.#mediaFileInfo.sha256} but got ${fileHash}`,
+          );
         }
-        fileStream = Readable.toWeb(
-          createReadStream(fileCachePath, streamOpts),
-        ) as ReadableStream<Uint8Array>;
-      } catch (_) {
-        // Couldn't read cached file, so try fetching instead
-        const response = await fetch(this.#url);
-        const fileData = new Uint8Array(await response.arrayBuffer());
-        await mkdir(path.dirname(fileCachePath), { recursive: true });
-        await writeFile(fileCachePath, fileData);
-
-        if (this.#mediaFileInfo.sha256 && !MediaFile.#mediaFileVerified[this.#name]) {
-          const hash = createHash("sha256");
-          hash.setEncoding("hex");
-          await pipeline(createReadStream(fileCachePath), hash);
-          const fileHash: string = hash.read();
-          if (fileHash !== this.#mediaFileInfo.sha256) {
-            throw new Error(
-              `SHA-256 mismatch for fetched file ${this.#name}: expected ${this.#mediaFileInfo.sha256} but got ${fileHash}`,
-            );
-          }
-          MediaFile.#mediaFileVerified[this.#name] = true;
-        }
-        fileStream = Readable.toWeb(
-          createReadStream(fileCachePath, streamOpts),
-        ) as ReadableStream<Uint8Array>;
+        MediaFile.#mediaFileVerified[this.#name] = true;
       }
-      return fileStream;
-    };
+      blob = await openAsBlob(fileCachePath);
+    } catch (_) {
+      // Couldn't read cached file, so try fetching instead
+      const response = await fetch(this.#url);
+      const fileData = new Uint8Array(await response.arrayBuffer());
+      await mkdir(path.dirname(fileCachePath), { recursive: true });
+      await writeFile(fileCachePath, fileData);
+
+      if (this.#mediaFileInfo.sha256 && !MediaFile.#mediaFileVerified[this.#name]) {
+        const hash = createHash("sha256");
+        hash.setEncoding("hex");
+        await pipeline(createReadStream(fileCachePath), hash);
+        const fileHash: string = hash.read();
+        if (fileHash !== this.#mediaFileInfo.sha256) {
+          throw new Error(
+            `SHA-256 mismatch for fetched file ${this.#name}: expected ${this.#mediaFileInfo.sha256} but got ${fileHash}`,
+          );
+        }
+        MediaFile.#mediaFileVerified[this.#name] = true;
+      }
+      blob = await openAsBlob(fileCachePath);
+    }
+    return blob;
   }
 }
 
@@ -202,7 +193,7 @@ const mediaFiles = tmpMediaFiles as Record<MediaFileIndex, MediaFile>;
  * @returns New decoder instance.
  */
 const getMediaFileDecoder = async (file: MediaFile): Promise<BikDecoder> => {
-  return await BikDecoder.open(file.getStreamFn());
+  return await createBikDecoder(await file.getBlob());
 };
 
 /**

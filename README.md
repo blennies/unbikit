@@ -3,13 +3,10 @@
 [![minzipped bundle size](https://img.shields.io/bundlephobia/minzip/unbikit?style=flat-square)](https://bundlephobia.com/package/unbikit)
 [![types included](https://img.shields.io/npm/types/unbikit?style=flat-square)](https://www.npmjs.com/package/unbikit)
 
-> ⚠️
-> This package is at an early development stage. Expect API changes!
-
 <img src="/app/src/images/unbikit-logo.svg" alt="logo of unbikit" width="24" height="24"> unbikit
 (_un-bik-ɪt_) is a decoder for `.bik` ([Bink Video](https://en.wikipedia.org/wiki/Bink_Video))
-files that can be used to play or transcode videos using the Web Streams API.
-The format was first released in 1999 and has since been used in many classic computer games.
+files that can be used to play or transcode videos. The format was first released in 1999 and has
+since been used in many classic computer games.
 
 ⭐ [Documentation](https://blennies.github.io/unbikit/) and a
 ⭐ [video player demo](https://blennies.github.io/unbikit/demo/)
@@ -20,9 +17,10 @@ are available, as well as a
 
 - Supports Bink 1, revisions `c` to `i` inclusive
 - Handles demuxing and decompression of audio and video streams
-- TypeScript/JavaScript only (no WASM or native code)
+- TypeScript/JavaScript (no WASM or native code)
 - No dependencies
-- Uses Web Streams API for efficient reading of video data
+- Straightforward API: supply a video via `Blob`, `File`, `Request` or `URL`
+  - the Web Streams API will be used where possible for efficient reading of video data
 - Isomorphic
   - runs on client/server runtimes that support at least ES2022
   - can be run with older runtimes by using the syntax lowering feature of some bundlers

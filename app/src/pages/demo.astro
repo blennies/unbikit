@@ -943,7 +943,9 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
     });
 
     volumeSlider.addEventListener("input", (e) => {
-      changeVolume(((e?.target as HTMLInputElement | undefined)?.value as number | undefined) ?? 0);
+      changeVolume(
+        ((e?.target as HTMLInputElement | undefined)?.value as number | undefined) ?? 0
+      );
     });
 
     // Initialize
