@@ -1,15 +1,22 @@
 # Changelog
 
-## [0.8.0](https://github.com/blennies/unbikit/compare/v0.7.0...v0.8.0) (2025-11-23)
-
+## [0.8.0](https://github.com/blennies/unbikit/compare/v0.7.0...v0.8.0) (2025-11-24)
 
 ### ⚠ BREAKING CHANGES
 
-* remove the API that required a "stream provider" function
+- Remove the API that required a "stream provider" function
+- Rename `fileSize` in the API interface `BikHeader` to `totalSize`
 
 ### Features
 
-* Modify API to use Blob/File/Request/URL as a video source ([#47](https://github.com/blennies/unbikit/issues/47)) ([8a4a44e](https://github.com/blennies/unbikit/commit/8a4a44e7c5de7737c48afe3a4f7df9dfc6f94b2c))
+- Add the function `createBikDecoder()` to the API which creates a decoder using a
+  `Blob`/`File`/`Request`/`URL` as a video source
+  ([#47](https://github.com/blennies/unbikit/issues/47))
+  ([8a4a44e](https://github.com/blennies/unbikit/commit/8a4a44e7c5de7737c48afe3a4f7df9dfc6f94b2c))
+
+  This change makes the API much more straightforward to setup and use. The decoder uses the
+  Fetch/Blob API to generate streams as required, rather than requiring a function to be provided
+  that implements this functionality.
 
 ## [0.7.0](https://github.com/blennies/unbikit/compare/v0.6.2...v0.7.0) (2025-11-23)
 
