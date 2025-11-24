@@ -21,7 +21,7 @@ jobs:
     outputs:
       release-created: ${{ steps.release.outputs.release_created }}
     steps:
-      - uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42
+      - uses: actions/create-github-app-token@7e473efe3cb98aa54f8d4bac15400b15fad77d94
         id: app-token
         with:
           app-id: ${{ vars.CI_RELEASE_BOT_APP_ID }}
@@ -40,7 +40,7 @@ jobs:
     if: ${{needs.release.outputs.release-created}}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -71,7 +71,7 @@ jobs:
     if: ${{needs.release.outputs.release-created}}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
