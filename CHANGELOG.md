@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.9.0](https://github.com/blennies/unbikit/compare/v0.8.0...v0.9.0) (2025-11-25)
+
+### ⚠ BREAKING CHANGES
+
+- Rename the audio track flag `useDCT` to `usesDCT` in the API
+  ([#51](https://github.com/blennies/unbikit/issues/51)) ([6b2a4de](https://github.com/blennies/unbikit/commit/6b2a4dec8c2dd3eedd59987a97243887b14a1160))
+
+### Performance Improvements
+
+- Optimize processing of image blocks in the critical path
+  ([6b2a4de](https://github.com/blennies/unbikit/commit/6b2a4dec8c2dd3eedd59987a97243887b14a1160))
+- Reduce state in the bit-stream reader and Huffman table implementations to improve performance
+  and reduce memory usage
+  ([6b2a4de](https://github.com/blennies/unbikit/commit/6b2a4dec8c2dd3eedd59987a97243887b14a1160))
+
+### Bundle Size Reductions
+
+- Refactor various code sections to reduce minified bundle size
+  ([6b2a4de](https://github.com/blennies/unbikit/commit/6b2a4dec8c2dd3eedd59987a97243887b14a1160))
+
 ## [0.8.0](https://github.com/blennies/unbikit/compare/v0.7.0...v0.8.0) (2025-11-24)
 
 ### ⚠ BREAKING CHANGES
