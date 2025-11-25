@@ -140,12 +140,45 @@ interface BikHeader {
  * Decoded header of an audio track of a BIK video.
  */
 interface BikAudioTrackHeader {
+  /**
+   * Identifier for the audio track. This may not match the index of the track in the
+   * {@link BikFrame.audioTracks} array.
+   */
   trackId: number;
+
+  /**
+   * Number of separate audio channels stored by the track.
+   *
+   * Stereo channels (when {@link flags stereo} is `true`) are separate planes for audio
+   * encoded via DCTs (when {@link flags usesDCT} is `true`), so the value of {@link numChannels}
+   * will include the number of stereo channels.
+   *
+   * When audio is encoded via RDFTs (when {@link flags usesDCT} is `false`) then stereo channels
+   * are interleaved, so the value of {@link numChannels} will _not_ include the number of
+   * channels. This means that for a regular stereo track (when {@link flags stereo} is `true`),
+   * {@link numChannels} will have the value `1`.
+   */
   numChannels: number;
+
+  /**
+   * Sample rate/frequency of the audio data (in Hz).
+   */
   sampleRate: number;
+
+  /**
+   * Flags indicating whether specific features apply to the audio track.
+   */
   flags: {
+    /**
+     * `true` when the audio track is stereo, otherwise `false` (usually indicating mono audio).
+     */
     stereo: boolean;
-    useDCT: boolean;
+
+    /**
+     * `true` when the audio data is encoded using DCTs (discrete cosine transforms), otherwise
+     * `false` when the audio data is encoded using RDFTs (real discrete Fourier transforms).
+     */
+    usesDCT: boolean;
   };
 }
 
@@ -227,12 +260,6 @@ class BikDecoder {
   #dataSource: Blob | File | URL | Request;
 
   /**
-   * Optional slice of {@link #dataSource}. Used by {@link Blob} and {@link File} sources so
-   * the original {@link Blob}/{@link File} is preserved after a {@link #seek}.
-   */
-  #curDataSource: Blob | File | null = null;
-
-  /**
    * A {@link ReadableStreamDefaultReader} for the current position in the encoded video data.
    */
   #streamReader: ReadableStreamDefaultReader<Uint8Array> | null = null;
@@ -296,31 +323,30 @@ class BikDecoder {
       this.#streamReader = null;
     }
 
+    const dataSource = this.#dataSource;
     let streamReader: ReadableStreamDefaultReader<Uint8Array> | undefined;
-    if (this.#dataSource instanceof Blob) {
+    if (dataSource instanceof Blob) {
       // `File` is a superset of `Blob`, so here we handle both.
-      if (!this.#curDataSource) {
-        this.#curDataSource = this.#dataSource;
+      streamReader = dataSource.slice(pos).stream()?.getReader();
+    } else {
+      const isRequest = dataSource instanceof Request;
+      if (dataSource instanceof URL || isRequest) {
+        const request: Request = isRequest ? dataSource : new Request(dataSource);
+        const headers = request.headers;
+        headers.delete("range");
+        if (pos) {
+          headers.set("range", `bytes=${pos}-`);
+        }
+        streamReader = (await fetch(request))?.body?.getReader();
       }
-      streamReader = this.#curDataSource.slice(pos).stream()?.getReader();
-    } else if (this.#dataSource instanceof URL || this.#dataSource instanceof Request) {
-      console.log();
-      const request: Request =
-        this.#dataSource instanceof Request ? this.#dataSource : new Request(this.#dataSource);
-      const headers = request.headers;
-      headers.delete("range");
-      if (pos) {
-        headers.set("range", `bytes=${pos}-`);
-      }
-      streamReader = (await fetch(request))?.body?.getReader();
     }
 
     if (!streamReader) {
       throw new Error("Invalid stream reader");
     }
     this.#streamReader = streamReader;
-    this.#bufPos = pos;
     this.#bufBytes = null;
+    this.#bufPos = pos;
   }
 
   /**
@@ -386,7 +412,7 @@ class BikDecoder {
   async #ensureReadBytes(len: number): Promise<Uint8Array> {
     const bufBytes = await this.#readBytes(len);
     if (bufBytes?.byteLength !== len) {
-      throw new Error(`Read ${bufBytes?.byteLength ?? 0} bytes but expected ${len}`);
+      throw new Error(`Read ${bufBytes?.byteLength} bytes but expected ${len}`);
     }
     return bufBytes;
   }
@@ -446,7 +472,7 @@ class BikDecoder {
           sampleRate: audioHeaderDataView.getUint16((numAudioTracks << 2) + (index << 2), true),
           flags: {
             stereo: isStereo,
-            useDCT: !!(flags & 0x1000),
+            usesDCT: !!(flags & 0x1000),
           },
         };
       });
@@ -455,7 +481,7 @@ class BikDecoder {
           new BikAudioDecoder(
             audioTrack.sampleRate,
             audioTrack.numChannels,
-            audioTrack.flags.useDCT,
+            audioTrack.flags.usesDCT,
           ),
         );
       });
@@ -518,7 +544,7 @@ class BikDecoder {
   }
 
   /**
-   * Decoded header of the BIK data source.
+   * Decoded header of the video.
    * @returns Decoded header.
    */
   get header(): BikHeader | null {
@@ -526,17 +552,15 @@ class BikDecoder {
   }
 
   /**
-   * Whether the audio/video streams in the BIK data source can be processed by the decoder or
-   * not.
-   * @returns `true` when the audio/video streams can be processed by the decoder, otherwise
-   *   `false`.
+   * Whether the audio/images in the video can be processed by the decoder or not.
+   * @returns `true` when the audio/images can be processed by the decoder, otherwise `false`.
    */
   get isSupported(): boolean {
     return this.#isSupported;
   }
 
   /**
-   * Get the next frame of the BIK data source and decode it.
+   * Get the next frame of the video and decode it.
    * @param prevFrame Optional data structure for a previously decoded frame to re-use (to reduce
    *   garbage collection).
    * @returns Next decoded frame (audio and video).
@@ -608,8 +632,8 @@ class BikDecoder {
   }
 
   /**
-   * Skip the specified number of frames of the BIK data source. They will still be decoded
-   * as decoding a frame can effectively require data from any number of earlier frames.
+   * Skip the specified number of frames of the video. They will still be decoded as decoding a
+   * frame can effectively require data from any number of earlier frames.
    * @param numFrames Number of frames to skip, but still decode.
    */
   async skipFrames(numFrames: number): Promise<void> {
@@ -623,9 +647,8 @@ class BikDecoder {
   }
 
   /**
-   * Reset the current frame index so the decoder is ready to start decoding the BIK data source
-   * from the beginning. Note that this will result in the decoder requesting a new readable
-   * stream.
+   * Reset the state of the decoder so it is ready to start decoding the video from the beginning.
+   * Note that this will result in the decoder streaming the video again from the data source.
    */
   reset(): void {
     this.#curFrame = -1;
@@ -637,7 +660,7 @@ class BikDecoder {
    * @param source Data source that will provide the encoded video data.
    * @returns Decoder instance. Use {@link BikDecoder.header} to access the parsed headers.
    */
-  static async open(source: Blob | File | URL | Request): Promise<BikDecoder> {
+  static async open_(source: Blob | File | URL | Request): Promise<BikDecoder> {
     const decoder = new BikDecoder(source);
     await decoder.#init();
     return decoder;
@@ -651,7 +674,7 @@ class BikDecoder {
  * @returns Decoder instance. Use {@link BikDecoder.header} to access the parsed headers.
  */
 const createBikDecoder: (source: Blob | File | URL | Request) => Promise<BikDecoder> =
-  BikDecoder.open;
+  BikDecoder.open_;
 
 export { createBikDecoder };
 export type {

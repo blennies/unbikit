@@ -98,7 +98,7 @@ suite("decode BIK 1 (d, f, g, h, i) media files", async () => {
 });
 
 suite("decode media files of unsupported BIK versions", async () => {
-  test("should decode header but refuse to decode BIK 1b (testfile08bk1b)", async ({
+  test("should decode header but refuse to decode BIK 1b frames (testfile08bk1b)", async ({
     annotate,
     expect,
   }) => {
@@ -114,7 +114,7 @@ suite("decode media files of unsupported BIK versions", async () => {
     await decoder.skipFrames(1000);
   });
 
-  test("should decode header but refuse to decode BIK 2a (testfile09bk2)", async ({
+  test("should decode header but refuse to decode BIK 2a frames (testfile09bk2)", async ({
     annotate,
     expect,
   }) => {
@@ -136,7 +136,7 @@ suite("decode corner cases", async () => {
     annotate,
     expect,
   }) => {
-    const decoder = await getMediaFileDecoder(mediaFiles["testfile06"]);
+    const decoder = await getMediaFileDecoder(mediaFiles.testfile06);
     await fetchSelectionOfFrames("testfile06", { annotate, expect }, decoder);
     decoder.reset();
     await fetchSelectionOfFrames("testfile06", { annotate, expect }, decoder);
@@ -150,7 +150,7 @@ suite("support different usage options", async () => {
   }) => {
     // Load the decoder with `require()` and decode a video to verify the decoder is functioning.
     const { createBikDecoder } = require("unbikit");
-    const decoder = await createBikDecoder(await mediaFiles["testfile02"].getBlob());
+    const decoder = await createBikDecoder(await mediaFiles.testfile02.getBlob());
     await fetchSelectionOfFrames("testfile02", { annotate, expect }, decoder);
   });
 });

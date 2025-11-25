@@ -4,6 +4,7 @@ next: false
 prev: false
 ---
 
+import { Tabs, TabItem } from "@astrojs/starlight/components";
 import { PackageManagers } from "starlight-package-managers";
 
 To install the decoder:
@@ -12,10 +13,11 @@ To install the decoder:
 
 To use it:
 
+<Tabs syncKey="code-lang">
+  <TabItem label="TypeScript">
+
 ```typescript
 import { createBikDecoder, type BikFrame } from "unbikit";
-// or for CommonJS:
-//   const { createBikDecoder } = require("unbikit");
 
 const decoder = await createBikDecoder(new URL("/some/source/of/video.bik"));
 let frame: BikFrame | null;
@@ -23,6 +25,39 @@ while ((frame = await decoder?.getNextFrame())) {
   // ... process frame
 }
 ```
+
+  </TabItem>
+  <TabItem label="JavaScript">
+
+```javascript
+import { createBikDecoder } from "unbikit";
+// or for CommonJS:
+//   const { createBikDecoder } = require("unbikit");
+
+const decoder = await createBikDecoder(new URL("/some/source/of/video.bik"));
+let frame;
+while ((frame = await decoder?.getNextFrame())) {
+  // ... process frame
+}
+```
+
+  </TabItem>
+</Tabs>
+
+Decoding should be performed off the main thread where possible (in a Web Worker, Worker thread
+or similar).
+
+The frames returned by the decoder have their image data encoded in
+[Planar YUV 4:2:0 format](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame/format#i420),
+with an optional
+[alpha channel](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame/format#i420a).
+They will usually need to be converted to RGB(A) format before they can be displayed on-screen.
+
+The [`VideoFrame`](https://developer.mozilla.org/en-US/docs/Web/API/VideoFrame) object (baseline
+since 2024) can be used in web browsers to aid with conversion between video encoding formats.
+Alternatively, a straightforward (but relatively slow) function for converting Planar YUV 4:2:0
+format to RGB(A) can be found in the unbikit demo. See the `yuv420PlanarToRgb()` function in the
+[demo source code](https://github.com/blennies/unbikit/blob/main/app/src/components/bik-player-worker.ts).
 
 ## Next Steps
 

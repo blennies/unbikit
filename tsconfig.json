@@ -5,7 +5,7 @@
     "target": "esnext",
     "module": "preserve",
     "moduleDetection": "force",
-    "types": ["astro/client", "vite/client", "node", "audioworklet"],
+    "types": ["astro/client", "vite/client", "vitest/importMeta", "node", "audioworklet"],
     "allowJs": false,
 
     // Bundler mode
@@ -31,6 +31,6 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false
   },
-  "include": ["app/.astro/types.d.ts", "src/**/*", "app/src/**/*"],
+  "include": ["app/.astro/types.d.ts", "src/**/*", "app/src/**/*", "*.ts"],
   "exclude": ["archive", "dist", "dist-app", "app/public"]
 }
