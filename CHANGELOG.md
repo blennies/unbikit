@@ -9,10 +9,10 @@
 
 ### Performance Improvements
 
-- Optimize processing of block parameter values in the critical path
+- Optimize processing of image blocks in the critical path
   ([6b2a4de](https://github.com/blennies/unbikit/commit/6b2a4dec8c2dd3eedd59987a97243887b14a1160))
-- Reduce state in the bit-stream reader and Huffman table to improve performance and reduce memory
-  usage
+- Reduce state in the bit-stream reader and Huffman table implementations to improve performance
+  and reduce memory usage
   ([6b2a4de](https://github.com/blennies/unbikit/commit/6b2a4dec8c2dd3eedd59987a97243887b14a1160))
 
 ### Bundle Size Reductions
