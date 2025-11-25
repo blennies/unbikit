@@ -6,13 +6,18 @@ import {
   commonEsbuildOptions,
 } from "./common-build-test.config.ts";
 
+const coverage = process.env.npm_lifecycle_event === "test:coverage";
+
 const config: ViteUserConfig = defineConfig({
   ...commonBuildTestConfig,
-  plugins: [
-    esbuild({
-      ...commonEsbuildOptions,
-    }),
-  ],
+  // Disable esbuild when generating coverage figures, to improve coverage accuracy
+  plugins: coverage
+    ? []
+    : [
+        esbuild({
+          ...commonEsbuildOptions,
+        }),
+      ],
   // output: { minify: true },
   rolldownOptions: commonBuildInputOptions,
   test: {

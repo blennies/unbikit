@@ -2,32 +2,34 @@
  * Configuration options shared between build/test tools.
  */
 
-import { objectKeys } from "ts-extras";
 import type { ESBuildOptions } from "vite";
 import { BIK_DEFINES } from "./src/bik-defines.ts";
 
 // Minify names of props internal to the package that most minifiers can't automatically mangle.
+//
+// Regenerate with:
+//   pnpm esbuild --bundle --outfile=test.js --mangle-cache=mangle.json --mangle-props='_$' ./src/bik-decoder.ts
 const MANGLE_CACHE = {
-  align32_: "n",
+  align32_: "o",
   applySign_: "e",
-  bitPos_: "t",
-  bitsLeft_: "o",
+  bitsLeft_: "p",
   calculate_: "k",
   curDec_: "b",
-  curPtr_: "i",
-  decodeFrame_: "w",
-  decode_: "v",
+  curPtr_: "j",
+  decodeFrame_: "t",
+  decode_: "s",
   getHuff_: "f",
-  items_: "c",
-  len_: "p",
-  pos_: "s",
-  readBit_: "d",
+  items_: "d",
+  len_: "q",
+  open_: "u",
+  predefinedTables_: "l",
+  readBit_: "c",
   readBits_: "a",
-  reset_: "m",
-  skip_: "j",
+  reset_: "n",
+  skip_: "i",
   symbolMap_: "g",
-  tableNum_: "l",
-  tell_: "q",
+  table_: "m",
+  tell_: "r",
   tree_: "h",
 } as const;
 
@@ -55,7 +57,7 @@ const commonEsbuildOptions: ESBuildOptions = {
   // such as when building the demo with Vite.
   define: defines,
   mangleCache: MANGLE_CACHE,
-  mangleProps: new RegExp(`^${objectKeys(MANGLE_CACHE).join("|")}$`),
+  mangleProps: /_$/,
   mangleQuoted: true,
   platform: "neutral",
   reserveProps: /^postMessage$/,

@@ -1,5 +1,5 @@
 name: check-build-test
-description: Format/lint/type-check the source code, build it and then test it
+# description: Format/lint/type-check the source code, build it and then test it
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 

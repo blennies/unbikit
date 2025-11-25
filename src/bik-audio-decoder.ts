@@ -19,10 +19,10 @@ class BikAudioDecoder {
   #bands: Uint32Array;
   #output: Float32Array[];
   #overlapWindow: Float32Array[] = [];
-  #useDCT: boolean;
+  #usesDCT: boolean;
   #idt: IDCT | IRDFT;
 
-  constructor(sampleRate: number, numChannels: number, useDCT: boolean) {
+  constructor(sampleRate: number, numChannels: number, usesDCT: boolean) {
     let frameLenBits: 9 | 10 | 11 | 12 | 13 | 14;
     if (sampleRate < 22050) frameLenBits = 9;
     else if (sampleRate < 44100) frameLenBits = 10;
@@ -30,7 +30,7 @@ class BikAudioDecoder {
 
     // IRDFT variant (non-DCT) uses interleaved audio, so account for this
     let numInternalChannels = numChannels;
-    if (!useDCT) {
+    if (!usesDCT) {
       sampleRate *= numChannels;
       // support up to 8 channels
       frameLenBits += Math.ceil(Math.log2(numChannels)) & 3;
@@ -45,7 +45,7 @@ class BikAudioDecoder {
     this.#blockSize = (this.#frameLen - this.#overlapLen) * numInternalChannels;
 
     const sampleRateHalf = (sampleRate + 1) >>> 1;
-    this.#baseQuant = (useDCT ? this.#frameLen : 2.0) / (Math.sqrt(this.#frameLen) * 32768.0);
+    this.#baseQuant = (usesDCT ? this.#frameLen : 2.0) / (Math.sqrt(this.#frameLen) * 32768.0);
 
     const expMultiplier = 0.0664 / Math.log10(Math.E);
     for (let i = 0; i < 96; i++) {
@@ -72,8 +72,8 @@ class BikAudioDecoder {
       this.#overlapWindow.push(new Float32Array(this.#overlapLen));
     }
 
-    this.#useDCT = useDCT;
-    this.#idt = useDCT ? new IDCT(frameLenBits) : new IRDFT(frameLenBits);
+    this.#usesDCT = usesDCT;
+    this.#idt = usesDCT ? new IDCT(frameLenBits) : new IRDFT(frameLenBits);
   }
 
   /**
@@ -84,8 +84,7 @@ class BikAudioDecoder {
    */
   #getFloat(reader: BitReader) {
     const power = reader.readBits_(5);
-    const f = reader.readBits_(23) * 2 ** (power - 23);
-    return reader.readBit_() ? -f : f;
+    return reader.applySign_(reader.readBits_(23) * 2 ** (power - 23));
   }
 
   /**
@@ -98,8 +97,8 @@ class BikAudioDecoder {
     const output = this.#output;
     const allOutput: Float32Array[][] = [];
 
-    while (reader.bitsLeft_() > 0) {
-      if (this.#useDCT) {
+    while (reader.bitsLeft_ > 0) {
+      if (this.#usesDCT) {
         reader.skip_(2);
       }
 
@@ -156,7 +155,7 @@ class BikAudioDecoder {
         }
 
         this.#idt.calculate_(coeffs);
-        if (this.#useDCT) {
+        if (this.#usesDCT) {
           const dctModifier = 4 * this.#baseQuant;
           for (let i = 0; i < coeffs.length; i++) {
             (coeffs[i] as number) *= dctModifier;

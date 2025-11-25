@@ -16,8 +16,8 @@ import { getMediaFileDecoder, mediaFiles } from "./common.ts";
 const createBench = async (fileIndex: keyof typeof mediaFiles): Promise<void> => {
   const decoder = await getMediaFileDecoder(mediaFiles[fileIndex]);
   bench(
-    `decode of a frame of ${fileIndex}`,
-    async (): Promise<any> => {
+    `decode a frame of ${fileIndex}`,
+    async (): Promise<void> => {
       let frame = await decoder.getNextFrame();
       if (!frame) {
         decoder.reset();
@@ -26,7 +26,6 @@ const createBench = async (fileIndex: keyof typeof mediaFiles): Promise<void> =>
           throw new Error("Failed to reset decoder");
         }
       }
-      return frame;
     },
     {
       hrtimeNow,

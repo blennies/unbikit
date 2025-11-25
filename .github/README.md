@@ -7,8 +7,8 @@
 [![license](https://img.shields.io/npm/l/unbikit?style=flat-square&color=0088cc)](/unbikit/license)
 <br>
 ![isomorphic package badge](https://img.shields.io/badge/isomorphic-ECDC5A.svg?style=for-the-badge)
-![Rolldown](https://img.shields.io/badge/rolldown-FF7E17?style=for-the-badge&logo=rolldown&logoColor=white)
-![TypeScript badge](https://img.shields.io/badge/typescript-007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+[![Rolldown](https://img.shields.io/badge/rolldown-FF7E17?style=for-the-badge&logo=rolldown&logoColor=white)](https://rolldown.rs/)
+[![TypeScript badge](https://img.shields.io/badge/typescript-007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![PNPM badge](https://img.shields.io/badge/pnpm-4a4a4a.svg?style=for-the-badge&logo=pnpm&logoColor=f69220)](https://pnpm.io)
 [![Conventional Commits badge](https://img.shields.io/badge/Conventional%20Commits-1.0.0-FE5196?style=for-the-badge&logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
 
@@ -55,8 +55,6 @@ while ((frame = await decoder?.getNextFrame())) {
   // ... process frame
 }
 ```
-
-**_TODO: Add more installation instructions and more detailed usage instructions/examples_**
 
 ## Development
 

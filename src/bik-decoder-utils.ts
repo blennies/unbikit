@@ -5,59 +5,53 @@
  */
 class BitReader {
   #buffer: Uint8Array | Uint8ClampedArray;
-  #pos = 0;
+  #bufferBitLength: number;
   #bitPos = 0;
 
   constructor(buffer: Uint8Array | Uint8ClampedArray) {
     this.#buffer = buffer;
+    this.#bufferBitLength = buffer.length << 3;
   }
 
   reset_(buffer: Uint8Array | Uint8ClampedArray): void {
     this.#buffer = buffer;
-    this.#pos = 0;
+    this.#bufferBitLength = buffer.length << 3;
     this.#bitPos = 0;
   }
 
+  /**
+   * Read the specified number of bits from the bit-stream.
+   * @param n Number of bits to read. Must be less than or equal to 32.
+   * @param peek When `true`, do not update the bit position in the bit-stream, otherwise do
+   *   update it.
+   * @returns The bits read from the bit-stream.
+   */
   readBits_(n: number, peek: boolean = false): number {
     let result = 0;
-    let pos = this.#pos;
     let bitPos = this.#bitPos;
-    let bitsRead = 0;
     let bitsRemaining = n;
     do {
       const mask = ((1 << bitsRemaining) - 1) & 0xff;
-      const bits = ((this.#buffer[pos] ?? 0) >>> bitPos) & mask;
-      result |= bits << bitsRead;
-      const newBitPos = bitPos + bitsRemaining;
-      if (newBitPos > 7) {
-        const bitChange = 8 - bitPos;
-        bitsRead += bitChange;
-        bitsRemaining -= bitChange;
-        pos++;
-        bitPos = 0;
+      const bits = ((this.#buffer[bitPos >>> 3] ?? 0) >>> (bitPos & 7)) & mask;
+      result |= bits << (n - bitsRemaining);
+      if ((bitPos & 7) + bitsRemaining > 7) {
+        const posChange = 8 - (bitPos & 7);
+        bitsRemaining -= posChange;
+        bitPos += posChange;
       } else {
-        bitPos = newBitPos;
+        bitPos += bitsRemaining;
         break;
       }
-    } while (bitsRead < n);
+    } while (bitsRemaining);
     if (!peek) {
-      this.#pos = pos;
       this.#bitPos = bitPos;
     }
     return result;
   }
 
   readBit_(): 0 | 1 {
-    const bit = (((this.#buffer[this.#pos] ?? 0) >>> this.#bitPos++) & 1) as 0 | 1;
-    if (this.#bitPos > 7) {
-      this.#pos++;
-      this.#bitPos = 0;
-    }
+    const bit = (((this.#buffer[this.#bitPos >>> 3] ?? 0) >>> (this.#bitPos++ & 7)) & 1) as 0 | 1;
     return bit;
-  }
-
-  tell_(): number {
-    return (this.#pos << 3) + this.#bitPos;
   }
 
   skip_(n: number): void {
@@ -65,19 +59,15 @@ class BitReader {
       return;
     }
     this.#bitPos += n;
-    while (this.#bitPos > 7) {
-      this.#pos++;
-      this.#bitPos -= 8;
-    }
   }
 
   align32_(): void {
-    const n = (32 - (this.tell_() & 31)) & 31;
+    const n = (32 - (this.#bitPos & 31)) & 31;
     this.skip_(n);
   }
 
-  bitsLeft_(): number {
-    return ((this.#buffer.length - this.#pos) << 3) - this.#bitPos;
+  get bitsLeft_(): number {
+    return this.#bufferBitLength - this.#bitPos;
   }
 
   applySign_(v: number): number {
