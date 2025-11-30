@@ -4,7 +4,7 @@ import { commonBuildInputOptions, commonBuildTestConfig } from "./common-build-t
 const config: UserConfig[] = defineConfig([
   {
     ...commonBuildTestConfig,
-    attw: { level: "error", profile: "esmOnly" },
+    attw: { level: "error", profile: "esm-only" },
     dts: true,
     entry: {
       unbikit: "./src/bik-decoder.ts",
