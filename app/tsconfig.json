@@ -22,6 +22,7 @@
     // Best practices
     "skipLibCheck": true,
     "strict": true,
+    "strictNullChecks": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "noImplicitOverride": true,
