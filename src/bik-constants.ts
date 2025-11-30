@@ -1,7 +1,6 @@
 /**
  * This file contains various packed constants used by the decoder.
  */
-import type { IntRange, TupleOf } from "type-fest";
 
 /**
  * Unpack string to an array of integer constants.
@@ -9,7 +8,7 @@ import type { IntRange, TupleOf } from "type-fest";
  * @param s String to unpack.
  * @returns Unpacked integer constants.
  */
-const parseWidth = (n: number, s: string): number[] | undefined => {
+export const unpackValues = (n: number, s: string): number[] | undefined => {
   const len = s.length / n;
   return new Array(len).fill(0).map((_, index) =>
     parseInt(
@@ -22,110 +21,77 @@ const parseWidth = (n: number, s: string): number[] | undefined => {
   );
 };
 
-export const BIK_TREE_LENS = parseWidth(
-  1,
-  "4444444444444444145555555555555522445555555555552334445555555555333344445555555533444444444455552444444444555555133555666666666612556666666666661344555566666666223445555566666614444555556666662225556666666666133366667777777713335677777777772233366666777777",
-) as TupleOf<256, IntRange<1, 8>>;
+export const PACKED_BIK_TREE_LENS =
+  "4444444444444444145555555555555522445555555555552334445555555555333344445555555533444444444455552444444444555555133555666666666612556666666666661344555566666666223445555566666614444555556666662225556666666666133366667777777713335677777777772233366666777777";
 
-export const BIK_TREE_CODES = parseWidth(
-  2,
-  "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000101010101000001010101010100000000010101010000000000010101000000000001010100000001010101010000010102130213000000130213021300000010101302130123456789abcdef013579bdfjlnprtv02195ldt3jbr7nfv026195dt3jbr7nfv0426195d3jbr7nfv042a6e195d3b7nfv02a6e195d3br7nfv0153jbrn73njfbvr013jb7rn73njfbvr015d3jbr73njfbvr0215d3jbr7njfbvr0195d3jbr7njfbvr0213jbrn73njfbvr015373njf7b3vnrj01537njbf7b3vnrj0215373njfb3vnrj",
-) as TupleOf<256, IntRange<0, 256>>;
+export const PACKED_BIK_TREE_CODES =
+  "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000101010101000001010101010100000000010101010000000000010101000000000001010100000001010101010000010102130213000000130213021300000010101302130123456789abcdef013579bdfjlnprtv02195ldt3jbr7nfv026195dt3jbr7nfv0426195d3jbr7nfv042a6e195d3b7nfv02a6e195d3br7nfv0153jbrn73njfbvr013jb7rn73njfbvr015d3jbr73njfbvr0215d3jbr7njfbvr0195d3jbr7njfbvr0213jbrn73njfbvr015373njf7b3vnrj01537njbf7b3vnrj0215373njfb3vnrj";
 
-export const BIK_PATTERNS = parseWidth(
-  2,
-  "000001111110000000000111111000000000111111110000000011111111000011111111111100000000000000000000000000000000000011111111111111110000000000000000011111111111100000000000000000001111111111111111000000000000000001010101111111111111111111111111000000000000000000000000000000000000000000000000111111111111111100111111111111000000000000000000000011111111111100000000000000001111111111111111000000000000000000000000000000001111111101010101111111111111111100000000000000000000000000000000000011111111111111111111111111110000000000000000011000111111111111111111111111110000000000000000000000000000000000000000000000001111111111111111001111111111110000000000000000000101010111111111111111111111111100000000000000000000000000000000000000000000000011111111111111110111111110001111000000000000000000111001111111111111111111111111000000000000000000000000000000000000000000000000111111111111111111100001111111110000000000000000000000000000000011111111111111111111111110000111000000000011111111111100000000000000000011111111111111110000000008gow4ckld5xph912aiqy6emnf7zrjb34cks08goph91tld56emu2aiqrjb3vnf7nmlkcdef7654wxyzrqpoghijba9801234567fedcklmnvuts0123ba98ghijrqpophiqrjb32a9108gow4ckld56emnf7zyxtlmuvnf76ed54cks08goph9aiqrjb3213b2a1908gohpiqjrz7y6x5w4ckdlemfnogphqirjb3a29180sktlumvnf7e6d5c4opgh890123abijqrstklcd4567efmnuv32bajirqpohg9810zy76fenmlkdc54xw012389abghijopqrwxyz4567cdefklmn4567cdefklmnstuv012389abghijopqr67fed5c43b2a9108gohpiqjrksltmunv3b2a1908z7y6x5w4dcklmenfogphijrq01234567fedcba98ghijklmnvutsrqpowxyz0123ba987654cdefghijrqponmlk089123baijrqphgow45xyz76edcklmnfgopqrjih98012ab3vnmutskldc456ef7opgh890123abijqrstklcd4567efmnuv23abijqropgh8901yz67efmnklcd45wx08192a3bjriqhpgow4x5y6z7fnemdlckogphqirjb3a29180vnumtlskc4d5e6f708gopqrjb3219hia4ckstuvnf765dlme08gopqrjb3219hiaw4cklmnf7zyx5de6089123bajrqihgopxw456yz7fnmedlkcgophiqrjb32a9801tsklmuvnef765dc4og80123bjrqpha9iskc4567fnvutledmog80123bjrqpha9ikc4wxyz7fnmld65e08912aihgopqrjb376efnmld54ckstuvrqijba9hpog80123kcdlme654wxyz7fn0189ghopwx45cdklmnef67yzqrijab2345cdklst0189ghopqrijab23uvmnef67",
-) as readonly IntRange<0, 64>[];
+export const PACKED_BIK_PATTERNS =
+  "000001111110000000000111111000000000111111110000000011111111000011111111111100000000000000000000000000000000000011111111111111110000000000000000011111111111100000000000000000001111111111111111000000000000000001010101111111111111111111111111000000000000000000000000000000000000000000000000111111111111111100111111111111000000000000000000000011111111111100000000000000001111111111111111000000000000000000000000000000001111111101010101111111111111111100000000000000000000000000000000000011111111111111111111111111110000000000000000011000111111111111111111111111110000000000000000000000000000000000000000000000001111111111111111001111111111110000000000000000000101010111111111111111111111111100000000000000000000000000000000000000000000000011111111111111110111111110001111000000000000000000111001111111111111111111111111000000000000000000000000000000000000000000000000111111111111111111100001111111110000000000000000000000000000000011111111111111111111111110000111000000000011111111111100000000000000000011111111111111110000000008gow4ckld5xph912aiqy6emnf7zrjb34cks08goph91tld56emu2aiqrjb3vnf7nmlkcdef7654wxyzrqpoghijba9801234567fedcklmnvuts0123ba98ghijrqpophiqrjb32a9108gow4ckld56emnf7zyxtlmuvnf76ed54cks08goph9aiqrjb3213b2a1908gohpiqjrz7y6x5w4ckdlemfnogphqirjb3a29180sktlumvnf7e6d5c4opgh890123abijqrstklcd4567efmnuv32bajirqpohg9810zy76fenmlkdc54xw012389abghijopqrwxyz4567cdefklmn4567cdefklmnstuv012389abghijopqr67fed5c43b2a9108gohpiqjrksltmunv3b2a1908z7y6x5w4dcklmenfogphijrq01234567fedcba98ghijklmnvutsrqpowxyz0123ba987654cdefghijrqponmlk089123baijrqphgow45xyz76edcklmnfgopqrjih98012ab3vnmutskldc456ef7opgh890123abijqrstklcd4567efmnuv23abijqropgh8901yz67efmnklcd45wx08192a3bjriqhpgow4x5y6z7fnemdlckogphqirjb3a29180vnumtlskc4d5e6f708gopqrjb3219hia4ckstuvnf765dlme08gopqrjb3219hiaw4cklmnf7zyx5de6089123bajrqihgopxw456yz7fnmedlkcgophiqrjb32a9801tsklmuvnef765dc4og80123bjrqpha9iskc4567fnvutledmog80123bjrqpha9ikc4wxyz7fnmld65e08912aihgopqrjb376efnmld54ckstuvrqijba9hpog80123kcdlme654wxyz7fn0189ghopwx45cdklmnef67yzqrijab2345cdklst0189ghopqrijab23uvmnef67";
 
 /**
  * Critical frequencies for audio bands.
  */
-export const AUDIO_CRITICAL_FREQS = parseWidth(
-  3,
-  "00000000001111222344579b258behlpuz5bjs3fue3xxb9yskc46iek0a4skg0is88swwck",
-) as TupleOf<24, number>;
+export const PACKED_AUDIO_CRITICAL_FREQS =
+  "00000000001111222344579b258behlpuz5bjs3fue3xxb9yskc46iek0a4skg0is88swwck";
 
 /**
  *  Run-lengths permitted for compression of audio with RLE.
  */
-export const AUDIO_RLE_LENGTH_TABLE = parseWidth(2, "000111222223337egow4cs08gow4ck48") as TupleOf<
-  16,
-  number
->;
+export const PACKED_AUDIO_RLE_LENGTH_TABLE = "000111222223337egow4cs08gow4ck48";
 
 /**
  * DCT scan order for 8x8 blocks.
  */
-export const BIK_SCAN = parseWidth(
-  2,
-  "0000000000000000000000000000001100111111111100001111111111111111018923ab45cd67efklstmnuvghopwx45yz67cdklefmnijqr018923abghopijqr",
-) as TupleOf<64, IntRange<0, 64>>;
+export const PACKED_BIK_SCAN =
+  "0000000000000000000000000000001100111111111100001111111111111111018923ab45cd67efklstmnuvghopwx45yz67cdklefmnijqr018923abghopijqr";
 
 /**
- * (I)DCT coefficient quantization table
- * -------------------------------------
+ * Build the inter/intra frame (I)DCT coefficient quantization tables by scaling a base matrix.
  *
  * Table contains a sub-table for intra-frame followed by a sub-table for inter-frame values.
  * Each sub-table consists of 16 levels, each containing 64 values for an 8x8 DCT block. Each
  * level is generated by scaling a base quantization matrix by a predetermined factor.
- */
-
-/**
- * Base quantization matrix for intra/inter-frame coded blocks.
- */
-const BASE_QUANT = parseWidth(
-  4,
-  "11231143113210102232101034232322322312112211333332211010111110001223113211210010212110102323221222221100110032222111100011000000eyopuy4feb531jgwzmirsxwt3asvjj7r3sm2nm4jh8ulwin58cjwmrbnsfcb8mwje2b7yu6vk8fwwgbpezdvdpanec950snamd506soxoiyu5tyo3nse5lyha0qlpde7k5fr2lxpk6zrm67nd3c9t1dqhnc6n4gvhc3yvw4meg2fa83mxfva5w1az2t9fnkykiaj7wj3wpovhkgepdh5529kpareotlnzhvzr2evca6rayt5ulkq1sxt6a58x7mxg1xpjz2ogi6vom0m47tz5ftgr9aekmnura7g6c0w48u30wpasfmbljblwgxtlh8vguh077we04awyg6dtl5pzcczt3djwqhv557xe1y58ygdvvo0oh96usw9k9rl3pot",
-) as readonly number[];
-
-/**
- * Scaling factors for each of the quantization levels.
- */
-const QUANT_FACTORS = [
-  1.0,
-  4 / 3,
-  5 / 3,
-  2.0,
-  8 / 3,
-  7 / 2,
-  4.0,
-  5.0,
-  6.0,
-  8.0,
-  12.0,
-  17.0,
-  22.0,
-  28.0,
-  34.0,
-  44.0,
-];
-
-/**
- * Generate quantization tables by scaling a base matrix.
  *
- * @param baseMatrix - The base quantization matrix (64 values)
+ * Use for quantizing/dequantizing DCT coefficients in intra-frame coded blocks (I-frames) and
+ * inter-frame coded blocks (P-frames).
+ *
  * @returns Flat array of 1024 values (16 tables x 64 coefficients)
  */
-function generateQuantTables(baseMatrix: readonly number[]): number[] {
+export const buildQuantTables = (): readonly number[] => {
   const tables: number[] = [];
+  const baseQuant = unpackValues(
+    4,
+    "11231143113210102232101034232322322312112211333332211010111110001223113211210010212110102323221222221100110032222111100011000000eyopuy4feb531jgwzmirsxwt3asvjj7r3sm2nm4jh8ulwin58cjwmrbnsfcb8mwje2b7yu6vk8fwwgbpezdvdpanec950snamd506soxoiyu5tyo3nse5lyha0qlpde7k5fr2lxpk6zrm67nd3c9t1dqhnc6n4gvhc3yvw4meg2fa83mxfva5w1az2t9fnkykiaj7wj3wpovhkgepdh5529kpareotlnzhvzr2evca6rayt5ulkq1sxt6a58x7mxg1xpjz2ogi6vom0m47tz5ftgr9aekmnura7g6c0w48u30wpasfmbljblwgxtlh8vguh077we04awyg6dtl5pzcczt3djwqhv557xe1y58ygdvvo0oh96usw9k9rl3pot",
+  ) as readonly number[];
 
   for (let level = 0; level < 32; level++) {
-    const factor = QUANT_FACTORS[level % 16];
+    const factor = [
+      1.0,
+      4 / 3,
+      5 / 3,
+      2.0,
+      8 / 3,
+      7 / 2,
+      4.0,
+      5.0,
+      6.0,
+      8.0,
+      12.0,
+      17.0,
+      22.0,
+      28.0,
+      34.0,
+      44.0,
+    ][level % 16];
     const subTableOffset = level > 15 ? 64 : 0;
 
     for (let i = 0; i < 64; i++) {
       // Scale the base quantization value and round to nearest integer
-      tables.push(Math.round((baseMatrix[i + subTableOffset] as number) * (factor as number)));
+      tables.push(Math.round((baseQuant[i + subTableOffset] as number) * (factor as number)));
     }
   }
 
   return tables;
-}
-
-/**
- * Generate the intra/inter-frame block quantization tables.
- *
- * Used for quantizing DCT coefficients in intra-frame coded blocks (I-frames) and
- * inter-frame coded blocks (P-frames).
- */
-export const BIK_QUANT: number[] = generateQuantTables(BASE_QUANT);
+};

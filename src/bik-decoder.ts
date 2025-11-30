@@ -26,8 +26,12 @@
  * @packageDocumentation
  */
 
-import { genBikAudioDecoder } from "./bik-audio-decoder.ts";
-import { BikVideoDecoder, type BikVideoFrame } from "./bik-video-decoder.ts";
+import { type BikAudioDecoder, genBikAudioDecoder } from "./bik-audio-decoder.ts";
+import {
+  type BikVideoDecoder,
+  type BikVideoFrame,
+  genBikVideoDecoder,
+} from "./bik-video-decoder.ts";
 
 /**
  * Decoded header of a BIK data source.
@@ -276,7 +280,7 @@ class BikDecoder {
 
   #curFrame = -1;
 
-  #audioTrackDecoders: ReturnType<typeof genBikAudioDecoder>[] = [];
+  #audioTrackDecoders: BikAudioDecoder[] = [];
   #videoDecoder: BikVideoDecoder | null = null;
 
   #header: BikHeader | null = null;
@@ -508,13 +512,14 @@ class BikDecoder {
     });
 
     // Create an image ("video") decoder for decoding the image data in each consecutive frame.
-    this.#videoDecoder = new BikVideoDecoder(
+    this.#videoDecoder = genBikVideoDecoder(
       width,
       height,
       subVersion,
       hasAlpha,
       hasSwappedUVPlanes,
     );
+    this.#videoDecoder.next();
 
     // Determine whether we can decode the rest of this BIK data source or not.
     this.#isSupported =
@@ -623,7 +628,8 @@ class BikDecoder {
 
     // Decode the actual video frame image data
     const videoFrame =
-      this.#videoDecoder?.decodeFrame_(videoFrameBytes, prevFrame?.videoFrame) ?? null;
+      this.#videoDecoder?.next({ data_: videoFrameBytes, existingFrame_: prevFrame?.videoFrame })
+        .value ?? null;
 
     return {
       audioTracks,

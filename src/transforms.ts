@@ -2,7 +2,7 @@
  * Transformation functions (cosine transforms, Fourier transforms, etc.) used during media
  * decoding.
  */
-import type { FixedLengthArray, IntRange } from "type-fest";
+import type { IntRange } from "type-fest";
 
 interface IDxT extends Generator<void, void, Float32Array> {
   /**
@@ -368,7 +368,6 @@ const idctPut = (
     if (destOffset >= dest.length) {
       break;
     }
-
     idct(block, i, dest, destOffset, false);
     destOffset += stride;
   }
@@ -394,7 +393,7 @@ const idctAdd = (
     idct(block, i, null, i, false);
   }
 
-  addBlocks8x8(block, dest, destOffset, stride);
+  addBlock8x8(block, dest, destOffset, stride);
 };
 
 /**
@@ -405,7 +404,7 @@ const idctAdd = (
  * @param stride Length of a "line" or "row" of values in {@link dest}. This value will be added
  *   to get from one row of the destination block to the next.
  */
-const addBlocks8x8 = (
+const addBlock8x8 = (
   block: Int32Array,
   dest: Uint8Array,
   destOffset: number,
@@ -423,4 +422,4 @@ const addBlocks8x8 = (
   }
 };
 
-export { addBlocks8x8, genIDxT, idctAdd, idctPut };
+export { addBlock8x8, genIDxT, idctAdd, idctPut };

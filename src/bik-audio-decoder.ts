@@ -1,17 +1,27 @@
 /**
  * Module holding audio decoding logic for the BIK decoder.
  */
-import type { IntRange } from "type-fest";
-import { AUDIO_CRITICAL_FREQS, AUDIO_RLE_LENGTH_TABLE } from "./bik-constants.ts";
+import type { IntRange, TupleOf } from "type-fest";
+import {
+  PACKED_AUDIO_CRITICAL_FREQS,
+  PACKED_AUDIO_RLE_LENGTH_TABLE,
+  unpackValues,
+} from "./bik-constants.ts";
 import { BitReader } from "./bik-decoder-utils.ts";
 import { genIDxT } from "./transforms.ts";
 
-interface BikAudioDecoder
+let AUDIO_CRITICAL_FREQS: TupleOf<24, number>;
+let AUDIO_RLE_LENGTH_TABLE: TupleOf<16, number>;
+
+let constantsInitialized = false;
+
+export interface BikAudioDecoder
   extends Generator<Float32Array[][], Float32Array[][], Uint8Array | null | undefined> {
   /**
    * Decode a byte array of encoded BIK audio data.
    *
-   * @param value Encoded BIK audio data.
+   * @param value Encoded BIK audio data. When `null` or `undefined`, the audio decoder state
+   *   is reset ready to decode a new audio stream from the start.
    * @returns Decoded audio samples, indexed by block and then by channel.
    */
   next(
@@ -28,11 +38,20 @@ interface BikAudioDecoder
  *   transforms).
  * @returns
  */
-function* genBikAudioDecoder(
+export function* genBikAudioDecoder(
   sampleRate: number,
   numChannels: number,
   useDCT: boolean,
 ): BikAudioDecoder {
+  /*
+   * Ensure decoder constants are defined.
+   */
+  if (!constantsInitialized) {
+    AUDIO_CRITICAL_FREQS = unpackValues(3, PACKED_AUDIO_CRITICAL_FREQS) as TupleOf<24, number>;
+    AUDIO_RLE_LENGTH_TABLE = unpackValues(2, PACKED_AUDIO_RLE_LENGTH_TABLE) as TupleOf<16, number>;
+    constantsInitialized = true;
+  }
+
   /*
    * Initialize the audio decoder.
    */
@@ -217,5 +236,3 @@ function* genBikAudioDecoder(
     }
   }
 }
-
-export { genBikAudioDecoder };
