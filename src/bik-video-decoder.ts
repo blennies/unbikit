@@ -9,9 +9,9 @@ import {
   BIK_SCAN,
   BIK_TREE_CODES,
   BIK_TREE_LENS,
-  RLE_LENGTHS,
 } from "./bik-constants.ts";
 import { BitReader } from "./bik-decoder-utils.ts";
+import { addBlocks8x8, idctAdd, idctPut } from "./transforms.ts";
 
 const EMPTY_UINT8_ARRAY = new Uint8Array();
 
@@ -430,7 +430,7 @@ export class BikVideoDecoder {
     this.#readCoeffsOrResidue(block);
 
     this.#copyBlock(srcPos);
-    this.#addPixels8x8(block, this.#data, this.#dataPtr, this.#stride);
+    addBlocks8x8(block, this.#data, this.#dataPtr, this.#stride);
   }
 
   #decodeIntraBlock(block: Uint8Array, offset = 0, stride = 8) {
@@ -438,7 +438,7 @@ export class BikVideoDecoder {
     dctBlock[0] = this.#getValue(BIK_PARAM_INTRA_DC);
     dctBlock.fill(0, 1);
     this.#readCoeffsOrResidue(dctBlock, 0);
-    this.#idctPut(dctBlock, block, offset, stride);
+    idctPut(dctBlock, block, offset, stride);
   }
 
   #decodeFillBlock(size = 8) {
@@ -460,7 +460,7 @@ export class BikVideoDecoder {
     dctBlock[0] = this.#getValue(BIK_PARAM_INTER_DC);
     dctBlock.fill(0, 1);
     this.#readCoeffsOrResidue(dctBlock, 1024);
-    this.#idctAdd(dctBlock, this.#data, this.#dataPtr, this.#stride);
+    idctAdd(dctBlock, this.#data, this.#dataPtr, this.#stride);
   }
 
   #decodePatternBlock(block: Uint8Array, offset = 0, stride = 8) {
@@ -700,7 +700,7 @@ export class BikVideoDecoder {
           prevValue = v as IntRange<0, 12>;
           blockParamValues.items_[blockParamValues.curDec_++] = v as IntRange<0, 12>;
         } else {
-          const runLength = RLE_LENGTHS[(v - 12) as IntRange<0, 4>];
+          const runLength = ([4, 8, 12, 32] as const)[(v - 12) as IntRange<0, 4>];
           for (let j = 0; j < runLength; j++) {
             blockParamValues.items_[blockParamValues.curDec_++] = prevValue;
           }
@@ -1004,129 +1004,6 @@ export class BikVideoDecoder {
         const blockIndex = BIK_SCAN[index] ?? 0;
         block[blockIndex] =
           ((block[blockIndex] ?? 0) * (BIK_QUANT[quantOffset + index] ?? 0)) >> 11;
-      }
-    }
-  }
-
-  /**
-   * 1D DCT-III (inverse of DCT-II, sometimes just called IDCT).
-   *
-   * Fast approximation using signed integers. Optimized for 8 element arrays.
-   * Based on the Arai-Agui-Nakajima (AAN) algorithm.
-   *
-   * This function can be run on each column and row of an 8x8 block as part of calculating a
-   * 2D IDCT.
-   * @param src Input buffer containing the coefficients to transform.
-   * @param srcOffset Offset in the input buffer of the start of the coefficients to transform.
-   * @param dest Output buffer to write the result of the transformation to.
-   * @param destOffset Offset in the output buffer to write the output of the transformation to.
-   * @param column `true` when processing a column; `false` when processing a row.
-   */
-  #idct(
-    src: Int32Array,
-    srcOffset: number,
-    rawDest: Uint8Array | null,
-    destOffset: number,
-    column: boolean,
-  ) {
-    const indexShift = column ? 3 : 0;
-    const constantToAdd = column ? 0 : 0x7f;
-    const destShift = column ? 0 : 8;
-    const dest = rawDest ? rawDest : src;
-
-    let a0 = (src[srcOffset] ?? 0) + constantToAdd;
-    let b0 = src[srcOffset + (1 << indexShift)] ?? 0;
-    let a2 = src[srcOffset + (2 << indexShift)] ?? 0;
-    const x3 = src[srcOffset + (3 << indexShift)] ?? 0;
-    const x4 = src[srcOffset + (4 << indexShift)] ?? 0;
-    let a4 = src[srcOffset + (5 << indexShift)] ?? 0;
-    const x6 = src[srcOffset + (6 << indexShift)] ?? 0;
-    const x7 = src[srcOffset + (7 << indexShift)] ?? 0;
-
-    const a1 = a0 - x4;
-    const a3 = (DCT_C0 * (a2 - x6)) >> 11;
-    const a5 = a4 - x3;
-    const a7 = b0 - x7;
-    a0 += x4;
-    a2 += x6;
-    a4 += x3;
-    b0 += x7;
-
-    const a0pa2 = a0 + a2;
-    const a0ma2 = a0 - a2;
-    const a1pa3ma3 = a1 + a3 - a2;
-    const a1ma3pa2 = a1 - a3 + a2;
-
-    const b1 = (DCT_C2 * (a5 + a7)) >> 11;
-    let b3 = (DCT_C0 * (b0 - a4)) >> 11;
-    b0 += a4;
-    const b2 = ((DCT_C3 * a5) >> 11) - b0 + b1;
-    b3 -= b2;
-    const b4 = ((DCT_C1 * a7) >> 11) + b3 - b1;
-
-    dest[destOffset] = (a0pa2 + b0) >> destShift;
-    dest[destOffset + (1 << indexShift)] = (a1pa3ma3 + b2) >> destShift;
-    dest[destOffset + (2 << indexShift)] = (a1ma3pa2 + b3) >> destShift;
-    dest[destOffset + (3 << indexShift)] = (a0ma2 - b4) >> destShift;
-    dest[destOffset + (4 << indexShift)] = (a0ma2 + b4) >> destShift;
-    dest[destOffset + (5 << indexShift)] = (a1ma3pa2 - b3) >> destShift;
-    dest[destOffset + (6 << indexShift)] = (a1pa3ma3 - b2) >> destShift;
-    dest[destOffset + (7 << indexShift)] = (a0pa2 - b0) >> destShift;
-  }
-
-  /**
-   * 2D DCT-III (inverse of DCT-II, sometimes just called IDCT).
-   *
-   * Fast approximation using signed integers. Optimized for 8x8 element blocks.
-   * Based on the Arai-Agui-Nakajima (AAN) algorithm.
-   *
-   * Runs the 1D variant on each column and row of the 8x8 entry block.
-   * @param block Input buffer containing the 64 (8x8) coefficients to transform.
-   * @param dest Output buffer to write the result of the transformation to.
-   * @param destOffset Offset in the output buffer to write the output of the transformation to.
-   * @param stride Amount to add to `destOffset` to get the next block row in the output
-   *   buffer.
-   */
-  #idctPut(block: Int32Array, dest: Uint8Array, destOffset: number, stride: number) {
-    let i: number;
-
-    for (i = 0; i < 8; i++) {
-      this.#idct(block, i, null, i, true);
-    }
-
-    for (i = 0; i < 64; i += 8) {
-      this.#idct(block, i, dest, destOffset, false);
-      destOffset += stride;
-    }
-  }
-
-  /**
-   * Variant of {@link #idctPut} that adds the result of the transformation to the values in the
-   * output buffer instead of overwriting them.
-   */
-  #idctAdd(block: Int32Array, dest: Uint8Array, destOffset: number, stride: number) {
-    let i: number;
-
-    for (i = 0; i < 8; i++) {
-      this.#idct(block, i, null, i, true);
-    }
-
-    for (i = 0; i < 64; i += 8) {
-      this.#idct(block, i, null, i, false);
-    }
-
-    this.#addPixels8x8(block, dest, destOffset, stride);
-  }
-
-  #addPixels8x8(block: Int32Array, dest: Uint8Array, destOffset: number, stride: number) {
-    stride -= 8;
-    let i = -1;
-    let iMax = 6;
-    while (i++ < 63) {
-      (dest[destOffset + i] as number) += block[i] as number;
-      if (i > iMax) {
-        destOffset += stride;
-        iMax += 8;
       }
     }
   }
