@@ -4,122 +4,129 @@
 import type { IntRange } from "type-fest";
 import { AUDIO_CRITICAL_FREQS, AUDIO_RLE_LENGTH_TABLE } from "./bik-constants.ts";
 import { BitReader } from "./bik-decoder-utils.ts";
+import { genIDxT } from "./transforms.ts";
 
-class BikAudioDecoder {
-  #numChannels: number;
-  #numInternalChannels: number; // after interleaving, if any
+interface BikAudioDecoder
+  extends Generator<Float32Array[][], Float32Array[][], Uint8Array | null | undefined> {
+  /**
+   * Decode a byte array of encoded BIK audio data.
+   *
+   * @param value Encoded BIK audio data.
+   * @returns Decoded audio samples, indexed by block and then by channel.
+   */
+  next(
+    ...[value]: [] | [Uint8Array] | [null] | [undefined]
+  ): IteratorResult<Float32Array[][], Float32Array[][]>;
+}
 
-  #first = true;
-  #frameLen: number;
-  #overlapLen: number;
-  #blockSize: number;
-  #baseQuant: number;
-  #quantTable = new Float32Array(96);
-  #numBands: number;
-  #bands: Uint32Array;
-  #output: Float32Array[];
-  #overlapWindow: Float32Array[] = [];
-  #usesDCT: boolean;
-  #idt: IDCT | IRDFT;
+/**
+ * Create a generator for decoding packets of BIK audio data.
+ * @param sampleRate Sample rate/frequency of the audio data (in Hz).
+ * @param numChannels Number of separate audio channels (may or may not have interleaved stereo).
+ * @param useDCT `true` when the audio data is encoded using DCTs (discrete cosine transforms),
+ *   otherwise `false` when the audio data is encoded using RDFTs (real discrete Fourier
+ *   transforms).
+ * @returns
+ */
+function* genBikAudioDecoder(
+  sampleRate: number,
+  numChannels: number,
+  useDCT: boolean,
+): BikAudioDecoder {
+  /*
+   * Initialize the audio decoder.
+   */
+  let frameLenBits: 9 | 10 | 11;
+  if (sampleRate < 22050) frameLenBits = 9;
+  else if (sampleRate < 44100) frameLenBits = 10;
+  else frameLenBits = 11;
 
-  constructor(sampleRate: number, numChannels: number, usesDCT: boolean) {
-    let frameLenBits: 9 | 10 | 11 | 12 | 13 | 14;
-    if (sampleRate < 22050) frameLenBits = 9;
-    else if (sampleRate < 44100) frameLenBits = 10;
-    else frameLenBits = 11;
+  // IRDFT variant (non-DCT) uses interleaved audio, so account for this
+  let numInternalChannels = numChannels;
+  if (!useDCT) {
+    sampleRate *= numChannels;
+    // support up to 8 channels
+    frameLenBits += Math.ceil(Math.log2(numChannels)) & 3;
+    numInternalChannels = 1; // after interleaving
+  }
+  const frameLen = 1 << frameLenBits;
+  const overlapLen = frameLen >>> 4;
+  const blockSize = (frameLen - overlapLen) * numInternalChannels;
 
-    // IRDFT variant (non-DCT) uses interleaved audio, so account for this
-    let numInternalChannels = numChannels;
-    if (!usesDCT) {
-      sampleRate *= numChannels;
-      // support up to 8 channels
-      frameLenBits += Math.ceil(Math.log2(numChannels)) & 3;
-      frameLenBits = frameLenBits as 9 | 10 | 11 | 12 | 13 | 14;
-      numInternalChannels = 1;
-    }
-    this.#numInternalChannels = numInternalChannels;
-    this.#numChannels = numChannels;
+  const sampleRateHalf = (sampleRate + 1) >>> 1;
+  const baseQuant = (useDCT ? frameLen : 2.0) / (Math.sqrt(frameLen) * 32768.0);
 
-    this.#frameLen = 1 << frameLenBits;
-    this.#overlapLen = this.#frameLen / 16;
-    this.#blockSize = (this.#frameLen - this.#overlapLen) * numInternalChannels;
-
-    const sampleRateHalf = (sampleRate + 1) >>> 1;
-    this.#baseQuant = (usesDCT ? this.#frameLen : 2.0) / (Math.sqrt(this.#frameLen) * 32768.0);
-
-    const expMultiplier = 0.0664 / Math.log10(Math.E);
-    for (let i = 0; i < 96; i++) {
-      this.#quantTable[i] = Math.exp(i * expMultiplier) * this.#baseQuant;
-    }
-
-    let numBands = AUDIO_CRITICAL_FREQS.findIndex((x) => sampleRateHalf <= x);
-    numBands = numBands < 0 ? AUDIO_CRITICAL_FREQS.length + 1 : numBands + 1;
-    this.#numBands = numBands;
-
-    this.#bands = new Uint32Array(numBands + 1);
-    this.#bands[0] = 2;
-    for (let i = 1; i < numBands; i++) {
-      this.#bands[i] =
-        (((AUDIO_CRITICAL_FREQS[i - 1] as number) * this.#frameLen) / sampleRateHalf) & ~1;
-    }
-    this.#bands[numBands] = this.#frameLen;
-
-    this.#output = new Array(this.#numInternalChannels);
-    for (const [index] of this.#output.entries()) {
-      this.#output[index] = new Float32Array(this.#frameLen);
-    }
-    for (let i = 0; i < numInternalChannels; i++) {
-      this.#overlapWindow.push(new Float32Array(this.#overlapLen));
-    }
-
-    this.#usesDCT = usesDCT;
-    this.#idt = usesDCT ? new IDCT(frameLenBits) : new IRDFT(frameLenBits);
+  const expMultiplier = 0.0664 / Math.log10(Math.E);
+  const quantTable = new Float32Array(96);
+  for (let i = 0; i < 96; i++) {
+    quantTable[i] = Math.exp(i * expMultiplier) * baseQuant;
   }
 
-  /**
-   * Read a 29-bit floating point value (5 bits exponent, 23 bits mantissa, 1 bit sign) from a
-   * readable bit-stream.
-   * @param reader Bit-stream to read from.
-   * @returns The floating point value as a regular 64-bit double.
-   */
-  #getFloat(reader: BitReader) {
-    const power = reader.readBits_(5);
-    return reader.applySign_(reader.readBits_(23) * 2 ** (power - 23));
+  let numBands = AUDIO_CRITICAL_FREQS.findIndex((x) => sampleRateHalf <= x);
+  numBands = numBands < 0 ? AUDIO_CRITICAL_FREQS.length + 1 : numBands + 1;
+
+  const bands = new Uint32Array(numBands + 1);
+  bands[0] = 2;
+  for (let i = 1; i < numBands; i++) {
+    bands[i] = (((AUDIO_CRITICAL_FREQS[i - 1] as number) * frameLen) / sampleRateHalf) & ~1;
+  }
+  bands[numBands] = frameLen;
+
+  const output = new Array(numInternalChannels);
+  for (const [index] of output.entries()) {
+    output[index] = new Float32Array(frameLen);
+  }
+  const overlapWindows: Float32Array[] = [];
+  for (let i = 0; i < numInternalChannels; i++) {
+    overlapWindows.push(new Float32Array(overlapLen));
   }
 
-  /**
-   * Decode all blocks and channels of a frame of audio data.
-   * @param data Encoded frame audio data.
-   * @returns Decoded data indexed by block number and then by channel number.
+  const idt = genIDxT(frameLenBits as 9 | 10 | 11 | 12 | 13 | 14, useDCT);
+  idt.next();
+
+  let first = true;
+
+  /*
+   * Decode a data buffer with each iteration.
    */
-  decode_(data: Uint8Array): Float32Array[][] {
+  let allOutput: Float32Array[][] = [];
+  while (true) {
+    const data = yield allOutput;
+    allOutput = [];
+    if (!data) {
+      first = true;
+      continue;
+    }
     const reader = new BitReader(data);
-    const output = this.#output;
-    const allOutput: Float32Array[][] = [];
+
+    const readDequantFloat29 = () => {
+      const power = reader.readBits_(5);
+      return reader.applySign_(reader.readBits_(23) * 2 ** (power - 23)) * baseQuant;
+    };
 
     while (reader.bitsLeft_ > 0) {
-      if (this.#usesDCT) {
+      if (useDCT) {
         reader.skip_(2);
       }
 
-      for (let ch = 0; ch < this.#numInternalChannels; ch++) {
+      for (let ch = 0; ch < numInternalChannels; ch++) {
         const coeffs = output[ch] as Float32Array;
 
         // Get first two (unencoded) coefficients
-        coeffs[0] = this.#getFloat(reader) * this.#baseQuant;
-        coeffs[1] = this.#getFloat(reader) * this.#baseQuant;
+        coeffs[0] = readDequantFloat29();
+        coeffs[1] = readDequantFloat29();
 
         // Calculate the quantizers for each band for this frame
-        const quant = new Float32Array(this.#numBands);
+        const quant = new Float32Array(numBands);
         for (let i = 0; i < quant.length; i++) {
-          quant[i] = this.#quantTable[Math.min(reader.readBits_(8), 95)] as number;
+          quant[i] = quantTable[Math.min(reader.readBits_(8), 95)] as number;
         }
 
         let k = 0;
         let q = quant[0] as number;
         let i = 2;
 
-        while (i < this.#frameLen) {
+        while (i < frameLen) {
           let j: number;
           if (reader.readBit_()) {
             const v = reader.readBits_(4) as IntRange<0, 16>;
@@ -128,18 +135,18 @@ class BikAudioDecoder {
             j = i + 8;
           }
 
-          j = ~~Math.min(j, this.#frameLen);
+          j = ~~Math.min(j, frameLen);
 
           const width = reader.readBits_(4);
           if (width === 0) {
             coeffs.fill(0, i, j);
             i = j;
-            while ((this.#bands[k] ?? 0) < i) {
+            while ((bands[k] ?? 0) < i) {
               q = quant[k++] ?? 0;
             }
           } else {
             while (i < j) {
-              if (this.#bands[k] === i) {
+              if (bands[k] === i) {
                 q = quant[k++] ?? 0;
               }
               const coeff = reader.readBits_(width);
@@ -154,9 +161,9 @@ class BikAudioDecoder {
           }
         }
 
-        this.#idt.calculate_(coeffs);
-        if (this.#usesDCT) {
-          const dctModifier = 4 * this.#baseQuant;
+        idt.next(coeffs);
+        if (useDCT) {
+          const dctModifier = 4 * baseQuant;
           for (let i = 0; i < coeffs.length; i++) {
             (coeffs[i] as number) *= dctModifier;
           }
@@ -164,30 +171,30 @@ class BikAudioDecoder {
       }
 
       // Overlap end of previous block of audio with this block
-      for (let ch = 0; ch < this.#numInternalChannels; ch++) {
+      for (let ch = 0; ch < numInternalChannels; ch++) {
         const coeffs = output[ch] as Float32Array;
-        const overlapWindow = this.#overlapWindow[ch] as Float32Array;
-        if (!this.#first) {
-          const count = this.#overlapLen * this.#numInternalChannels;
-          for (let i = 0, j = ch; i < this.#overlapLen; i++, j += this.#numInternalChannels) {
+        const overlapWindow = overlapWindows[ch] as Float32Array;
+        if (!first) {
+          const count = overlapLen * numInternalChannels;
+          for (let i = 0, j = ch; i < overlapLen; i++, j += numInternalChannels) {
             coeffs[i] = ((overlapWindow[i] ?? 0) * (count - j) + (coeffs[i] ?? 0) * j) / count;
           }
         }
-        overlapWindow.set(coeffs.subarray(this.#frameLen - this.#overlapLen));
+        overlapWindow.set(coeffs.subarray(frameLen - overlapLen));
       }
 
       // Convert to planar format if the channels are interleaved, and add the final data to the
       // array of processed blocks
       const outputBlock: Float32Array[] = [];
-      const stride = Math.ceil(this.#numChannels / this.#numInternalChannels);
+      const stride = Math.ceil(numChannels / numInternalChannels);
       if (stride > 1) {
         let intCh = 0;
-        while (intCh < this.#numInternalChannels) {
+        while (intCh < numInternalChannels) {
           const internalBlock = output[intCh] as Float32Array;
           let ch = 0;
-          while (ch < this.#numChannels) {
+          while (ch < numChannels) {
             for (let strideCount = 0; strideCount < stride; strideCount++) {
-              const deinterleavedBlock = new Float32Array(~~(this.#blockSize / stride));
+              const deinterleavedBlock = new Float32Array(~~(blockSize / stride));
               for (let i = 0; i < deinterleavedBlock.length; i++) {
                 deinterleavedBlock[i] = internalBlock[i * stride + strideCount] as number;
               }
@@ -198,275 +205,17 @@ class BikAudioDecoder {
           intCh++;
         }
       } else {
-        const actualOutputBlockSize = ~~(this.#blockSize / this.#numInternalChannels);
-        for (let ch = 0; ch < this.#numInternalChannels; ch++) {
+        const actualOutputBlockSize = ~~(blockSize / numInternalChannels);
+        for (let ch = 0; ch < numInternalChannels; ch++) {
           outputBlock.push((output[ch] as Float32Array).slice(0, actualOutputBlockSize));
         }
       }
       allOutput.push(outputBlock);
 
-      this.#first = false;
+      first = false;
       reader.align32_();
     }
-
-    return allOutput;
   }
 }
 
-/**
- * 1D Inverse Discrete Cosine Transform (IDCT)
- *
- * This implementation provides the DCT-III transform (inverse of DCT-II), optimized using the
- * algorithm by Byeong Gi Lee, 1984.
- */
-class IDCT {
-  #n: number;
-  #nBits: number;
-  #tempBuf: Float32Array;
-  #reciprocalCosTables: Float32Array[] = [];
-
-  constructor(nBits: IntRange<1, 17>) {
-    this.#nBits = nBits;
-    this.#n = 1 << nBits;
-    this.#tempBuf = new Float32Array(this.#n);
-
-    // Precompute cosine tables.
-    for (let tableIndex = 0; tableIndex <= nBits; tableIndex++) {
-      const n = 1 << tableIndex;
-      const reciprocalCosTable = new Float32Array(n);
-      for (let i = 0; i < n; i++) {
-        reciprocalCosTable[i] = 0.5 / Math.cos(((i + 0.5) * Math.PI) / n);
-      }
-      this.#reciprocalCosTables.push(reciprocalCosTable);
-    }
-  }
-
-  #inverseTransformInternal(
-    data: Float32Array,
-    off: number,
-    n: number,
-    nBits: number,
-    temp: Float32Array,
-  ) {
-    if (n < 2) {
-      return;
-    }
-    const reciprocalCosTable = this.#reciprocalCosTables[nBits] as Float32Array;
-    const halfLen = n >>> 1;
-
-    temp[off + 0] = data[off] as number;
-    temp[off + halfLen] = data[off + 1] as number;
-    for (let i = 1; i < halfLen; i++) {
-      const iDoubled = i << 1;
-      temp[off + i] = data[off + iDoubled] as number;
-      temp[off + i + halfLen] =
-        (data[off - 1 + iDoubled] as number) + (data[off + 1 + iDoubled] as number);
-    }
-    this.#inverseTransformInternal(temp, off, halfLen, nBits - 1, data);
-    this.#inverseTransformInternal(temp, off + halfLen, halfLen, nBits - 1, data);
-    for (let i = 0; i < halfLen; i++) {
-      const x = temp[off + i] as number;
-      const y = (temp[off + i + halfLen] as number) * (reciprocalCosTable[i] as number);
-      data[off + i] = x + y;
-      data[off + n - 1 - i] = x - y;
-    }
-  }
-
-  /**
-   * Calculate inverse DCT for a given array of real values.
-   *
-   * @param data Real-valued frequency domain samples of length `n`, which are converted in-place
-   *   to real-valued time domain samples.
-   */
-  calculate_(data: Float32Array) {
-    if (data.length < this.#n) {
-      return;
-    }
-    this.#inverseTransformInternal(data, 0, this.#n, this.#nBits, this.#tempBuf);
-  }
-}
-
-/**
- * 1D Inverse Real Discrete Fourier Transform (IRDFT)
- *
- * This implementation provides the inverse RDFT transform for real-valued data, optimized using
- * the Cooley-Tukey FFT algorithm.
- */
-class IRDFT {
-  #n: number;
-  #nDiv4: number;
-  #cosTable: Float32Array;
-  #sinTable: Float32Array;
-  #fft: FFT;
-
-  constructor(nBits: IntRange<4, 17>) {
-    const n = 1 << nBits;
-    const nDiv4 = n >>> 2;
-    this.#n = n;
-    this.#nDiv4 = nDiv4;
-
-    // Precompute sine and cosine tables.
-    const theta = (2 * Math.PI) / n;
-    this.#cosTable = new Float32Array(nDiv4);
-    this.#sinTable = new Float32Array(nDiv4);
-    for (let i = 0; i < nDiv4; i++) {
-      this.#cosTable[i] = Math.cos(i * theta);
-      this.#sinTable[i] = Math.sin(i * theta);
-    }
-
-    // Initialize FFT with half size
-    this.#fft = new FFT((nBits - 1) as IntRange<3, 16>);
-  }
-
-  /**
-   * Calculate inverse RDFT for a given array of real values.
-   *
-   * Forward FFT/DFT is used and pre-processing applied to ensure the result is an inverse
-   * transformation.
-   *
-   * Input format details: data[0]=Re[0] (DC), data[1]=Re[N/2] (Nyquist),
-   *                       data[2k]=Re[k],     data[2k+1]=Im[k] for k=1..N/2-1
-   * @param data Real-valued frequency domain samples of length `n`, which are converted in-place
-   *   to real-valued time domain samples.
-   */
-  calculate_(data: Float32Array): void {
-    const n = this.#n;
-    if (data.length < n) {
-      return;
-    }
-    const nDiv4 = this.#nDiv4;
-
-    // Handle DC and Nyquist components.
-    const dc = data[0] as number;
-    const nyquist = data[1] as number;
-    data[0] = 0.5 * (dc + nyquist); // Re[0]
-    data[1] = 0.5 * (dc - nyquist); // Im[0]
-
-    // Process remaining components.
-    for (let i = 1; i < nDiv4; i++) {
-      const i1 = i << 1;
-      const i2 = n - i1;
-      const d01 = data[i1] ?? 0;
-      const d02 = data[i2] ?? 0;
-      const d11 = data[i1 + 1] ?? 0;
-      const d12 = data[i2 + 1] ?? 0;
-
-      // Remap to complex values in the half-size FFT.
-      const evenRe = 0.5 * (d01 + d02);
-      const oddIm = 0.5 * (d01 - d02);
-      const evenIm = 0.5 * (d11 - d12);
-      const oddRe = -0.5 * (d11 + d12);
-
-      const cosVal = this.#cosTable[i] as number;
-      const sinVal = this.#sinTable[i] as number;
-
-      data[i1] = evenRe + oddRe * cosVal - oddIm * sinVal;
-      data[i1 + 1] = evenIm + oddIm * cosVal + oddRe * sinVal;
-      data[i2] = evenRe - oddRe * cosVal + oddIm * sinVal;
-      data[i2 + 1] = -evenIm + oddIm * cosVal + oddRe * sinVal;
-    }
-
-    // Apply scaling then call forward FFT.
-    this.#fft.calculate_(data);
-  }
-}
-
-/**
- * Fast Fourier Transform (FFT)
- *
- * Standard Cooley-Tukey radix-2 decimation-in-time FFT.
- */
-class FFT {
-  #n: number;
-  #nBits: number;
-  #revTable: Uint16Array;
-  #twiddle: Float32Array;
-
-  constructor(nBits: IntRange<2, 17>) {
-    this.#nBits = nBits;
-    this.#n = 1 << nBits;
-
-    // Build bit-reversal table.
-    this.#revTable = new Uint16Array(this.#n);
-    for (let i = 0; i < this.#n; i++) {
-      this.#revTable[i] = this.#bitReverse(i);
-    }
-
-    // Precompute twiddle factors.
-    this.#twiddle = new Float32Array(this.#n);
-    for (let i = 0; i < this.#n >>> 1; i++) {
-      const angle = (-2 * Math.PI * i) / this.#n;
-      this.#twiddle[i * 2] = Math.cos(angle);
-      this.#twiddle[i * 2 + 1] = Math.sin(angle);
-    }
-  }
-
-  #bitReverse(x: number): number {
-    let result = 0;
-    for (let i = 0; i < this.#nBits; i++) {
-      result = (result << 1) | (x & 1);
-      x >>= 1;
-    }
-    return result;
-  }
-
-  /**
-   * In-place FFT
-   *
-   * Data format: [Re[0], Im[0], Re[1], Im[1], ..., Re[n-1], Im[n-1]]
-   */
-  calculate_(data: Float32Array): void {
-    const n = this.#n;
-
-    // Perform bit-reversal permutation.
-    for (let i = 0; i < n; i++) {
-      const iDouble = i << 1;
-      const j = this.#revTable[i] as number;
-      if (j > i) {
-        const jDouble = j << 1;
-        const tr = data[iDouble];
-        const ti = data[iDouble + 1];
-        data[iDouble] = data[jDouble] as number;
-        data[iDouble + 1] = data[jDouble + 1] as number;
-        data[jDouble] = tr as number;
-        data[jDouble + 1] = ti as number;
-      }
-    }
-
-    // Main FFT loop.
-    for (let size = 2; size <= n; size <<= 1) {
-      const halfSize = size >>> 1;
-      const step = ~~(n / size);
-
-      for (let i = 0; i < n; i += size) {
-        let twiddleIdx = 0;
-        for (let j = 0; j < halfSize; j++) {
-          const wr = this.#twiddle[twiddleIdx << 1] as number;
-          const wi = this.#twiddle[(twiddleIdx << 1) + 1] as number;
-
-          const evenIdx = (i + j) << 1;
-          const oddIdx = (i + j + halfSize) << 1;
-
-          const er = data[evenIdx] as number;
-          const ei = data[evenIdx + 1] as number;
-          const or = data[oddIdx] as number;
-          const oi = data[oddIdx + 1] as number;
-
-          // Twiddle * odd
-          const tr = wr * or - wi * oi;
-          const ti = wr * oi + wi * or;
-
-          // Butterfly
-          data[evenIdx] = er + tr;
-          data[evenIdx + 1] = ei + ti;
-          data[oddIdx] = er - tr;
-          data[oddIdx + 1] = ei - ti;
-
-          twiddleIdx += step;
-        }
-      }
-    }
-  }
-}
-
-export { BikAudioDecoder };
+export { genBikAudioDecoder };
