@@ -18,7 +18,7 @@ const fetchSelectionOfFrames = async (
   const file = mediaFiles[fileIndex];
   const decoder = existingDecoder ?? (await getMediaFileDecoder(mediaFiles[fileIndex]));
   const header = decoder?.header;
-  const numFrames = Math.min((header?.numFrames ?? 1) - 1, 500);
+  const numFrames = Math.min((header?.numFrames ?? 1) - 1, 1000);
   const frameQuarters = ~~(numFrames / 4);
   expect(header).toBeTruthy();
   annotate(
