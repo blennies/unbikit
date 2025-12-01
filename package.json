@@ -73,7 +73,7 @@
     "starlight-package-managers": "0.11.1",
     "starlight-theme-rapide": "0.5.2",
     "starlight-typedoc": "0.21.5",
-    "tinybench": "5.1.0",
+    "tinybench": "6.0.0",
     "ts-extras": "0.16.0",
     "tsdown": "0.17.0-beta.4",
     "type-fest": "5.2.0",
@@ -81,7 +81,7 @@
     "typedoc-plugin-markdown": "4.9.0",
     "typescript": "5.9.3",
     "unplugin-unused": "0.5.6",
-    "vite": "npm:rolldown-vite@7.2.8",
+    "vite": "npm:rolldown-vite@7.2.9",
     "vitest": "4.0.14"
   },
   "pnpm": {
@@ -91,7 +91,8 @@
       "vitest>vite": "$vite"
     },
     "patchedDependencies": {
-      "starlight-theme-rapide": "patches/starlight-theme-rapide.patch"
+      "starlight-theme-rapide": "patches/starlight-theme-rapide.patch",
+      "vitest": "patches/vitest.patch"
     }
   },
   "exports": {
