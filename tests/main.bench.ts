@@ -28,8 +28,9 @@ const createBench = async (fileIndex: keyof typeof mediaFiles): Promise<void> =>
       }
     },
     {
-      hrtimeNow,
+      async: true,
       iterations: 10000,
+      now: hrtimeNow,
       throws: false,
     },
   );
