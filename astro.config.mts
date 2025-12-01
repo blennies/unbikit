@@ -1,5 +1,6 @@
 import mdx from "@astrojs/mdx";
 import starlight from "@astrojs/starlight";
+import type { ViteUserConfig } from "astro";
 import { defineConfig } from "astro/config";
 import starlightThemeRapide from "starlight-theme-rapide";
 import { createStarlightTypeDocPlugin } from "starlight-typedoc";
@@ -97,7 +98,7 @@ const config: ReturnType<typeof defineConfig> = defineConfig({
   site: "https://blennies.github.io/unbikit/",
   srcDir: "./app/src",
   // REVISIT: type mismatch with esbuild plugin type, but seems safe to ignore
-  vite: { ...viteConfig } as any,
+  vite: { ...viteConfig } as ViteUserConfig,
 });
 
 export default config;

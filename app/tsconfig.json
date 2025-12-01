@@ -6,7 +6,7 @@
     "target": "esnext",
     "module": "preserve",
     "moduleDetection": "force",
-    "types": ["astro/client", "vite/client", "node", "audioworklet"],
+    "types": ["astro/client", "vite/client", "vitest/importMeta", "node", "audioworklet"],
     "allowJs": false,
 
     // Bundler mode
@@ -22,6 +22,7 @@
     // Best practices
     "skipLibCheck": true,
     "strict": true,
+    "strictNullChecks": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "noImplicitOverride": true,

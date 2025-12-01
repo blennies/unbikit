@@ -26,8 +26,12 @@
  * @packageDocumentation
  */
 
-import { BikAudioDecoder } from "./bik-audio-decoder.ts";
-import { BikVideoDecoder, type BikVideoFrame } from "./bik-video-decoder.ts";
+import { type BikAudioDecoder, genBikAudioDecoder } from "./bik-audio-decoder.ts";
+import {
+  type BikVideoDecoder,
+  type BikVideoFrame,
+  genBikVideoDecoder,
+} from "./bik-video-decoder.ts";
 
 /**
  * Decoded header of a BIK data source.
@@ -442,11 +446,11 @@ class BikDecoder {
     const numFrames = headerWords[2] as number;
     const width = headerWords[5] as number;
     const height = headerWords[6] as number;
-    const videoFlags = headerWords[9] as number;
-    const hasAlpha = !!(videoFlags & 0x100000);
-    const hasSwappedUVPlanes = subVersion > 103;
-    const isGrayscale = !!(videoFlags & 0x20000);
-    const scaling = (videoFlags >>> 28) & 0xf;
+    const videoFlags = (headerWords[9] as number) >>> 16;
+    const hasAlpha = !!(videoFlags & 0x10);
+    const hasSwappedUVPlanes = version === 1 && subVersion > 103;
+    const isGrayscale = !!(videoFlags & 0x2);
+    const scaling = videoFlags >>> 12; // 4 bit value
     const numAudioTracks = headerWords[10] as number;
     const audioTrackHeaderSize = numAudioTracks * 12;
     const frameListSize = (numFrames + 1) * 4;
@@ -477,13 +481,13 @@ class BikDecoder {
         };
       });
       audioTracks.forEach((audioTrack) => {
-        this.#audioTrackDecoders.push(
-          new BikAudioDecoder(
-            audioTrack.sampleRate,
-            audioTrack.numChannels,
-            audioTrack.flags.usesDCT,
-          ),
+        const audioTrackDecoder = genBikAudioDecoder(
+          audioTrack.sampleRate,
+          audioTrack.numChannels,
+          audioTrack.flags.usesDCT,
         );
+        audioTrackDecoder.next();
+        this.#audioTrackDecoders.push(audioTrackDecoder);
       });
     }
 
@@ -508,13 +512,14 @@ class BikDecoder {
     });
 
     // Create an image ("video") decoder for decoding the image data in each consecutive frame.
-    this.#videoDecoder = new BikVideoDecoder(
+    this.#videoDecoder = genBikVideoDecoder(
       width,
       height,
       subVersion,
       hasAlpha,
       hasSwappedUVPlanes,
     );
+    this.#videoDecoder.next();
 
     // Determine whether we can decode the rest of this BIK data source or not.
     this.#isSupported =
@@ -611,7 +616,7 @@ class BikDecoder {
           header: audioHeader,
           size: audioTrackFrame.size,
           numSamples: audioTrackFrame.numSamples,
-          blocks: audioDecoder.decode_(audioTrackFrame.bytes),
+          blocks: audioDecoder.next(audioTrackFrame.bytes).value,
         });
       }
     }
@@ -623,7 +628,8 @@ class BikDecoder {
 
     // Decode the actual video frame image data
     const videoFrame =
-      this.#videoDecoder?.decodeFrame_(videoFrameBytes, prevFrame?.videoFrame) ?? null;
+      this.#videoDecoder?.next({ data_: videoFrameBytes, existingFrame_: prevFrame?.videoFrame })
+        .value ?? null;
 
     return {
       audioTracks,
@@ -652,10 +658,13 @@ class BikDecoder {
    */
   reset(): void {
     this.#curFrame = -1;
+    for (const audioTrackDecoder of this.#audioTrackDecoders) {
+      audioTrackDecoder.next();
+    }
   }
 
   /**
-   * Attempt to read and parse the headers of a BIK video. If successful, return an instance of
+   * Read and parse the headers of a BIK video. If successful, return an instance of
    * {@link BikDecoder} for decoding the rest of the video from the data source.
    * @param source Data source that will provide the encoded video data.
    * @returns Decoder instance. Use {@link BikDecoder.header} to access the parsed headers.
@@ -668,7 +677,7 @@ class BikDecoder {
 }
 
 /**
- * Attempt to read and parse the headers of a BIK video. If successful, return an instance of
+ * Read and parse the headers of a BIK video. If successful, return an instance of
  * {@link BikDecoder} for decoding the rest of the video from the data source.
  * @param source Data source that will provide the encoded video data.
  * @returns Decoder instance. Use {@link BikDecoder.header} to access the parsed headers.

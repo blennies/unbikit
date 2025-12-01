@@ -4,16 +4,26 @@
 
 import type { FixedLengthArray, IntRange, Simplify, TupleOf } from "type-fest";
 import {
-  BIK_PATTERNS,
-  BIK_QUANT,
-  BIK_SCAN,
-  BIK_TREE_CODES,
-  BIK_TREE_LENS,
-  RLE_LENGTHS,
+  buildQuantTables,
+  PACKED_BIK_PATTERNS,
+  PACKED_BIK_SCAN,
+  PACKED_BIK_TREE_CODES,
+  PACKED_BIK_TREE_LENS,
+  unpackValues,
 } from "./bik-constants.ts";
 import { BitReader } from "./bik-decoder-utils.ts";
+import { addBlock8x8, idctAdd, idctPut } from "./transforms.ts";
 
 const EMPTY_UINT8_ARRAY = new Uint8Array();
+
+let BIK_PATTERNS: readonly IntRange<0, 64>[];
+let BIK_SCAN: TupleOf<64, IntRange<0, 64>>;
+let BIK_TREE_CODES: TupleOf<256, IntRange<0, 256>>;
+let BIK_TREE_LENS: TupleOf<256, IntRange<1, 8>>;
+let BIK_QUANT: readonly number[];
+let PREDEFINED_HUFF_TABLES: TupleOf<16, HuffTable>;
+
+let constantsInitialized = false;
 
 /**
  * Data structure describing a single decoded video frame. All values (including pixel values) are
@@ -95,15 +105,6 @@ class HuffTable {
   #symbolsLens: Uint8Array;
   #maxBits: Simplify<typeof BIK_TREE_LENS>[number];
 
-  // When this module is first imported, create all the pre-defined read-only Huffman table
-  // structures we will need for Huffman decoding.
-  static predefinedTables_: TupleOf<16, HuffTable> = new Array(16)
-    .fill(null)
-    .map((_, bikTreeIndex) => new HuffTable(bikTreeIndex as IntRange<0, 16>)) as TupleOf<
-    16,
-    HuffTable
-  >;
-
   constructor(bikTreeIndex: IntRange<0, 16>) {
     const referenceTableOffset = (bikTreeIndex << 4) as IntRange<0, 240, 16>;
     const maxBits = BIK_TREE_LENS[referenceTableOffset + 15] as (typeof BIK_TREE_LENS)[number];
@@ -147,126 +148,143 @@ class HuffTable {
   }
 }
 
-export class BikVideoDecoder {
-  // Information from the video header
-  // ---------------------------------
-  #width: number;
-  #height: number;
-  #version: number;
-  #hasAlpha: boolean;
-  #hasSwappedUVPlanes: boolean;
+export interface BikVideoDecoderPayload {
+  data_: Uint8Array | Uint8ClampedArray;
+  existingFrame_: BikVideoFrame | null | undefined;
+}
 
-  // Calculated from the video header information
-  #numPixels: number;
-  #uvSize: number;
+export interface BikVideoDecoder
+  extends Generator<BikVideoFrame | null, BikVideoFrame | null, BikVideoDecoderPayload> {
+  /**
+   * Decode a byte array of encoded BIK video data.
+   *
+   * @param payload Encoded BIK video data with an optional previously decoded frame to re-use
+   *   (to reduce garbage collection).
+   * @returns Decoded frame.
+   */
+  next(
+    ...[payload]: [] | [BikVideoDecoderPayload]
+  ): IteratorResult<BikVideoFrame | null, BikVideoFrame | null>;
+}
 
-  // Frame decode state
-  // ------------------
+/**
+ * Create a generator for decoding packets of BIK video data.
+ */
+export function* genBikVideoDecoder(
+  width: number,
+  height: number,
+  version: number,
+  hasAlpha: boolean,
+  hasSwappedUVPlanes: boolean,
+): BikVideoDecoder {
+  /*
+   * Ensure decoder constants are defined.
+   */
+  if (!constantsInitialized) {
+    BIK_PATTERNS = unpackValues(2, PACKED_BIK_PATTERNS) as readonly IntRange<0, 64>[];
+    BIK_SCAN = unpackValues(2, PACKED_BIK_SCAN) as TupleOf<64, IntRange<0, 64>>;
+    BIK_TREE_CODES = unpackValues(2, PACKED_BIK_TREE_CODES) as TupleOf<256, IntRange<0, 256>>;
+    BIK_TREE_LENS = unpackValues(1, PACKED_BIK_TREE_LENS) as TupleOf<256, IntRange<1, 8>>;
+    BIK_QUANT = buildQuantTables();
+    PREDEFINED_HUFF_TABLES = new Array(16)
+      .fill(null)
+      .map((_, bikTreeIndex) => new HuffTable(bikTreeIndex as IntRange<0, 16>)) as TupleOf<
+      16,
+      HuffTable
+    >;
+
+    constantsInitialized = true;
+  }
+
+  /*
+   * Initialize re-usable buffers
+   *
+   * To reduce garbage collection when decoding multiple frames.
+   */
+  const inputTreeBuf = new Uint8Array(16) as FixedLenUint8Array<16>;
+  const outputTreeBuf = new Uint8Array(16) as FixedLenUint8Array<16>;
+  // `coeffIndex` does not actually contain coefficients for "residue" blocks
+  const coeffIndex = new Int32Array(64) as FixedLenInt32Array<64>;
+  const coeffList = new Int32Array(128) as FixedLenInt32Array<128>;
+  const modeList = new Uint8Array(128) as FixedLenUint8Array<128>;
+  const tmpScalingBuf = new Uint8Array(64) as FixedLenUint8Array<64>;
+  const tmpDCTBuf = new Int32Array(64) as FixedLenInt32Array<64>;
+
+  /*
+   * Initialize the video decoder based on the passed parameters.
+   */
+
+  const numPixels = width * height;
+  const uvSize = ((width + 1) >>> 1) * ((height + 1) >>> 1);
+  const frameSize = (numPixels << (hasAlpha ? 1 : 0)) + (uvSize << 1);
 
   // Value to add to a pointer to the data buffer to get to the same X position on the next line
-  #stride = 0;
+  let stride = 0;
 
   // Output data buffer for all planes in the current frame
-  #data = EMPTY_UINT8_ARRAY;
+  let frameData = EMPTY_UINT8_ARRAY;
 
   // Output data buffer for all planes in the previous frame (for inter-frame decompression)
-  #prevData = EMPTY_UINT8_ARRAY;
+  let prevFrameData = new Uint8Array(frameSize);
+
+  // Output data buffer for the current plane in the current frame
+  let planeData = EMPTY_UINT8_ARRAY;
+
+  // Output data buffer for the plane of the previous frame that corresponds to the plane of the
+  // current frame (for inter-frame decompression)
+  let prevPlaneData = EMPTY_UINT8_ARRAY;
 
   // Current write position in the output data buffer
-  #dataPtr = 0;
+  let planeDataPtr = 0;
 
   // Input bit-stream for the current frame
-  #reader = new BitReader(EMPTY_UINT8_ARRAY);
+  const reader = new BitReader(EMPTY_UINT8_ARRAY);
 
-  #blockParams = new Array<BlockParamValues>(NUM_BLOCK_PARAMS) as TupleOf<
+  const blockParams = new Array<BlockParamValues>(NUM_BLOCK_PARAMS) as TupleOf<
     typeof NUM_BLOCK_PARAMS,
     BlockParamValues
   >;
-  #colHigh = new Array(16) as TupleOf<16, Tree>;
-  #colLastValue = 0;
+  const colHigh = new Array(16) as TupleOf<16, Tree>;
+  let colLastValue = 0;
 
-  // Re-usable buffers
-  // -----------------
-  // To reduce garbage collection when decoding multiple frames.
-  #inputTreeBuf = new Uint8Array(16) as FixedLenUint8Array<16>;
-  #outputTreeBuf = new Uint8Array(16) as FixedLenUint8Array<16>;
-  #tmpCoeffIndex = new Int32Array(64) as FixedLenInt32Array<64>;
-  #tmpCoeffList = new Int32Array(128) as FixedLenInt32Array<128>;
-  #tmpModeList = new Int32Array(128) as FixedLenInt32Array<128>;
-  #tmpScalingBuf = new Uint8Array(64) as FixedLenUint8Array<64>;
-  #tmpDCTBuf = new Int32Array(64) as FixedLenInt32Array<64>;
-
-  constructor(
-    width: number,
-    height: number,
-    version: number,
-    hasAlpha: boolean,
-    hasSwappedUVPlanes: boolean,
-  ) {
-    this.#width = width;
-    this.#height = height;
-    this.#version = version;
-    this.#hasAlpha = hasAlpha;
-    this.#hasSwappedUVPlanes = hasSwappedUVPlanes;
-
-    const numPixels = width * height;
-    const uvSize = ((width + 1) >>> 1) * ((height + 1) >>> 1);
-    const frameSize = (numPixels << (hasAlpha ? 1 : 0)) + (uvSize << 1);
-
-    this.#numPixels = numPixels;
-    this.#uvSize = uvSize;
-    this.#prevData = new Uint8Array(frameSize);
-
-    const blocks = (numPixels + 63) >>> 6;
-    const numBlockPixels = blocks << 6;
-    for (let i = 0; i < NUM_BLOCK_PARAMS; i++) {
-      (this.#blockParams[i as IntRange<0, typeof NUM_BLOCK_PARAMS>] as BlockParamValues) = {
-        len_: 0,
-        tree_: {
-          table_: HuffTable.predefinedTables_[0],
-          symbolMap_: new Uint8Array(16) as FixedLenUint8Array<16>,
-        },
-        items_:
-          i > BIK_PARAM_PATTERN && i < BIK_PARAM_RUN
-            ? new Int16Array(numBlockPixels)
-            : new Uint8Array(numBlockPixels),
-        curDec_: 0,
-        curPtr_: 0,
-      };
-    }
-
-    for (let i = 0; i < 16; i++) {
-      this.#colHigh[i as IntRange<0, 16>] = {
-        table_: HuffTable.predefinedTables_[0],
+  const blocks = (numPixels + 63) >>> 6;
+  const numBlockPixels = blocks << 6;
+  for (let i = 0; i < NUM_BLOCK_PARAMS; i++) {
+    (blockParams[i as IntRange<0, typeof NUM_BLOCK_PARAMS>] as BlockParamValues) = {
+      len_: 0,
+      tree_: {
+        table_: PREDEFINED_HUFF_TABLES[0],
         symbolMap_: new Uint8Array(16) as FixedLenUint8Array<16>,
-      };
-    }
-  }
-
-  #createFrame(): BikVideoFrame {
-    return {
-      width: this.#width,
-      height: this.#height,
-      yuv: new Uint8Array(this.#prevData),
-      lineSize: [this.#width, this.#width >>> 1, this.#width >>> 1, this.#width],
+      },
+      items_:
+        i > BIK_PARAM_PATTERN && i < BIK_PARAM_RUN
+          ? new Int16Array(numBlockPixels)
+          : new Uint8Array(numBlockPixels),
+      curDec_: 0,
+      curPtr_: 0,
     };
   }
 
-  #decodePlane(frame: BikVideoFrame, planeIndex: TPlaneIndex) {
-    const blockParams = this.#blockParams;
-    const width = this.#width;
-    const height = this.#height;
-    const numPixels = this.#numPixels;
-    const uvSize = this.#uvSize;
+  for (let i = 0; i < 16; i++) {
+    colHigh[i as IntRange<0, 16>] = {
+      table_: PREDEFINED_HUFF_TABLES[0],
+      symbolMap_: new Uint8Array(16) as FixedLenUint8Array<16>,
+    };
+  }
 
+  /*
+   * Create internal functions.
+   */
+
+  const decodePlane = (frame: BikVideoFrame, planeIndex: TPlaneIndex) => {
     const isChroma = planeIndex === 1 || planeIndex === 2;
     const planeWidth = isChroma ? Math.ceil(width / 2) : width;
     const blockWidth = isChroma ? Math.ceil(width / 16) : Math.ceil(width / 8);
     const blockHeight = isChroma ? Math.ceil(height / 16) : Math.ceil(height / 8);
 
-    this.#readPlaneTrees(planeWidth, blockWidth);
+    readPlaneTrees(planeWidth, blockWidth);
 
-    this.#stride = frame.lineSize[planeIndex] ?? 0;
+    stride = frame.lineSize[planeIndex] ?? 0;
     const planeOffset =
       planeIndex === 0
         ? 0
@@ -275,19 +293,14 @@ export class BikVideoDecoder {
           : planeIndex === 2
             ? numPixels + uvSize
             : numPixels + (uvSize << 1);
-    const blockLineIncr = this.#stride * 7;
+    const blockLineIncr = stride * 7;
 
     // Temporarily restrict the size of the data buffers for the current and previous frames to
     // the plane being decoded. Restore the buffers at the end of the function.
-    const mainDataBuf = this.#data;
-    this.#data = new Uint8Array(mainDataBuf.buffer, planeOffset, isChroma ? uvSize : numPixels);
-    this.#dataPtr = 0;
-    const prevMainDataBuf = this.#prevData;
-    this.#prevData = new Uint8Array(
-      prevMainDataBuf.buffer,
-      planeOffset,
-      isChroma ? uvSize : numPixels,
-    );
+    const planeSize = isChroma ? uvSize : numPixels;
+    planeData = new Uint8Array(frameData.buffer, planeOffset, planeSize);
+    planeDataPtr = 0;
+    prevPlaneData = new Uint8Array(prevFrameData.buffer, planeOffset, planeSize);
 
     // `blockXPos` and `blockYPos` hold the coordinates of the block being processed (in units of
     // number of blocks)
@@ -295,15 +308,15 @@ export class BikVideoDecoder {
     const blockTypes = blockTypeParam.items_;
     let blockYPos = 0;
     while (blockYPos++ < blockHeight) {
-      this.#readBlockTypes(blockTypeParam);
-      this.#readBlockTypes(blockParams[BIK_PARAM_SUB_BLOCK_TYPES]);
-      this.#readColors(blockParams[BIK_PARAM_COLORS]);
-      this.#readPatterns(blockParams[BIK_PARAM_PATTERN]);
-      this.#readMotionValues(blockParams[BIK_PARAM_X_OFF]);
-      this.#readMotionValues(blockParams[BIK_PARAM_Y_OFF]);
-      this.#readDCs(blockParams[BIK_PARAM_INTRA_DC], false);
-      this.#readDCs(blockParams[BIK_PARAM_INTER_DC], true);
-      this.#readRuns(blockParams[BIK_PARAM_RUN]);
+      readBlockTypes(blockTypeParam);
+      readBlockTypes(blockParams[BIK_PARAM_SUB_BLOCK_TYPES]);
+      readColors(blockParams[BIK_PARAM_COLORS]);
+      readPatterns(blockParams[BIK_PARAM_PATTERN]);
+      readMotionValues(blockParams[BIK_PARAM_X_OFF]);
+      readMotionValues(blockParams[BIK_PARAM_Y_OFF]);
+      readDCs(blockParams[BIK_PARAM_INTRA_DC], false);
+      readDCs(blockParams[BIK_PARAM_INTER_DC], true);
+      readRuns(blockParams[BIK_PARAM_RUN]);
 
       let blockXPos = 0;
       while (blockXPos++ < blockWidth) {
@@ -317,89 +330,89 @@ export class BikVideoDecoder {
             // Jump over a 16x16 block on an odd-numbered line as it's part of a 16x16 block that has
             // already been decoded on the previous (even-numbered) line.
             if (blockYPos & 1) {
-              this.#decodeScaledBlock();
+              decodeScaledBlock();
             }
             blockXPos++;
-            this.#dataPtr += 16;
+            planeDataPtr += 16;
             continue;
           case BIK_BLOCK_TYPE_MOTION:
-            this.#decodeMotionBlock();
+            decodeMotionBlock();
             break;
           case BIK_BLOCK_TYPE_RUN:
-            this.#decodeRunBlock(this.#data, this.#dataPtr, this.#stride);
+            decodeRunBlock(planeData, planeDataPtr, stride);
             break;
           case BIK_BLOCK_TYPE_RESIDUE:
-            this.#decodeResidueBlock();
+            decodeResidueBlock();
             break;
           case BIK_BLOCK_TYPE_INTRA:
-            this.#decodeIntraBlock(this.#data, this.#dataPtr, this.#stride);
+            decodeIntraBlock(planeData, planeDataPtr, stride);
             break;
           case BIK_BLOCK_TYPE_FILL:
-            this.#decodeFillBlock();
+            decodeFillBlock();
             break;
           case BIK_BLOCK_TYPE_INTER:
-            this.#decodeInterBlock();
+            decodeInterBlock();
             break;
           case BIK_BLOCK_TYPE_PATTERN:
-            this.#decodePatternBlock(this.#data, this.#dataPtr, this.#stride);
+            decodePatternBlock(planeData, planeDataPtr, stride);
             break;
           case BIK_BLOCK_TYPE_RAW:
-            this.#decodeRawBlock();
+            decodeRawBlock();
             break;
           default:
             // Unrecognized block type
             throw new Error(`Invalid block type ${blockType}`);
         }
 
-        this.#dataPtr += 8;
+        planeDataPtr += 8;
       }
 
-      this.#dataPtr += blockLineIncr;
+      planeDataPtr += blockLineIncr;
     }
 
-    this.#reader.align32_();
-    this.#prevData = prevMainDataBuf;
-    this.#data = mainDataBuf;
-  }
+    reader.align32_();
+    planeData = EMPTY_UINT8_ARRAY;
+    prevPlaneData = EMPTY_UINT8_ARRAY;
+  };
 
-  #copyBlock(srcOffset: number) {
+  const copyBlock = (srcOffset: number) => {
     // Skip the copy operation if we're copying from the block at the same position in the
     // previous frame, as the new frame starts as a copy of the previously decoded frame so
     // will already have the correct data for this block.
-    const indexDiff = this.#dataPtr - srcOffset;
+    const indexDiff = planeDataPtr - srcOffset;
     if (!indexDiff) {
       return;
     }
-    const strideMinusBlock = this.#stride - 8;
+    const strideMinusBlock = stride - 8;
     let lineCount = 8;
     while (lineCount--) {
       const srcOffsetMax = srcOffset + 8;
       while (srcOffset < srcOffsetMax) {
-        this.#data[srcOffset + indexDiff] = this.#prevData[srcOffset] as number;
+        planeData[srcOffset + indexDiff] = prevPlaneData[srcOffset] as number;
         srcOffset++;
       }
       srcOffset += strideMinusBlock;
     }
-  }
+  };
 
-  #decodeMotionBlock() {
-    const xOffset = this.#getValue(BIK_PARAM_X_OFF);
-    const yOffset = this.#getValue(BIK_PARAM_Y_OFF);
-    const ref = this.#dataPtr + xOffset + yOffset * this.#stride;
-    this.#copyBlock(ref);
-  }
+  const decodeMotionBlock = () => {
+    const xOffset = getValue(BIK_PARAM_X_OFF);
+    const yOffset = getValue(BIK_PARAM_Y_OFF);
+    const ref = planeDataPtr + xOffset + yOffset * stride;
+    copyBlock(ref);
+  };
 
-  #decodeRunBlock(block: Uint8Array, offset = 0, stride = 8) {
+  const decodeRunBlock = (block: Uint8Array, offset = 0, stride = 8) => {
     let i = 0;
-    let scanIndex = this.#reader.readBits_(4) << 6;
+    let scanIndex = reader.readBits_(4) << 6;
 
     do {
-      const run = this.#getValue(BIK_PARAM_RUN) + 1;
+      const run = getValue(BIK_PARAM_RUN) + 1;
       i += run;
 
-      if (this.#reader.readBit_()) {
+      if (reader.readBit_()) {
         // Decode a run of a single color
-        const v = this.#getValue(BIK_PARAM_COLORS);
+        const v = getValue(BIK_PARAM_COLORS);
         for (let j = 0; j < run; j++) {
           const pos = BIK_PATTERNS[scanIndex++] ?? 0;
           block[offset + (pos >>> 3) * stride + (pos & 7)] = v;
@@ -408,7 +421,7 @@ export class BikVideoDecoder {
         // Decode a sequence of colors
         for (let j = 0; j < run; j++) {
           const pos = BIK_PATTERNS[scanIndex++] ?? 0;
-          block[offset + (pos >>> 3) * stride + (pos & 7)] = this.#getValue(BIK_PARAM_COLORS);
+          block[offset + (pos >>> 3) * stride + (pos & 7)] = getValue(BIK_PARAM_COLORS);
         }
       }
     } while (i < 63);
@@ -416,101 +429,94 @@ export class BikVideoDecoder {
     if (i === 63) {
       // Decode one more pixel in the block
       const pos = BIK_PATTERNS[scanIndex] ?? 0;
-      block[offset + (pos >>> 3) * stride + (pos & 7)] = this.#getValue(BIK_PARAM_COLORS);
+      block[offset + (pos >>> 3) * stride + (pos & 7)] = getValue(BIK_PARAM_COLORS);
     }
-  }
+  };
 
-  #decodeResidueBlock() {
-    const xOffset = this.#getValue(BIK_PARAM_X_OFF);
-    const yOffset = this.#getValue(BIK_PARAM_Y_OFF);
-    const srcPos = this.#dataPtr + xOffset + yOffset * this.#stride;
+  const decodeResidueBlock = () => {
+    const xOffset = getValue(BIK_PARAM_X_OFF);
+    const yOffset = getValue(BIK_PARAM_Y_OFF);
+    const srcPos = planeDataPtr + xOffset + yOffset * stride;
 
-    const block = this.#tmpDCTBuf;
-    block.fill(0);
-    this.#readCoeffsOrResidue(block);
+    tmpDCTBuf.fill(0);
+    readCoeffsOrResidue(tmpDCTBuf);
 
-    this.#copyBlock(srcPos);
-    this.#addPixels8x8(block, this.#data, this.#dataPtr, this.#stride);
-  }
+    copyBlock(srcPos);
+    addBlock8x8(tmpDCTBuf, planeData, planeDataPtr, stride);
+  };
 
-  #decodeIntraBlock(block: Uint8Array, offset = 0, stride = 8) {
-    const dctBlock = this.#tmpDCTBuf;
-    dctBlock[0] = this.#getValue(BIK_PARAM_INTRA_DC);
-    dctBlock.fill(0, 1);
-    this.#readCoeffsOrResidue(dctBlock, 0);
-    this.#idctPut(dctBlock, block, offset, stride);
-  }
+  const decodeIntraBlock = (block: Uint8Array, offset = 0, stride = 8) => {
+    tmpDCTBuf[0] = getValue(BIK_PARAM_INTRA_DC);
+    tmpDCTBuf.fill(0, 1);
+    readCoeffsOrResidue(tmpDCTBuf, 0);
+    idctPut(tmpDCTBuf, block, offset, stride);
+  };
 
-  #decodeFillBlock(size = 8) {
-    const v = this.#getValue(BIK_PARAM_COLORS);
+  const decodeFillBlock = (size = 8) => {
+    const v = getValue(BIK_PARAM_COLORS);
     for (let y = 0; y < size; y++) {
       for (let x = 0; x < size; x++) {
-        this.#data[this.#dataPtr + y * this.#stride + x] = v;
+        planeData[planeDataPtr + y * stride + x] = v;
       }
     }
-  }
+  };
 
-  #decodeInterBlock() {
-    const xOffset = this.#getValue(BIK_PARAM_X_OFF);
-    const yOffset = this.#getValue(BIK_PARAM_Y_OFF);
-    const ref = this.#dataPtr + xOffset + yOffset * this.#stride;
-    this.#copyBlock(ref);
+  const decodeInterBlock = () => {
+    const xOffset = getValue(BIK_PARAM_X_OFF);
+    const yOffset = getValue(BIK_PARAM_Y_OFF);
+    const ref = planeDataPtr + xOffset + yOffset * stride;
+    copyBlock(ref);
 
-    const dctBlock = this.#tmpDCTBuf;
-    dctBlock[0] = this.#getValue(BIK_PARAM_INTER_DC);
-    dctBlock.fill(0, 1);
-    this.#readCoeffsOrResidue(dctBlock, 1024);
-    this.#idctAdd(dctBlock, this.#data, this.#dataPtr, this.#stride);
-  }
+    tmpDCTBuf[0] = getValue(BIK_PARAM_INTER_DC);
+    tmpDCTBuf.fill(0, 1);
+    readCoeffsOrResidue(tmpDCTBuf, 1024);
+    idctAdd(tmpDCTBuf, planeData, planeDataPtr, stride);
+  };
 
-  #decodePatternBlock(block: Uint8Array, offset = 0, stride = 8) {
-    const col: TupleOf<2, number> = [
-      this.#getValue(BIK_PARAM_COLORS),
-      this.#getValue(BIK_PARAM_COLORS),
-    ];
+  const decodePatternBlock = (block: Uint8Array, offset = 0, stride = 8) => {
+    const col: TupleOf<2, number> = [getValue(BIK_PARAM_COLORS), getValue(BIK_PARAM_COLORS)];
     for (let i = 0; i < 8; i++) {
-      let v = this.#getValue(BIK_PARAM_PATTERN);
+      let v = getValue(BIK_PARAM_PATTERN);
       for (let j = 0; j < 8; j++) {
         block[offset + i * stride + j] = col[(v & 1) as IntRange<0, 2>];
         v >>= 1;
       }
     }
-  }
+  };
 
-  #decodeRawBlock() {
-    const blockParamValues = this.#blockParams[BIK_PARAM_COLORS];
+  const decodeRawBlock = () => {
+    const blockParamValues = blockParams[BIK_PARAM_COLORS];
     for (let y = 0; y < 8; y++) {
       for (let x = 0; x < 8; x++) {
-        this.#data[this.#dataPtr + y * this.#stride + x] = blockParamValues.items_[
+        planeData[planeDataPtr + y * stride + x] = blockParamValues.items_[
           blockParamValues.curPtr_++
         ] as number;
       }
     }
-  }
+  };
 
-  #decodeScaledBlock() {
-    const tmpScalingBuf = this.#tmpScalingBuf;
-    const subBlk = this.#getValue(BIK_PARAM_SUB_BLOCK_TYPES);
+  const decodeScaledBlock = () => {
+    const subBlk = getValue(BIK_PARAM_SUB_BLOCK_TYPES);
 
     switch (subBlk) {
       case BIK_BLOCK_TYPE_RAW: {
         for (let i = 0; i < 64; i++) {
-          tmpScalingBuf[i] = this.#getValue(BIK_PARAM_COLORS);
+          tmpScalingBuf[i] = getValue(BIK_PARAM_COLORS);
         }
         break;
       }
       case BIK_BLOCK_TYPE_INTRA:
-        this.#decodeIntraBlock(tmpScalingBuf);
+        decodeIntraBlock(tmpScalingBuf);
         break;
       case BIK_BLOCK_TYPE_FILL: {
-        this.#decodeFillBlock(16);
+        decodeFillBlock(16);
         return;
       }
       case BIK_BLOCK_TYPE_RUN:
-        this.#decodeRunBlock(tmpScalingBuf);
+        decodeRunBlock(tmpScalingBuf);
         break;
       case BIK_BLOCK_TYPE_PATTERN:
-        this.#decodePatternBlock(tmpScalingBuf);
+        decodePatternBlock(tmpScalingBuf);
         break;
       default:
         // Unrecognized sub-block type
@@ -518,10 +524,9 @@ export class BikVideoDecoder {
     }
 
     // Copy 8x8 result to the destination buffer, enlarging it to 16x16 in the process.
-    const dest = this.#data;
-    const stride = this.#stride;
+    const dest = planeData;
     let srcPos = 0;
-    let destPosLine = this.#dataPtr;
+    let destPosLine = planeDataPtr;
     const maxDestPosLine = destPosLine + (stride << 4);
     const lineIncrement = (stride << 1) - 15;
     while (destPosLine < maxDestPosLine) {
@@ -530,18 +535,16 @@ export class BikVideoDecoder {
       dest[destPosLine] = dest[stride + destPosLine] = value;
       destPosLine += srcPos & 0x7 ? 1 : lineIncrement;
     }
-  }
+  };
 
   /**
    * For a tree with a pre-defined Huffman table, rearrange the symbols based on the symbol
    * order information read from the bit-stream.
    * @param tree Huffman tree
    */
-  #readTree(tree: Tree): void {
-    const reader = this.#reader;
-
+  const readTree = (tree: Tree): void => {
     const tableNum = reader.readBits_(4) as IntRange<0, 16>;
-    tree.table_ = HuffTable.predefinedTables_[tableNum];
+    tree.table_ = PREDEFINED_HUFF_TABLES[tableNum];
     if (!tableNum) {
       // Linear symbol mapping for table 0.
       for (let i = 0; i < 16; i++) {
@@ -553,7 +556,7 @@ export class BikVideoDecoder {
     if (reader.readBit_()) {
       // Read the order of symbols from the bit-stream.
       let len = reader.readBits_(3);
-      const tmp = this.#inputTreeBuf.fill(0);
+      const tmp = inputTreeBuf.fill(0);
 
       for (let i = 0; i <= len; i++) {
         tree.symbolMap_[i] = reader.readBits_(4);
@@ -568,13 +571,13 @@ export class BikVideoDecoder {
     } else {
       // Shuffle the symbols.
       const len = reader.readBits_(2);
-      let input = this.#inputTreeBuf;
-      let output = this.#outputTreeBuf;
+      let input = inputTreeBuf;
+      let output = outputTreeBuf;
 
       // First iteration of the shuffle just swaps adjacent pairs, so use the optimized
       // implementation below.
       for (let i = 0; i < 16; i += 2) {
-        const bit = this.#reader.readBit_();
+        const bit = reader.readBit_();
         input[i] = i + bit;
         input[i + 1] = i + (bit ^ 1);
       }
@@ -583,7 +586,7 @@ export class BikVideoDecoder {
       for (let i = 1; i <= len; i++) {
         const size = 1 << i;
         for (let t = 0; t < 16; t += size << 1) {
-          this.#mergeTreeData(output, input, t, size);
+          mergeTreeData(output, input, t, size);
         }
         [input, output] = [output, input];
       }
@@ -592,15 +595,20 @@ export class BikVideoDecoder {
     }
 
     return;
-  }
+  };
 
-  #mergeTreeData(dest: Uint8Array, src: Uint8Array, src1Index: number, size1: number): void {
+  const mergeTreeData = (
+    dest: Uint8Array,
+    src: Uint8Array,
+    src1Index: number,
+    size1: number,
+  ): void => {
     let src2Index = src1Index + size1;
     let size2 = size1;
     let destIndex = src1Index;
 
     while (size1 && size2) {
-      if (this.#reader.readBit_()) {
+      if (reader.readBit_()) {
         dest[destIndex++] = src[src2Index++] as number;
         size2--;
       } else {
@@ -615,7 +623,7 @@ export class BikVideoDecoder {
     while (size2--) {
       dest[destIndex++] = src[src2Index++] as number;
     }
-  }
+  };
 
   /**
    * Read Huffman tree information from the bit-stream for each block type in the current
@@ -623,11 +631,11 @@ export class BikVideoDecoder {
    * @param width Coded width of the video (pixels).
    * @param blockWidth Coded width of the video (number of 8x8 blocks).
    */
-  #readPlaneTrees(width: number, blockWidth: number): void {
+  const readPlaneTrees = (width: number, blockWidth: number): void => {
     const adjustedWidth = (width + 7) & ~7;
     const extraLen = 511;
     const commonLen = (adjustedWidth >>> 3) + extraLen;
-    for (const [blockParamNum, blockParamValues] of this.#blockParams.entries() as ArrayIterator<
+    for (const [blockParamNum, blockParamValues] of blockParams.entries() as ArrayIterator<
       [IntRange<0, typeof NUM_BLOCK_PARAMS>, BlockParamValues]
     >) {
       // Initialize number of bits used to specify the number of coded entries for each block
@@ -650,42 +658,41 @@ export class BikVideoDecoder {
         ) + 1;
 
       if (blockParamNum === BIK_PARAM_COLORS) {
-        for (const tree of this.#colHigh) {
-          this.#readTree(tree);
+        for (const tree of colHigh) {
+          readTree(tree);
         }
-        this.#colLastValue = 0;
+        colLastValue = 0;
       }
 
       if (blockParamNum < BIK_PARAM_INTRA_DC || blockParamNum > BIK_PARAM_INTER_DC) {
-        this.#readTree(blockParamValues.tree_);
+        readTree(blockParamValues.tree_);
       }
 
       blockParamValues.curDec_ = blockParamValues.curPtr_ = 0;
     }
-  }
+  };
 
   /**
    * Calculate the number of block parameter values that should be read from the bit-stream.
    * @param blockParamValues State of the block parameter.
    * @returns Number of block parameter values.
    */
-  #readCodedDataCount(blockParamValues: BlockParamValues): number {
+  const readCodedDataCount = (blockParamValues: BlockParamValues): number => {
     if (blockParamValues.curDec_ < 0 || blockParamValues.curDec_ > blockParamValues.curPtr_) {
       return 0;
     }
-    const count = this.#reader.readBits_(blockParamValues.len_);
+    const count = reader.readBits_(blockParamValues.len_);
     if (count === 0) {
       blockParamValues.curDec_ = -1;
     }
     return count;
-  }
+  };
 
-  #readBlockTypes(blockParamValues: BlockParamValues) {
-    const count = this.#readCodedDataCount(blockParamValues);
+  const readBlockTypes = (blockParamValues: BlockParamValues): void => {
+    const count = readCodedDataCount(blockParamValues);
     if (!count) {
       return;
     }
-    const reader = this.#reader;
 
     if (reader.readBit_()) {
       const v = reader.readBits_(4);
@@ -700,7 +707,7 @@ export class BikVideoDecoder {
           prevValue = v as IntRange<0, 12>;
           blockParamValues.items_[blockParamValues.curDec_++] = v as IntRange<0, 12>;
         } else {
-          const runLength = RLE_LENGTHS[(v - 12) as IntRange<0, 4>];
+          const runLength = ([4, 8, 12, 32] as const)[(v - 12) as IntRange<0, 4>];
           for (let j = 0; j < runLength; j++) {
             blockParamValues.items_[blockParamValues.curDec_++] = prevValue;
           }
@@ -708,24 +715,23 @@ export class BikVideoDecoder {
         }
       }
     }
-  }
+  };
 
-  #readColors(blockParamValues: BlockParamValues) {
-    const count = this.#readCodedDataCount(blockParamValues);
+  const readColors = (blockParamValues: BlockParamValues): void => {
+    const count = readCodedDataCount(blockParamValues);
     if (!count) {
       return;
     }
-    const reader = this.#reader;
 
     const isRun = reader.readBit_();
     let loopCount = isRun ? 1 : count;
     do {
-      const colHighValue = HuffTable.getHuff_(reader, this.#colHigh[this.#colLastValue] as Tree);
+      const colHighValue = HuffTable.getHuff_(reader, colHigh[colLastValue] as Tree);
       let v = (HuffTable.getHuff_(reader, blockParamValues.tree_) |
         (colHighValue << 4)) as IntRange<0, 256>;
-      this.#colLastValue = colHighValue;
+      colLastValue = colHighValue;
 
-      if (this.#version < 105) {
+      if (version < 105) {
         v = (v > 127 ? 256 - v : v + 128) as IntRange<0, 256>;
       }
 
@@ -740,14 +746,13 @@ export class BikVideoDecoder {
         blockParamValues.items_[blockParamValues.curDec_++] = v;
       }
     } while (--loopCount);
-  }
+  };
 
-  #readPatterns(blockParamValues: BlockParamValues) {
-    const count = this.#readCodedDataCount(blockParamValues);
+  const readPatterns = (blockParamValues: BlockParamValues): void => {
+    const count = readCodedDataCount(blockParamValues);
     if (!count) {
       return;
     }
-    const reader = this.#reader;
 
     for (let i = 0; i < count; i++) {
       const v =
@@ -755,14 +760,13 @@ export class BikVideoDecoder {
         (HuffTable.getHuff_(reader, blockParamValues.tree_) << 4);
       blockParamValues.items_[blockParamValues.curDec_++] = v;
     }
-  }
+  };
 
-  #readMotionValues(blockParamValues: BlockParamValues) {
-    const count = this.#readCodedDataCount(blockParamValues);
+  const readMotionValues = (blockParamValues: BlockParamValues): void => {
+    const count = readCodedDataCount(blockParamValues);
     if (!count) {
       return;
     }
-    const reader = this.#reader;
     const items = blockParamValues.items_;
     const maxDec = blockParamValues.curDec_ + count;
     let v: number;
@@ -786,14 +790,13 @@ export class BikVideoDecoder {
       }
     }
     blockParamValues.curDec_ = maxDec;
-  }
+  };
 
-  #readDCs(blockParamValues: BlockParamValues, hasSign: boolean) {
-    const count = this.#readCodedDataCount(blockParamValues);
+  const readDCs = (blockParamValues: BlockParamValues, hasSign: boolean): void => {
+    const count = readCodedDataCount(blockParamValues);
     if (!count) {
       return;
     }
-    const reader = this.#reader;
 
     let v = reader.readBits_(hasSign ? 10 : 11);
     if (v && hasSign) {
@@ -824,14 +827,13 @@ export class BikVideoDecoder {
       }
       i += len;
     }
-  }
+  };
 
-  #readRuns(blockParamValues: BlockParamValues) {
-    const count = this.#readCodedDataCount(blockParamValues);
+  const readRuns = (blockParamValues: BlockParamValues): void => {
+    const count = readCodedDataCount(blockParamValues);
     if (!count) {
       return;
     }
-    const reader = this.#reader;
 
     if (reader.readBit_()) {
       const v = reader.readBits_(4);
@@ -846,17 +848,17 @@ export class BikVideoDecoder {
         );
       }
     }
-  }
+  };
 
   /**
    * Get the next block parameter value for the current line.
    * @param blockParamNum Index of the block parameter.
    * @returns Next value for the block parameter.
    */
-  #getValue(blockParamNum: IntRange<0, typeof NUM_BLOCK_PARAMS>): number {
-    const blockParamValues = this.#blockParams[blockParamNum];
+  const getValue = (blockParamNum: IntRange<0, typeof NUM_BLOCK_PARAMS>): number => {
+    const blockParamValues = blockParams[blockParamNum];
     return blockParamValues.items_[blockParamValues.curPtr_++] ?? 0;
-  }
+  };
 
   /**
    * Mini-VM (virtual machine) to decode and optionally unquantize a block of integer values.
@@ -867,12 +869,8 @@ export class BikVideoDecoder {
    * @param block Block to decode/unquantize (updated in-place).
    * @param quant Quantization lookup table to use.
    */
-  #readCoeffsOrResidue(block: Int32Array, quantStartIndex: number = -1) {
+  const readCoeffsOrResidue = (block: Int32Array, quantStartIndex: number = -1) => {
     const isResidue = quantStartIndex < 0;
-    const reader = this.#reader;
-    const coeffIndex = this.#tmpCoeffIndex; // not actually coefficients for "residue" blocks
-    const coeffList = this.#tmpCoeffList;
-    const modeList = this.#tmpModeList;
     let listStart = 64;
     let listEnd = 70;
     let masksCount = 0;
@@ -888,7 +886,7 @@ export class BikVideoDecoder {
     modeList[66] = 0;
     if (isResidue) {
       listEnd = 68;
-      masksCount = this.#reader.readBits_(7);
+      masksCount = reader.readBits_(7);
       coeffList[67] = 0;
       modeList[67] = 2;
     } else {
@@ -1006,174 +1004,52 @@ export class BikVideoDecoder {
           ((block[blockIndex] ?? 0) * (BIK_QUANT[quantOffset + index] ?? 0)) >> 11;
       }
     }
-  }
+  };
 
-  /**
-   * 1D DCT-III (inverse of DCT-II, sometimes just called IDCT).
-   *
-   * Fast approximation using signed integers. Optimized for 8 element arrays.
-   * Based on the Arai-Agui-Nakajima (AAN) algorithm.
-   *
-   * This function can be run on each column and row of an 8x8 block as part of calculating a
-   * 2D IDCT.
-   * @param src Input buffer containing the coefficients to transform.
-   * @param srcOffset Offset in the input buffer of the start of the coefficients to transform.
-   * @param dest Output buffer to write the result of the transformation to.
-   * @param destOffset Offset in the output buffer to write the output of the transformation to.
-   * @param column `true` when processing a column; `false` when processing a row.
+  /*
+   * Decode a video frame with each iteration.
    */
-  #idct(
-    src: Int32Array,
-    srcOffset: number,
-    rawDest: Uint8Array | null,
-    destOffset: number,
-    column: boolean,
-  ) {
-    const indexShift = column ? 3 : 0;
-    const constantToAdd = column ? 0 : 0x7f;
-    const destShift = column ? 0 : 8;
-    const dest = rawDest ? rawDest : src;
-
-    let a0 = (src[srcOffset] ?? 0) + constantToAdd;
-    let b0 = src[srcOffset + (1 << indexShift)] ?? 0;
-    let a2 = src[srcOffset + (2 << indexShift)] ?? 0;
-    const x3 = src[srcOffset + (3 << indexShift)] ?? 0;
-    const x4 = src[srcOffset + (4 << indexShift)] ?? 0;
-    let a4 = src[srcOffset + (5 << indexShift)] ?? 0;
-    const x6 = src[srcOffset + (6 << indexShift)] ?? 0;
-    const x7 = src[srcOffset + (7 << indexShift)] ?? 0;
-
-    const a1 = a0 - x4;
-    const a3 = (DCT_C0 * (a2 - x6)) >> 11;
-    const a5 = a4 - x3;
-    const a7 = b0 - x7;
-    a0 += x4;
-    a2 += x6;
-    a4 += x3;
-    b0 += x7;
-
-    const a0pa2 = a0 + a2;
-    const a0ma2 = a0 - a2;
-    const a1pa3ma3 = a1 + a3 - a2;
-    const a1ma3pa2 = a1 - a3 + a2;
-
-    const b1 = (DCT_C2 * (a5 + a7)) >> 11;
-    let b3 = (DCT_C0 * (b0 - a4)) >> 11;
-    b0 += a4;
-    const b2 = ((DCT_C3 * a5) >> 11) - b0 + b1;
-    b3 -= b2;
-    const b4 = ((DCT_C1 * a7) >> 11) + b3 - b1;
-
-    dest[destOffset] = (a0pa2 + b0) >> destShift;
-    dest[destOffset + (1 << indexShift)] = (a1pa3ma3 + b2) >> destShift;
-    dest[destOffset + (2 << indexShift)] = (a1ma3pa2 + b3) >> destShift;
-    dest[destOffset + (3 << indexShift)] = (a0ma2 - b4) >> destShift;
-    dest[destOffset + (4 << indexShift)] = (a0ma2 + b4) >> destShift;
-    dest[destOffset + (5 << indexShift)] = (a1ma3pa2 - b3) >> destShift;
-    dest[destOffset + (6 << indexShift)] = (a1pa3ma3 - b2) >> destShift;
-    dest[destOffset + (7 << indexShift)] = (a0pa2 - b0) >> destShift;
-  }
-
-  /**
-   * 2D DCT-III (inverse of DCT-II, sometimes just called IDCT).
-   *
-   * Fast approximation using signed integers. Optimized for 8x8 element blocks.
-   * Based on the Arai-Agui-Nakajima (AAN) algorithm.
-   *
-   * Runs the 1D variant on each column and row of the 8x8 entry block.
-   * @param block Input buffer containing the 64 (8x8) coefficients to transform.
-   * @param dest Output buffer to write the result of the transformation to.
-   * @param destOffset Offset in the output buffer to write the output of the transformation to.
-   * @param stride Amount to add to `destOffset` to get the next block row in the output
-   *   buffer.
-   */
-  #idctPut(block: Int32Array, dest: Uint8Array, destOffset: number, stride: number) {
-    let i: number;
-
-    for (i = 0; i < 8; i++) {
-      this.#idct(block, i, null, i, true);
+  let frame: BikVideoFrame | null = null;
+  while (true) {
+    const payload: BikVideoDecoderPayload = yield frame;
+    if (!payload) {
+      continue;
     }
-
-    for (i = 0; i < 64; i += 8) {
-      this.#idct(block, i, dest, destOffset, false);
-      destOffset += stride;
-    }
-  }
-
-  /**
-   * Variant of {@link #idctPut} that adds the result of the transformation to the values in the
-   * output buffer instead of overwriting them.
-   */
-  #idctAdd(block: Int32Array, dest: Uint8Array, destOffset: number, stride: number) {
-    let i: number;
-
-    for (i = 0; i < 8; i++) {
-      this.#idct(block, i, null, i, true);
-    }
-
-    for (i = 0; i < 64; i += 8) {
-      this.#idct(block, i, null, i, false);
-    }
-
-    this.#addPixels8x8(block, dest, destOffset, stride);
-  }
-
-  #addPixels8x8(block: Int32Array, dest: Uint8Array, destOffset: number, stride: number) {
-    stride -= 8;
-    let i = -1;
-    let iMax = 6;
-    while (i++ < 63) {
-      (dest[destOffset + i] as number) += block[i] as number;
-      if (i > iMax) {
-        destOffset += stride;
-        iMax += 8;
-      }
-    }
-  }
-
-  /**
-   * Decode a single encoded frame of video.
-   * @param data Encoded frame.
-   * @param existingFrame Decoded frame to re-use for the returned value.
-   * @returns Decoded frame.
-   */
-  decodeFrame_(
-    data: Uint8Array | Uint8Array,
-    existingFrame: BikVideoFrame | null = null,
-  ): BikVideoFrame {
-    const reader = this.#reader;
-    reader.reset_(data);
-    let frame: BikVideoFrame;
+    reader.reset_(payload.data_);
+    const existingFrame = payload.existingFrame_;
     if (existingFrame) {
       frame = existingFrame;
-      frame.yuv.set(this.#prevData);
+      frame.yuv.set(prevFrameData);
     } else {
-      frame = this.#createFrame();
+      frame = {
+        width: width,
+        height: height,
+        yuv: new Uint8Array(prevFrameData),
+        lineSize: [width, width >>> 1, width >>> 1, width],
+      };
     }
-    this.#data = frame.yuv;
+    frameData = frame.yuv;
 
-    if (this.#hasAlpha) {
-      if (this.#version > 104) {
+    if (hasAlpha) {
+      if (version > 104) {
         reader.skip_(32);
       }
-      this.#decodePlane(frame, 3);
+      decodePlane(frame, 3);
     }
 
-    if (this.#version > 104) {
+    if (version > 104) {
       reader.skip_(32);
     }
 
     for (let plane = 0; plane < 3; plane++) {
-      const planeIndex = (plane && this.#hasSwappedUVPlanes ? plane ^ 3 : plane) as TPlaneIndex;
-      this.#decodePlane(frame, planeIndex);
+      const planeIndex = (plane && hasSwappedUVPlanes ? plane ^ 3 : plane) as TPlaneIndex;
+      decodePlane(frame, planeIndex);
       if (reader.bitsLeft_ < 1) break;
     }
 
     // Store a copy of the YUVA planes for frame-relative decoding with the next frame.
-    this.#prevData.set(frame.yuv);
-    this.#data = EMPTY_UINT8_ARRAY;
-    this.#reader.reset_(EMPTY_UINT8_ARRAY);
-
-    return frame;
+    prevFrameData.set(frame.yuv);
+    frameData = EMPTY_UINT8_ARRAY;
+    reader.reset_(EMPTY_UINT8_ARRAY);
   }
 }
