@@ -1,5 +1,57 @@
 # Changelog
 
+## [0.10.0](https://github.com/blennies/unbikit/compare/v0.10.0...v0.10.0) (2025-12-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* rename audio track flag `useDCT` to `usesDCT` in the API ([#51](https://github.com/blennies/unbikit/issues/51))
+* remove the API that required a "stream provider" function
+* remove CommonJS build and rely on require(esm) feature of modern runtimes/bundlers ([#45](https://github.com/blennies/unbikit/issues/45))
+* public API change to `reset()` method
+
+### Features
+
+* Add `skipFrames()` method for skipping multiple decoded frames ([6d564dd](https://github.com/blennies/unbikit/commit/6d564dd873da1c95e5cbfb4bdb1ec16d865dcf73))
+* Add demo with an example video player and documentation ([e747e37](https://github.com/blennies/unbikit/commit/e747e374df125b27d1e6ecd7cf06fa45643bb2ad)), closes [#26](https://github.com/blennies/unbikit/issues/26)
+* Add initial implementation of the `.bik` video decoder ([124c3b9](https://github.com/blennies/unbikit/commit/124c3b952e8944ace6beb7f8d0e34ee7a77bae93))
+* Add support for CSS view transitions ([e747e37](https://github.com/blennies/unbikit/commit/e747e374df125b27d1e6ecd7cf06fa45643bb2ad))
+* Add support for decoding interlaced videos ([#33](https://github.com/blennies/unbikit/issues/33)) ([5aa71a1](https://github.com/blennies/unbikit/commit/5aa71a1fb82811655097648dacb4c07ae65e5934))
+* Add video flags for scaling and grayscale to the decoder's header data ([5aa71a1](https://github.com/blennies/unbikit/commit/5aa71a1fb82811655097648dacb4c07ae65e5934))
+* Handle unsupported BIK versions and indicate status via the `isSupported` property ([818ae04](https://github.com/blennies/unbikit/commit/818ae04eabf7ce46c08df361f6b19404f80c70c8)), closes [#21](https://github.com/blennies/unbikit/issues/21)
+* Modify API to use Blob/File/Request/URL as a video source ([#47](https://github.com/blennies/unbikit/issues/47)) ([8a4a44e](https://github.com/blennies/unbikit/commit/8a4a44e7c5de7737c48afe3a4f7df9dfc6f94b2c))
+* Reduce minified/bundled size and optimize performance ([#53](https://github.com/blennies/unbikit/issues/53)) ([ff6db2f](https://github.com/blennies/unbikit/commit/ff6db2f1f4e9e0a3f680a8020ddb23282da24eb8))
+* Remove CommonJS build and rely on require(esm) feature of modern runtimes/bundlers ([#45](https://github.com/blennies/unbikit/issues/45)) ([b71ee11](https://github.com/blennies/unbikit/commit/b71ee11efccde47a4fda8abcda6688d98b408ca7))
+* Rename audio track flag `useDCT` to `usesDCT` in the API ([#51](https://github.com/blennies/unbikit/issues/51)) ([6b2a4de](https://github.com/blennies/unbikit/commit/6b2a4dec8c2dd3eedd59987a97243887b14a1160))
+* **robustness:** Limit number of audio channels to a reasonable value (8) to guard against corrupted files ([5aa71a1](https://github.com/blennies/unbikit/commit/5aa71a1fb82811655097648dacb4c07ae65e5934))
+* Unpack constants when the decoder is first used, not at import time ([ff6db2f](https://github.com/blennies/unbikit/commit/ff6db2f1f4e9e0a3f680a8020ddb23282da24eb8))
+
+
+### Bug Fixes
+
+* **docs:** Replace badges that won't display on npm or GitHub ([#42](https://github.com/blennies/unbikit/issues/42)) ([92d522a](https://github.com/blennies/unbikit/commit/92d522aafe70e19d1107b79735ccde7ee395af08))
+* Use both BIK version and revision to determine whether to swap UV planes ([ff6db2f](https://github.com/blennies/unbikit/commit/ff6db2f1f4e9e0a3f680a8020ddb23282da24eb8))
+
+
+### Performance Improvements
+
+* Improve performance via use of generators and other small optimizations ([ff6db2f](https://github.com/blennies/unbikit/commit/ff6db2f1f4e9e0a3f680a8020ddb23282da24eb8))
+* Optimize build settings to reduce the minified size of the decoder ([e747e37](https://github.com/blennies/unbikit/commit/e747e374df125b27d1e6ecd7cf06fa45643bb2ad))
+* Optimize processing of block parameter values in the critical path ([6b2a4de](https://github.com/blennies/unbikit/commit/6b2a4dec8c2dd3eedd59987a97243887b14a1160))
+* Reduce state in the bit-stream reader to improve performance and reduce memory usage ([6b2a4de](https://github.com/blennies/unbikit/commit/6b2a4dec8c2dd3eedd59987a97243887b14a1160))
+* Reduce state in the Huffman table to improve performance and reduce memory usage ([6b2a4de](https://github.com/blennies/unbikit/commit/6b2a4dec8c2dd3eedd59987a97243887b14a1160))
+* **size:** Reduce lengths of error messages ([5aa71a1](https://github.com/blennies/unbikit/commit/5aa71a1fb82811655097648dacb4c07ae65e5934))
+* **size:** Replace internal runtime checks with type checks where possible ([5aa71a1](https://github.com/blennies/unbikit/commit/5aa71a1fb82811655097648dacb4c07ae65e5934))
+* **speed:** Optimize block copy operations in videos ([#35](https://github.com/blennies/unbikit/issues/35)) ([5b531b7](https://github.com/blennies/unbikit/commit/5b531b7397d8fac5541568d0ab22e884602f43f8))
+* **speed:** Optimize IDCT and IRDFT implementations of the video and audio decoders ([#39](https://github.com/blennies/unbikit/issues/39)) ([82cccdc](https://github.com/blennies/unbikit/commit/82cccdcd7588303341728cd5bb55f1a79234441b))
+* **speed:** Remove redundant operations from decoder `reset()` method ([5b531b7](https://github.com/blennies/unbikit/commit/5b531b7397d8fac5541568d0ab22e884602f43f8))
+
+
+### Miscellaneous Chores
+
+* Log a breaking change that was missed in an earlier commit ([#36](https://github.com/blennies/unbikit/issues/36)) ([74620f8](https://github.com/blennies/unbikit/commit/74620f870cbf568ae7bb8d60b937cf685b8ab1ec))
+* **main:** Release 0.10.0 ([#52](https://github.com/blennies/unbikit/issues/52)) ([ba6a6a5](https://github.com/blennies/unbikit/commit/ba6a6a5c8ce60fe44d2edb96af630104a535cde6))
+
 ## [0.10.0](https://github.com/blennies/unbikit/compare/v0.9.0...v0.10.0) (2025-12-01)
 
 ### Bug Fixes
