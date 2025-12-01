@@ -2,21 +2,23 @@
 
 ## [0.10.0](https://github.com/blennies/unbikit/compare/v0.9.0...v0.10.0) (2025-12-01)
 
-
-### Features
-
-* Reduce minified/bundled size and optimize performance ([#53](https://github.com/blennies/unbikit/issues/53)) ([ff6db2f](https://github.com/blennies/unbikit/commit/ff6db2f1f4e9e0a3f680a8020ddb23282da24eb8))
-* Unpack constants when the decoder is first used, not at import time ([ff6db2f](https://github.com/blennies/unbikit/commit/ff6db2f1f4e9e0a3f680a8020ddb23282da24eb8))
-
-
 ### Bug Fixes
 
-* Use both BIK version and revision to determine whether to swap UV planes ([ff6db2f](https://github.com/blennies/unbikit/commit/ff6db2f1f4e9e0a3f680a8020ddb23282da24eb8))
-
+- Use both BIK version and revision to determine whether to swap UV planes
+  ([ff6db2f](https://github.com/blennies/unbikit/commit/ff6db2f1f4e9e0a3f680a8020ddb23282da24eb8))
 
 ### Performance Improvements
 
-* Improve performance via use of generators and other small optimizations ([ff6db2f](https://github.com/blennies/unbikit/commit/ff6db2f1f4e9e0a3f680a8020ddb23282da24eb8))
+- Unpack constants when the decoder is first used, not at import time
+  ([ff6db2f](https://github.com/blennies/unbikit/commit/ff6db2f1f4e9e0a3f680a8020ddb23282da24eb8))
+- Improve performance via extensive use of generators and other optimizations
+  ([ff6db2f](https://github.com/blennies/unbikit/commit/ff6db2f1f4e9e0a3f680a8020ddb23282da24eb8))
+
+### Bundle Size Reductions
+
+- Many internal changes to reduce minified/bundled size
+  ([#53](https://github.com/blennies/unbikit/issues/53))
+  ([ff6db2f](https://github.com/blennies/unbikit/commit/ff6db2f1f4e9e0a3f680a8020ddb23282da24eb8))
 
 ## [0.9.0](https://github.com/blennies/unbikit/compare/v0.8.0...v0.9.0) (2025-11-25)
 
@@ -43,7 +45,9 @@
 ### ⚠ BREAKING CHANGES
 
 - Remove the API that required a "stream provider" function
+  ([8a4a44e](https://github.com/blennies/unbikit/commit/8a4a44e7c5de7737c48afe3a4f7df9dfc6f94b2c))
 - Rename `fileSize` in the API interface `BikHeader` to `totalSize`
+  ([8a4a44e](https://github.com/blennies/unbikit/commit/8a4a44e7c5de7737c48afe3a4f7df9dfc6f94b2c))
 
 ### Features
 
