@@ -4,7 +4,6 @@
  * Tests against a selection of media files. The benchmark will cycle repeatedly through all
  * the frames in each video until the benchmark ends.
  */
-import { hrtimeNow } from "tinybench";
 import { bench, suite } from "vitest";
 import { getMediaFileDecoder, mediaFiles } from "./common.ts";
 
@@ -30,7 +29,6 @@ const createBench = async (fileIndex: keyof typeof mediaFiles): Promise<void> =>
     {
       async: true,
       iterations: 10000,
-      now: hrtimeNow,
       throws: false,
     },
   );

@@ -59,8 +59,8 @@
     "@types/audioworklet": "0.0.91",
     "@types/node": "24.10.1",
     "@types/pngjs": "6.0.5",
-    "@vitest/coverage-v8": "4.0.14",
-    "@vitest/ui": "4.0.14",
+    "@vitest/coverage-v8": "4.0.15",
+    "@vitest/ui": "4.0.15",
     "astro": "5.16.3",
     "commitlint": "20.1.0",
     "globals": "16.5.0",
@@ -73,26 +73,28 @@
     "starlight-package-managers": "0.11.1",
     "starlight-theme-rapide": "0.5.2",
     "starlight-typedoc": "0.21.5",
-    "tinybench": "6.0.0",
     "ts-extras": "0.16.0",
-    "tsdown": "0.17.0-beta.4",
-    "type-fest": "5.2.0",
+    "tsdown": "0.17.0-beta.5",
+    "type-fest": "5.3.0",
     "typedoc": "0.28.15",
     "typedoc-plugin-markdown": "4.9.0",
     "typescript": "5.9.3",
     "unplugin-unused": "0.5.6",
     "vite": "npm:rolldown-vite@7.2.9",
-    "vitest": "4.0.14"
+    "vitest": "4.0.15"
   },
   "pnpm": {
+    "ignoredBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ],
     "overrides": {
-      "tinybench": "$tinybench",
+      "tinybench": "https://registry.npmjs.org/tinybench/-/tinybench-5.1.0.tgz",
       "typescript": "$typescript",
       "vitest>vite": "$vite"
     },
     "patchedDependencies": {
-      "starlight-theme-rapide": "patches/starlight-theme-rapide.patch",
-      "vitest": "patches/vitest.patch"
+      "starlight-theme-rapide": "patches/starlight-theme-rapide.patch"
     }
   },
   "exports": {
