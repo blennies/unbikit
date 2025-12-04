@@ -679,6 +679,7 @@ class BikDecoder {
 /**
  * Read and parse the headers of a BIK video. If successful, return an instance of
  * {@link BikDecoder} for decoding the rest of the video from the data source.
+ * @function
  * @param source Data source that will provide the encoded video data.
  * @returns Decoder instance. Use {@link BikDecoder.header} to access the parsed headers.
  */
