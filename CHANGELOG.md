@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.10.1](https://github.com/blennies/unbikit/compare/v0.10.0...v0.10.1) (2025-12-08)
+
+### Bug Fixes
+
+- Fix warnings raised by Oxc lint
+  ([#58](https://github.com/blennies/unbikit/issues/58))
+  ([90d7f34](https://github.com/blennies/unbikit/commit/90d7f3492fb7d26636b97413c800f75d643b0030))
+
+  This includes adding missing `await`s that were highlighted by Oxc lint, which could indicate
+  actual bugs.
+
 ## [0.10.0](https://github.com/blennies/unbikit/compare/v0.9.0...v0.10.0) (2025-12-01)
 
 ### Bug Fixes
