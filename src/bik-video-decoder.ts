@@ -5,6 +5,7 @@
 import type { FixedLengthArray, IntRange, Simplify, TupleOf } from "type-fest";
 import {
   buildQuantTables,
+  createArrayOfLen,
   PACKED_BIK_PATTERNS,
   PACKED_BIK_SCAN,
   PACKED_BIK_TREE_CODES,
@@ -186,7 +187,7 @@ export function* genBikVideoDecoder(
     BIK_TREE_CODES = unpackValues(2, PACKED_BIK_TREE_CODES) as TupleOf<256, IntRange<0, 256>>;
     BIK_TREE_LENS = unpackValues(1, PACKED_BIK_TREE_LENS) as TupleOf<256, IntRange<1, 8>>;
     BIK_QUANT = buildQuantTables();
-    PREDEFINED_HUFF_TABLES = new Array(16)
+    PREDEFINED_HUFF_TABLES = createArrayOfLen(16)
       .fill(null)
       .map((_, bikTreeIndex) => new HuffTable(bikTreeIndex as IntRange<0, 16>)) as TupleOf<
       16,
@@ -221,11 +222,8 @@ export function* genBikVideoDecoder(
   // Value to add to a pointer to the data buffer to get to the same X position on the next line
   let stride = 0;
 
-  // Output data buffer for all planes in the current frame
-  let frameData = EMPTY_UINT8_ARRAY;
-
   // Output data buffer for all planes in the previous frame (for inter-frame decompression)
-  let prevFrameData = new Uint8Array(frameSize);
+  const prevFrameData = new Uint8Array(frameSize);
 
   // Output data buffer for the current plane in the current frame
   let planeData = EMPTY_UINT8_ARRAY;
@@ -240,11 +238,11 @@ export function* genBikVideoDecoder(
   // Input bit-stream for the current frame
   const reader = new BitReader(EMPTY_UINT8_ARRAY);
 
-  const blockParams = new Array<BlockParamValues>(NUM_BLOCK_PARAMS) as TupleOf<
+  const blockParams = (Array<BlockParamValues>).from({ length: NUM_BLOCK_PARAMS }) as TupleOf<
     typeof NUM_BLOCK_PARAMS,
     BlockParamValues
   >;
-  const colHigh = new Array(16) as TupleOf<16, Tree>;
+  const colHigh = createArrayOfLen(16) as TupleOf<16, Tree>;
   let colLastValue = 0;
 
   const blocks = (numPixels + 63) >>> 6;
@@ -278,11 +276,10 @@ export function* genBikVideoDecoder(
 
   const decodePlane = (frame: BikVideoFrame, planeIndex: TPlaneIndex) => {
     const isChroma = planeIndex === 1 || planeIndex === 2;
-    const planeWidth = isChroma ? Math.ceil(width / 2) : width;
     const blockWidth = isChroma ? Math.ceil(width / 16) : Math.ceil(width / 8);
     const blockHeight = isChroma ? Math.ceil(height / 16) : Math.ceil(height / 8);
 
-    readPlaneTrees(planeWidth, blockWidth);
+    readPlaneTrees(blockWidth);
 
     stride = frame.lineSize[planeIndex] ?? 0;
     const planeOffset =
@@ -292,13 +289,13 @@ export function* genBikVideoDecoder(
           ? numPixels
           : planeIndex === 2
             ? numPixels + uvSize
-            : numPixels + (uvSize << 1);
+            : numPixels + uvSize + uvSize;
     const blockLineIncr = stride * 7;
 
     // Temporarily restrict the size of the data buffers for the current and previous frames to
     // the plane being decoded. Restore the buffers at the end of the function.
     const planeSize = isChroma ? uvSize : numPixels;
-    planeData = new Uint8Array(frameData.buffer, planeOffset, planeSize);
+    planeData = new Uint8Array(frame.yuv.buffer, planeOffset, planeSize);
     planeDataPtr = 0;
     prevPlaneData = new Uint8Array(prevFrameData.buffer, planeOffset, planeSize);
 
@@ -631,10 +628,9 @@ export function* genBikVideoDecoder(
    * @param width Coded width of the video (pixels).
    * @param blockWidth Coded width of the video (number of 8x8 blocks).
    */
-  const readPlaneTrees = (width: number, blockWidth: number): void => {
-    const adjustedWidth = (width + 7) & ~7;
+  const readPlaneTrees = (blockWidth: number): void => {
     const extraLen = 511;
-    const commonLen = (adjustedWidth >>> 3) + extraLen;
+    const commonLen = blockWidth + extraLen;
     for (const [blockParamNum, blockParamValues] of blockParams.entries() as ArrayIterator<
       [IntRange<0, typeof NUM_BLOCK_PARAMS>, BlockParamValues]
     >) {
@@ -645,7 +641,7 @@ export function* genBikVideoDecoder(
           (
             [
               commonLen, // BIK_PARAM_BLOCK_TYPES
-              (adjustedWidth >>> 4) + extraLen, // BIK_PARAM_SUB_BLOCK_TYPES
+              (blockWidth >>> 1) + extraLen, // BIK_PARAM_SUB_BLOCK_TYPES
               (blockWidth << 6) + extraLen, // BIK_PARAM_COLORS
               (blockWidth << 3) + extraLen, // BIK_PARAM_PATTERN
               commonLen, // BIK_PARAM_X_OFF
@@ -1028,7 +1024,6 @@ export function* genBikVideoDecoder(
         lineSize: [width, width >>> 1, width >>> 1, width],
       };
     }
-    frameData = frame.yuv;
 
     if (hasAlpha) {
       if (version > 104) {
@@ -1049,7 +1044,6 @@ export function* genBikVideoDecoder(
 
     // Store a copy of the YUVA planes for frame-relative decoding with the next frame.
     prevFrameData.set(frame.yuv);
-    frameData = EMPTY_UINT8_ARRAY;
     reader.reset_(EMPTY_UINT8_ARRAY);
   }
 }
