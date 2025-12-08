@@ -115,7 +115,7 @@ globalThis.onmessage = async (evt) => {
       playing = true;
       startTime = null;
       framesPlayed = 0;
-      playLoop();
+      await playLoop();
       break;
     }
     case "stop": {
@@ -174,7 +174,8 @@ async function playLoop() {
             format: "RGBA",
             colorSpace: "srgb",
           });
-        } catch (_err) {
+          // eslint-disable-next-line no-unused-vars
+        } catch (_) {
           // ignore errors
         } finally {
           videoFrame.close();
@@ -194,7 +195,7 @@ async function playLoop() {
       const blocksLen = blocks.reduce((prev, cur) => prev + (cur[0]?.length ?? 0), 0);
       track = decoder?.header?.audioTracks[0];
       if (track && blocksLen > 0) {
-        channelBuffers = new Array(numChannels);
+        channelBuffers = Array.from({ length: numChannels });
         for (const [index] of channelBuffers.entries()) {
           channelBuffers[index] = new Float32Array(blocksLen);
         }
@@ -238,9 +239,9 @@ async function playLoop() {
       );
     }
 
-    nextPlayLoopTimer = setTimeout(() => {
+    nextPlayLoopTimer = setTimeout(async () => {
       if (playing) {
-        playLoop();
+        return playLoop();
       }
     }, timeToNextFrame);
 

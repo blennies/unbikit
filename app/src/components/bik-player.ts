@@ -89,7 +89,7 @@ export class BikPlayer {
         }
 
         case "play":
-          this.play();
+          await this.play();
           break;
 
         default:

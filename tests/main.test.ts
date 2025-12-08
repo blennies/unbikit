@@ -21,7 +21,7 @@ const fetchSelectionOfFrames = async (
   const numFrames = Math.min((header?.numFrames ?? 1) - 1, 1000);
   const frameQuarters = ~~(numFrames / 4);
   expect(header).toBeTruthy();
-  annotate(
+  await annotate(
     `header info for ${file.name} -- version: ${header?.version}${String.fromCharCode(header?.subVersion ?? 63)}, frames: ${header?.numFrames}, image size: ${header?.width}x${header?.height}, flags: ${JSON.stringify(header?.videoFlags)}`,
   );
 
@@ -34,7 +34,7 @@ const fetchSelectionOfFrames = async (
     // Convert video frame to a PNG and verify the hash
     const videoFrameName = `screenshot_${file.name}_frame_${frameNum}.png`;
     const png = frameToPng(frame);
-    annotate(videoFrameName, {
+    await annotate(videoFrameName, {
       body: png,
       contentType: "image/png",
     });
@@ -104,7 +104,7 @@ suite("decode media files of unsupported BIK versions", async () => {
   }) => {
     const decoder = await getMediaFileDecoder(mediaFiles.testfile08bk1b);
     const header = decoder.header;
-    annotate(
+    await annotate(
       `header info -- version: ${header?.version}${String.fromCharCode(header?.subVersion ?? 63)}, frames: ${header?.numFrames}, image size: ${header?.width}x${header?.height}`,
     );
     expect(header?.version).toEqual(1);
@@ -120,7 +120,7 @@ suite("decode media files of unsupported BIK versions", async () => {
   }) => {
     const decoder = await getMediaFileDecoder(mediaFiles.testfile09bk2);
     const header = decoder.header;
-    annotate(
+    await annotate(
       `header info -- version: ${header?.version}${String.fromCharCode(header?.subVersion ?? 63)}, frames: ${header?.numFrames}, image size: ${header?.width}x${header?.height}`,
     );
     expect(header?.version).toEqual(2);

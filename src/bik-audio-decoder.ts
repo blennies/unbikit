@@ -3,6 +3,7 @@
  */
 import type { IntRange, TupleOf } from "type-fest";
 import {
+  createArrayOfLen,
   PACKED_AUDIO_CRITICAL_FREQS,
   PACKED_AUDIO_RLE_LENGTH_TABLE,
   unpackValues,
@@ -91,7 +92,7 @@ export function* genBikAudioDecoder(
   }
   bands[numBands] = frameLen;
 
-  const output = new Array(numInternalChannels);
+  const output = createArrayOfLen<Float32Array>(numInternalChannels);
   for (const [index] of output.entries()) {
     output[index] = new Float32Array(frameLen);
   }

@@ -27,6 +27,7 @@
  */
 
 import { type BikAudioDecoder, genBikAudioDecoder } from "./bik-audio-decoder.ts";
+import { createArrayOfLen } from "./bik-constants.ts";
 import {
   type BikVideoDecoder,
   type BikVideoFrame,
@@ -464,22 +465,24 @@ class BikDecoder {
         audioHeaderBytes.byteOffset,
         audioTrackHeaderSize,
       );
-      audioTracks = new Array(numAudioTracks).fill(null).map((_, index) => {
-        const flags = audioHeaderDataView.getUint16(
-          (numAudioTracks << 2) + (index << 2) + 2,
-          true,
-        );
-        const isStereo = !!(flags & 0x2000);
-        return {
-          trackId: audioHeaderDataView.getUint32((numAudioTracks << 3) + (index << 2), true),
-          numChannels: isStereo ? 2 : 1,
-          sampleRate: audioHeaderDataView.getUint16((numAudioTracks << 2) + (index << 2), true),
-          flags: {
-            stereo: isStereo,
-            usesDCT: !!(flags & 0x1000),
-          },
-        };
-      });
+      audioTracks = createArrayOfLen(numAudioTracks)
+        .fill(null)
+        .map((_, index) => {
+          const flags = audioHeaderDataView.getUint16(
+            (numAudioTracks << 2) + (index << 2) + 2,
+            true,
+          );
+          const isStereo = !!(flags & 0x2000);
+          return {
+            trackId: audioHeaderDataView.getUint32((numAudioTracks << 3) + (index << 2), true),
+            numChannels: isStereo ? 2 : 1,
+            sampleRate: audioHeaderDataView.getUint16((numAudioTracks << 2) + (index << 2), true),
+            flags: {
+              stereo: isStereo,
+              usesDCT: !!(flags & 0x1000),
+            },
+          };
+        });
       audioTracks.forEach((audioTrack) => {
         const audioTrackDecoder = genBikAudioDecoder(
           audioTrack.sampleRate,
@@ -498,18 +501,20 @@ class BikDecoder {
       videoHeaderBytes.byteOffset,
       frameListSize,
     );
-    const frames: BikFrameHeader[] = new Array(numFrames).fill(null).map((_, index) => {
-      const rawOffset = frameListDataView.getUint32(index << 2, true);
-      const offset = rawOffset & 0xfffffffe;
-      const nextOffset = frameListDataView.getUint32((index + 1) << 2, true) & 0xfffffffe;
-      const size = nextOffset - offset;
-      const keyframe = !!(rawOffset & 1);
-      return {
-        offset,
-        size,
-        keyframe,
-      };
-    });
+    const frames: BikFrameHeader[] = createArrayOfLen(numFrames)
+      .fill(null)
+      .map((_, index) => {
+        const rawOffset = frameListDataView.getUint32(index << 2, true);
+        const offset = rawOffset & 0xfffffffe;
+        const nextOffset = frameListDataView.getUint32((index + 1) << 2, true) & 0xfffffffe;
+        const size = nextOffset - offset;
+        const keyframe = !!(rawOffset & 1);
+        return {
+          offset,
+          size,
+          keyframe,
+        };
+      });
 
     // Create an image ("video") decoder for decoding the image data in each consecutive frame.
     this.#videoDecoder = genBikVideoDecoder(
@@ -669,7 +674,7 @@ class BikDecoder {
    * @param source Data source that will provide the encoded video data.
    * @returns Decoder instance. Use {@link BikDecoder.header} to access the parsed headers.
    */
-  static async open_(source: Blob | File | URL | Request): Promise<BikDecoder> {
+  static async open_(this: void, source: Blob | File | URL | Request): Promise<BikDecoder> {
     const decoder = new BikDecoder(source);
     await decoder.#init();
     return decoder;

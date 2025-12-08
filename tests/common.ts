@@ -118,6 +118,7 @@ class MediaFile {
     try {
       const fileData = new Uint8Array(await readFile(fileCachePath));
       return fileData;
+      // eslint-disable-next-line no-unused-vars
     } catch (_) {
       // Couldn't read cached file, so try fetching instead
       const response = await fetch(this.#url);
@@ -151,6 +152,7 @@ class MediaFile {
         MediaFile.#mediaFileVerified[this.#name] = true;
       }
       blob = await openAsBlob(fileCachePath);
+      // eslint-disable-next-line no-unused-vars
     } catch (_) {
       // Couldn't read cached file, so try fetching instead
       const response = await fetch(this.#url);

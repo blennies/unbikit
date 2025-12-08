@@ -2,6 +2,8 @@
  * This file contains various packed constants used by the decoder.
  */
 
+export const createArrayOfLen = <T>(length: number): Array<T> => Array.from({ length });
+
 /**
  * Unpack string to an array of integer constants.
  * @param n Width (number of characters) of each packed entry.
@@ -10,15 +12,17 @@
  */
 export const unpackValues = (n: number, s: string): number[] | undefined => {
   const len = s.length / n;
-  return new Array(len).fill(0).map((_, index) =>
-    parseInt(
-      new Array(n)
-        .fill(0)
-        .map((_, i) => s[i * len + index])
-        .join(""),
-      36,
-    ),
-  );
+  return createArrayOfLen<number>(len)
+    .fill(0)
+    .map((_, index) =>
+      parseInt(
+        createArrayOfLen<number>(n)
+          .fill(0)
+          .map((_, i) => s[i * len + index])
+          .join(""),
+        36,
+      ),
+    );
 };
 
 export const PACKED_BIK_TREE_LENS =
