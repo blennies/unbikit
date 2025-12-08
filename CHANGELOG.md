@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.10.2](https://github.com/blennies/unbikit/compare/v0.10.1...v0.10.2) (2026-02-08)
+
+### Maintenance
+
+- Update broken links in documentation
+  ([a66206a](https://github.com/blennies/unbikit/commit/a66206a6e882ba3dab32012c0c6ee4662c1fb88b))
+- Update build dependencies, including moving to Vite v8
+  ([a66206a](https://github.com/blennies/unbikit/commit/a66206a6e882ba3dab32012c0c6ee4662c1fb88b))
+
 ## [0.10.1](https://github.com/blennies/unbikit/compare/v0.10.0...v0.10.1) (2025-12-08)
 
 ### Bug Fixes
@@ -36,7 +45,8 @@
 ### ⚠ BREAKING CHANGES
 
 - Rename the audio track flag `useDCT` to `usesDCT` in the API
-  ([#51](https://github.com/blennies/unbikit/issues/51)) ([6b2a4de](https://github.com/blennies/unbikit/commit/6b2a4dec8c2dd3eedd59987a97243887b14a1160))
+  ([#51](https://github.com/blennies/unbikit/issues/51))
+  ([6b2a4de](https://github.com/blennies/unbikit/commit/6b2a4dec8c2dd3eedd59987a97243887b14a1160))
 
 ### Performance Improvements
 
