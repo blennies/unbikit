@@ -31,7 +31,7 @@
   "engines": {
     "node": ">=22.18"
   },
-  "packageManager": "pnpm@10.25.0+sha512.5e82639027af37cf832061bcc6d639c219634488e0f2baebe785028a793de7b525ffcd3f7ff574f5e9860654e098fe852ba8ac5dd5cefe1767d23a020a92f501",
+  "packageManager": "pnpm@10.26.1+sha512.664074abc367d2c9324fdc18037097ce0a8f126034160f709928e9e9f95d98714347044e5c3164d65bd5da6c59c6be362b107546292a8eecb7999196e5ce58fa",
   "scripts": {
     "dev": "astro dev",
     "dev:app": "astro dev",
@@ -50,38 +50,38 @@
   "devDependencies": {
     "@arethetypeswrong/core": "0.18.2",
     "@astrojs/check": "0.9.6",
-    "@astrojs/mdx": "4.3.12",
-    "@astrojs/starlight": "0.37.0",
-    "@biomejs/biome": "2.3.8",
+    "@astrojs/mdx": "4.3.13",
+    "@astrojs/starlight": "0.37.1",
+    "@biomejs/biome": "2.3.10",
     "@commitlint/config-conventional": "20.2.0",
     "@commitlint/types": "20.2.0",
     "@fontsource-variable/sora": "5.2.8",
     "@types/audioworklet": "0.0.92",
-    "@types/node": "24.10.1",
+    "@types/node": "25.0.3",
     "@types/pngjs": "6.0.5",
-    "@vitest/coverage-v8": "4.0.15",
-    "@vitest/ui": "4.0.15",
-    "astro": "5.16.4",
+    "@vitest/coverage-v8": "4.0.16",
+    "@vitest/ui": "4.0.16",
+    "astro": "5.16.6",
     "commitlint": "20.2.0",
     "globals": "16.5.0",
     "pngjs": "7.0.0",
     "prettier": "3.7.4",
-    "publint": "0.3.15",
-    "rolldown": "1.0.0-beta.53",
+    "publint": "0.3.16",
+    "rolldown": "1.0.0-beta.55",
     "rollup-plugin-esbuild": "6.2.1",
     "sharp": "0.34.5",
     "starlight-package-managers": "0.11.1",
     "starlight-theme-rapide": "0.5.2",
     "starlight-typedoc": "0.21.5",
     "ts-extras": "0.16.0",
-    "tsdown": "0.17.2",
+    "tsdown": "0.18.1",
     "type-fest": "5.3.1",
     "typedoc": "0.28.15",
     "typedoc-plugin-markdown": "4.9.0",
     "typescript": "5.9.3",
     "unplugin-unused": "0.5.6",
-    "vite": "npm:rolldown-vite@7.2.10",
-    "vitest": "4.0.15"
+    "vite": "npm:rolldown-vite@7.3.0",
+    "vitest": "4.0.16"
   },
   "pnpm": {
     "ignoredBuiltDependencies": [
@@ -89,6 +89,7 @@
       "sharp"
     ],
     "overrides": {
+      "esbuild": "0.27.0",
       "tinybench": "https://registry.npmjs.org/tinybench/-/tinybench-5.1.0.tgz",
       "typescript": "$typescript",
       "vitest>vite": "$vite"
