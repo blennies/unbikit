@@ -47,7 +47,7 @@ jobs:
 
       - name: Restore cached test assets
         id: cache-test-assets-restore
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: tests/.asset-cache
           key: ${{ runner.os }}-test-assets
@@ -57,7 +57,7 @@ jobs:
 
       - name: Save test assets in cache
         id: cache-test-assets-save
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: tests/.asset-cache
           key: ${{ steps.cache-test-assets-restore.outputs.cache-primary-key }}
