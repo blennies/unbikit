@@ -1,6 +1,6 @@
 # unbikit
 
-[![minzipped bundle size](https://img.shields.io/bundlephobia/minzip/unbikit?style=flat-square)](https://bundlephobia.com/package/unbikit)
+[![minzipped bundle size](https://img.shields.io/bundlejs/size/unbikit?style=flat-square)](https://bundlejs.com/?q=unbikit)
 [![NPM Version](https://img.shields.io/npm/v/unbikit?style=flat-square)](https://www.npmjs.com/package/unbikit)
 [![dependency count](https://img.shields.io/badge/dependency%20count-0-blue?style=flat-square)](https://npmgraph.js.org/?q=unbikit)
 [![types included](https://img.shields.io/npm/types/unbikit?style=flat-square)](https://www.npmjs.com/package/unbikit)

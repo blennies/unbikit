@@ -1,6 +1,6 @@
 # unbikit
 
-[![minzipped bundle size](https://img.shields.io/bundlephobia/minzip/unbikit?style=flat-square)](https://bundlephobia.com/package/unbikit)
+[![minzipped bundle size](https://img.shields.io/bundlejs/size/unbikit?style=flat-square)](https://bundlejs.com/?q=unbikit)
 [![types included](https://img.shields.io/npm/types/unbikit?style=flat-square)](https://www.npmjs.com/package/unbikit)
 
 <img src="/app/src/images/unbikit-logo.svg" alt="logo of unbikit" width="24" height="24"> unbikit
