@@ -56,7 +56,7 @@
     "@commitlint/config-conventional": "20.4.2",
     "@commitlint/types": "20.4.0",
     "@fontsource-variable/sora": "5.2.8",
-    "@types/audioworklet": "0.0.95",
+    "@types/audioworklet": "0.0.96",
     "@types/node": "25.3.0",
     "@types/pngjs": "6.0.5",
     "@vitest/coverage-v8": "4.0.18",
@@ -79,7 +79,7 @@
     "typedoc-plugin-markdown": "4.10.0",
     "typescript": "5.9.3",
     "unplugin-unused": "0.5.7",
-    "vite": "8.0.0-beta.14",
+    "vite": "8.0.0-beta.15",
     "vitest": "4.0.18"
   },
   "pnpm": {
