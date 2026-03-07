@@ -17,6 +17,7 @@ const config: ReturnType<typeof defineConfig> = defineConfig({
     starlight({
       components: {
         Footer: "./src/components/Footer.astro",
+        ThemeProvider: "./src/components/ThemeProvider.astro",
       },
       customCss: ["./src/styles/global.css", "@fontsource-variable/sora/index.css"],
       favicon: "/favicon.svg",
@@ -52,7 +53,6 @@ const config: ReturnType<typeof defineConfig> = defineConfig({
             {
               label: "⭐ Demo",
               link: "/demo",
-              badge: { variant: "success", text: "new!" },
             },
           ],
         },

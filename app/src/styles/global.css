@@ -21,26 +21,7 @@
   --sl-hue-accent: 90;
 }
 
-/* :root {
-  container-type: inline-size;
-}
-
-main {
-  --_breakout-margin: max(0, 50cqw - 400px / 2);
-  margin-inline: var(--_breakout-margin);
-}
-.breakout {
-  margin-inline: calc(-1 * var(--_breakout-margin));
-} */
-
 /* In Markdown content, allow multiple images, videos, etc. on the same line */
 .sl-markdown-content :is(img, picture, video, canvas, svg, iframe):not(:where(.not-content *)) {
   display: inline-block;
-}
-
-/* Enable smooth page transitions */
-@media (prefers-reduced-motion: no-preference) {
-  @view-transition {
-    navigation: auto;
-  }
 }
