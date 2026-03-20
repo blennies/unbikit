@@ -31,7 +31,7 @@
   "engines": {
     "node": ">=22.18"
   },
-  "packageManager": "pnpm@10.30.3+sha512.c961d1e0a2d8e354ecaa5166b822516668b7f44cb5bd95122d590dd81922f606f5473b6d23ec4a5be05e7fcd18e8488d47d978bbe981872f1145d06e9a740017",
+  "packageManager": "pnpm@10.32.1+sha512.a706938f0e89ac1456b6563eab4edf1d1faf3368d1191fc5c59790e96dc918e4456ab2e67d613de1043d2e8c81f87303e6b40d4ffeca9df15ef1ad567348f2be",
   "scripts": {
     "dev": "astro dev",
     "dev:app": "astro dev",
@@ -49,20 +49,20 @@
   },
   "devDependencies": {
     "@arethetypeswrong/core": "0.18.2",
-    "@astrojs/check": "0.9.6",
-    "@astrojs/mdx": "4.3.13",
-    "@astrojs/starlight": "0.37.7",
-    "@biomejs/biome": "2.4.6",
-    "@commitlint/config-conventional": "20.4.3",
-    "@commitlint/types": "20.4.3",
+    "@astrojs/check": "0.9.8",
+    "@astrojs/mdx": "5.0.2",
+    "@astrojs/starlight": "0.38.1",
+    "@biomejs/biome": "2.4.8",
+    "@commitlint/config-conventional": "20.5.0",
+    "@commitlint/types": "20.5.0",
     "@fontsource-variable/sora": "5.2.8",
-    "@types/audioworklet": "0.0.96",
-    "@types/node": "25.4.0",
+    "@types/audioworklet": "0.0.97",
+    "@types/node": "25.5.0",
     "@types/pngjs": "6.0.5",
-    "@vitest/coverage-v8": "4.0.18",
-    "@vitest/ui": "4.0.18",
-    "astro": "5.18.0",
-    "commitlint": "20.4.3",
+    "@vitest/coverage-v8": "4.1.0",
+    "@vitest/ui": "4.1.0",
+    "astro": "6.0.7",
+    "commitlint": "20.5.0",
     "globals": "17.4.0",
     "pngjs": "7.0.0",
     "prettier": "3.8.1",
@@ -73,14 +73,14 @@
     "starlight-theme-rapide": "0.5.2",
     "starlight-typedoc": "0.21.5",
     "ts-extras": "0.17.0",
-    "tsdown": "0.21.1",
-    "type-fest": "5.4.4",
+    "tsdown": "0.21.4",
+    "type-fest": "5.5.0",
     "typedoc": "0.28.17",
-    "typedoc-plugin-markdown": "4.10.0",
+    "typedoc-plugin-markdown": "4.11.0",
     "typescript": "5.9.3",
     "unplugin-unused": "0.5.7",
-    "vite": "8.0.0-beta.18",
-    "vitest": "4.0.18"
+    "vite": "8.0.1",
+    "vitest": "4.1.0"
   },
   "pnpm": {
     "allowBuilds": {
@@ -88,7 +88,7 @@
       "sharp": false
     },
     "overrides": {
-      "esbuild": "0.27.3",
+      "esbuild": "0.27.4",
       "lodash": "4.17.23",
       "minimatch": "10.2.4",
       "tinybench": "https://registry.npmjs.org/tinybench/-/tinybench-5.1.0.tgz",

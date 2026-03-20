@@ -10,9 +10,6 @@ const [publicStarlightTypeDoc, publicTypeDocSidebarGroup] = createStarlightTypeD
 
 const config: ReturnType<typeof defineConfig> = defineConfig({
   base: "/unbikit/",
-  experimental: {
-    headingIdCompat: true,
-  },
   integrations: [
     starlight({
       components: {

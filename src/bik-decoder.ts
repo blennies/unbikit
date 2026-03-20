@@ -691,7 +691,6 @@ class BikDecoder {
 const createBikDecoder: (source: Blob | File | URL | Request) => Promise<BikDecoder> =
   BikDecoder.open_;
 
-export { createBikDecoder };
 export type {
   BikAudioTrack,
   BikAudioTrackHeader,
@@ -701,3 +700,4 @@ export type {
   BikHeader,
   BikVideoFrame,
 };
+export { createBikDecoder };
