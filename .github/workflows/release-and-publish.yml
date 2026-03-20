@@ -21,6 +21,12 @@ jobs:
     outputs:
       release-created: ${{ steps.release.outputs.release_created }}
     steps:
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: "pnpm"
+
       - uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859
         id: app-token
         with:
