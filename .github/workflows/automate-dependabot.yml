@@ -1,0 +1,28 @@
+name: Automated Dependabot approve + merge
+on:
+  workflow_run:
+    workflows:
+      - check-build-test
+    branches-ignore:
+      - main
+    types:
+      - completed
+
+permissions:
+  pull-requests: write
+
+jobs:
+  dependabot:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]' && github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@21025c705c08248db411dc16f3619e6b5f9ea21a
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Approve and merge Dependabot PR
+        run: gh pr review --approve "$PR_URL" && gh pr merge --rebase --delete-branch "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
