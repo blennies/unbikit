@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.3](https://github.com/blennies/unbikit/compare/v0.10.2...v0.10.3) (2026-04-07)
+
+### Maintenance
+
+- Update build dependencies
+  ([26cced0](https://github.com/blennies/unbikit/commit/26cced01a1dd1c70ec3d064ba1c4112754f92039))
+
 ## [0.10.2](https://github.com/blennies/unbikit/compare/v0.10.1...v0.10.2) (2026-02-08)
 
 ### Maintenance
