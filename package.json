@@ -52,7 +52,7 @@
     "@astrojs/check": "0.9.8",
     "@astrojs/mdx": "5.0.3",
     "@astrojs/starlight": "0.38.3",
-    "@biomejs/biome": "2.4.11",
+    "@biomejs/biome": "2.4.12",
     "@commitlint/config-conventional": "20.5.0",
     "@commitlint/types": "20.5.0",
     "@fontsource-variable/sora": "5.2.8",
