@@ -26,7 +26,7 @@ jobs:
         with:
           node-version: 24
 
-      - uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859
+      - uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3
         id: app-token
         with:
           app-id: ${{ vars.CI_RELEASE_BOT_APP_ID }}
@@ -98,7 +98,7 @@ jobs:
         uses: actions/configure-pages@v6
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: dist-app
 
