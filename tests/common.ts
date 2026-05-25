@@ -1,6 +1,4 @@
-/**
- * Functions and constants that are common across multiple tests/benchmarks.
- */
+/** Functions and constants that are common across multiple tests/benchmarks. */
 import { Buffer } from "node:buffer";
 import { createHash } from "node:crypto";
 import { createReadStream, openAsBlob } from "node:fs";
@@ -8,6 +6,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import * as path from "node:path/posix";
 import { resolve } from "node:path/posix";
 import { pipeline } from "node:stream/promises";
+
 import { PNG } from "pngjs";
 import { objectEntries } from "ts-extras";
 
@@ -16,8 +15,8 @@ import { type BikDecoder, type BikFrame, createBikDecoder } from "../src/bik-dec
 export const ASSET_CACHE_PATH: string = path.join(import.meta.dirname, ".asset-cache");
 
 /**
- * Information about media files that are used as test fixtures. They will be downloaded if they
- * are not already cached.
+ * Information about media files that are used as test fixtures. They will be downloaded if they are
+ * not already cached.
  */
 const MEDIA_SRC_URLS = {
   site01: "https://sembiance.com/fileFormatSamples/video/bink/",
@@ -78,9 +77,7 @@ const MEDIA_FILES_INFO = {
 type MediaFileIndex = keyof typeof MEDIA_FILES_INFO;
 type MediaFileEntry = (typeof MEDIA_FILES_INFO)[MediaFileIndex];
 
-/**
- * Class for managing fetching/reading of a media file.
- */
+/** Class for managing fetching/reading of a media file. */
 class MediaFile {
   #name: MediaFileIndex;
   #mediaFileInfo: MediaFileEntry;
@@ -168,6 +165,7 @@ class MediaFile {
         if (fileHash !== this.#mediaFileInfo.sha256) {
           throw new Error(
             `SHA-256 mismatch for fetched file ${this.#name}: expected ${this.#mediaFileInfo.sha256} but got ${fileHash}`,
+            { cause: _ },
           );
         }
         MediaFile.#mediaFileVerified[this.#name] = true;
@@ -184,13 +182,14 @@ for (const [fileIndex, fileInfo] of objectEntries(MEDIA_FILES_INFO)) {
 }
 
 /**
- * Mapping from media file index to a {@link MediaFile} instance that can be used to access the
- * media file data.
+ * Mapping from media file index to a {@link MediaFile} instance that can be used to access the media
+ * file data.
  */
 const mediaFiles = tmpMediaFiles as Record<MediaFileIndex, MediaFile>;
 
 /**
  * Get a new instance of the BIK decoder for a given media file.
+ *
  * @param file Media file to pass to the new decoder instance.
  * @returns New decoder instance.
  */
@@ -200,6 +199,7 @@ const getMediaFileDecoder = async (file: MediaFile): Promise<BikDecoder> => {
 
 /**
  * Generate a SHA-256 digest (256-bit hash).
+ *
  * @param data Data to generate a SHA-256 digest from.
  * @returns The generated digest as a hex string.
  */
@@ -214,6 +214,7 @@ const getShaSum = async (
 
 /**
  * Convert a YUV420P frame to an RGBA frame.
+ *
  * @param yuv YUV420P image data.
  * @param width Width of the image in pixels.
  * @param height Height of the image in pixels.

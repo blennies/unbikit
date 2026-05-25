@@ -14,94 +14,26 @@
     "player",
     "video"
   ],
-  "author": "Blennies <blennies.dev@gmail.com>",
-  "license": "(MIT OR Apache-2.0)",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/blennies/unbikit.git"
-  },
   "homepage": "https://blennies.github.io/unbikit",
   "bugs": {
     "url": "https://github.com/blennies/unbikit/issues"
   },
+  "license": "(MIT OR Apache-2.0)",
+  "author": "Blennies <blennies.dev@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blennies/unbikit.git"
+  },
+  "files": [
+    "dist/**/*.d.cts",
+    "dist/**/*.d.ts",
+    "dist/**/*.cjs",
+    "dist/**/*.js"
+  ],
   "type": "module",
+  "sideEffects": false,
   "module": "./dist/unbikit.js",
   "types": "./dist/unbikit.d.ts",
-  "sideEffects": false,
-  "engines": {
-    "node": ">=22.18"
-  },
-  "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319",
-  "scripts": {
-    "dev": "astro dev",
-    "dev:app": "astro dev",
-    "build": "tsdown",
-    "build:app": "astro build",
-    "check": "astro check && biome check *.ts *.mts *.json *.jsonc app src/bik-decoder.ts && prettier -c . && tsc && vitest run --testTimeout 10000",
-    "ci:check": "astro check && biome ci *.ts *.mts *.json *.jsonc app src/bik-decoder.ts && prettier -c . && tsc",
-    "preview": "astro preview",
-    "preview:app": "astro preview",
-    "test": "vitest --ui --testTimeout 10000",
-    "test:coverage": "vitest --ui --coverage --testTimeout 20000",
-    "test:cli": "vitest --testTimeout 10000",
-    "ci:test": "vitest run --coverage --testTimeout 30000",
-    "bench": "vitest bench --run"
-  },
-  "devDependencies": {
-    "@arethetypeswrong/core": "0.18.2",
-    "@astrojs/check": "0.9.9",
-    "@astrojs/mdx": "5.0.6",
-    "@astrojs/starlight": "0.39.2",
-    "@biomejs/biome": "2.4.15",
-    "@commitlint/config-conventional": "21.0.1",
-    "@commitlint/types": "21.0.1",
-    "@fontsource-variable/sora": "5.2.8",
-    "@types/audioworklet": "0.0.100",
-    "@types/node": "25.9.1",
-    "@types/pngjs": "6.0.5",
-    "@vitest/coverage-v8": "4.1.7",
-    "@vitest/ui": "4.1.7",
-    "astro": "6.3.6",
-    "commitlint": "21.0.1",
-    "globals": "17.6.0",
-    "pngjs": "7.0.0",
-    "prettier": "3.8.3",
-    "publint": "0.3.21",
-    "rollup-plugin-esbuild": "6.2.1",
-    "sharp": "0.34.5",
-    "starlight-package-managers": "0.12.0",
-    "starlight-theme-rapide": "0.5.2",
-    "starlight-typedoc": "0.23.0",
-    "ts-extras": "1.0.0",
-    "tsdown": "0.22.0",
-    "type-fest": "5.6.0",
-    "typedoc": "0.28.19",
-    "typedoc-plugin-markdown": "4.11.0",
-    "typescript": "6.0.3",
-    "unplugin-unused": "0.5.7",
-    "vite": "8.0.14",
-    "vitest": "4.1.7"
-  },
-  "pnpm": {
-    "allowBuilds": {
-      "esbuild": false,
-      "sharp": false
-    },
-    "overrides": {
-      "tinybench": "https://registry.npmjs.org/tinybench/-/tinybench-5.1.0.tgz",
-      "typescript": "$typescript",
-      "vitest>vite": "$vite",
-      "@vitest/mocker>vite": "$vite"
-    },
-    "patchedDependencies": {
-      "starlight-theme-rapide": "patches/starlight-theme-rapide.patch"
-    },
-    "peerDependencyRules": {
-      "allowedVersions": {
-        "vite": "8.x"
-      }
-    }
-  },
   "exports": {
     ".": {
       "types": "./dist/unbikit.d.ts",
@@ -119,15 +51,69 @@
       "./package.json": "./package.json"
     }
   },
-  "files": [
-    "dist/**/*.d.cts",
-    "dist/**/*.d.ts",
-    "dist/**/*.cjs",
-    "dist/**/*.js"
-  ],
+  "scripts": {
+    "dev": "astro dev",
+    "dev:app": "astro dev",
+    "build": "tsdown --config-loader unrun --logLevel=info",
+    "build:app": "astro build",
+    "check": "oxfmt --check && prettier --ignore-path .gitignore --ignore-path .prettierignore-only -c . && oxlint && vitest run --testTimeout 10000",
+    "ci:check": "oxfmt --check && prettier --ignore-path .prettierignore-only -c . && oxlint",
+    "fix": "oxfmt && prettier --ignore-path .prettierignore-only -w . && oxlint --fix",
+    "preview": "astro preview",
+    "preview:app": "astro preview",
+    "test": "vitest --ui --testTimeout 10000",
+    "test:coverage": "vitest --ui --coverage --testTimeout 20000",
+    "test:cli": "vitest --testTimeout 10000",
+    "ci:test": "vitest run --coverage --testTimeout 30000",
+    "bench": "vitest bench --run"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/core": "0.18.2",
+    "@astrojs/check": "0.9.9",
+    "@astrojs/compiler-rs": "^0.2.1",
+    "@astrojs/mdx": "5.0.6",
+    "@astrojs/starlight": "0.39.2",
+    "@commitlint/config-conventional": "21.0.1",
+    "@commitlint/types": "21.0.1",
+    "@fontsource-variable/sora": "5.2.8",
+    "@types/audioworklet": "0.0.100",
+    "@types/node": "25.9.1",
+    "@types/pngjs": "6.0.5",
+    "@vitest/coverage-v8": "4.1.7",
+    "@vitest/ui": "4.1.7",
+    "astro": "6.3.7",
+    "commitlint": "21.0.1",
+    "globals": "17.6.0",
+    "oxfmt": "^0.51.0",
+    "oxlint": "^1.66.0",
+    "oxlint-tsgolint": "^0.23.0",
+    "pngjs": "7.0.0",
+    "prettier": "3.8.3",
+    "prettier-plugin-astro": "^0.14.1",
+    "publint": "0.3.21",
+    "rollup-plugin-esbuild": "6.2.1",
+    "sharp": "0.34.5",
+    "starlight-package-managers": "0.12.0",
+    "starlight-theme-rapide": "0.5.2",
+    "starlight-typedoc": "0.23.0",
+    "ts-extras": "1.0.0",
+    "tsdown": "0.22.0",
+    "type-fest": "5.6.0",
+    "typedoc": "0.28.19",
+    "typedoc-plugin-markdown": "4.11.0",
+    "typescript": "6.0.3",
+    "unplugin-unused": "0.5.7",
+    "unrun": "^0.3.0",
+    "vite": "8.0.14",
+    "vitest": "4.1.7"
+  },
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"
     ]
-  }
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "packageManager": "pnpm@11.3.0+sha512.2c403d6594527287672b1f7056343a1f7c3634036a67ffabfcc2b3d7595d843768f8787148d1b57cf7956c90606bbd192857c363af19e96d2d0ec9ec5741d215"
 }

@@ -1,27 +1,25 @@
 /**
  * Top-level module of the BIK decoder.
  *
- * Call the function {@link createBikDecoder} to start decoding a BIK video from a data source.
- * The decoder should throw an exception if the data source can't be accessed or is not a valid
- * video data source.
+ * Call the function {@link createBikDecoder} to start decoding a BIK video from a data source. The
+ * decoder should throw an exception if the data source can't be accessed or is not a valid video
+ * data source.
  *
- * The {@link BikDecoder.isSupported} property should be checked after creating a decoder to
- * verify that the decoder fully supports the version and sub-version of the BIK format used
- * by the video.
+ * The {@link BikDecoder.isSupported} property should be checked after creating a decoder to verify
+ * that the decoder fully supports the version and sub-version of the BIK format used by the video.
  *
  * If {@link BikDecoder.isSupported} is `true` then {@link BikDecoder.getNextFrame} can be called
- * repeatedly to get each consecutive frame of the video from the data source. Audio data may
- * also be supplied with each frame.
+ * repeatedly to get each consecutive frame of the video from the data source. Audio data may also
+ * be supplied with each frame.
  *
- * Local files and {@link ArrayBuffer}s can be supplied as data sources in the form of
- * {@link File} and {@link Blob} respectively. Remote files can be accessed either by supplying
- * either a {@link URL} or a {@link Request} instance that refers to the remote file. The
- * latter can be used to get more control over the requests that are sent to fetch the file from
- * the data source (such as setting header fields). Note that the decoder may modify the
- * {@link Request} instance.
+ * Local files and {@link ArrayBuffer}s can be supplied as data sources in the form of {@link File}
+ * and {@link Blob} respectively. Remote files can be accessed either by supplying either a
+ * {@link URL} or a {@link Request} instance that refers to the remote file. The latter can be used
+ * to get more control over the requests that are sent to fetch the file from the data source (such
+ * as setting header fields). Note that the decoder may modify the {@link Request} instance.
  *
- * The [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
- * is used to fetch video data from a remote source.
+ * The [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) is used to fetch
+ * video data from a remote source.
  *
  * @packageDocumentation
  */
@@ -34,57 +32,41 @@ import {
   genBikVideoDecoder,
 } from "./bik-video-decoder.ts";
 
-/**
- * Decoded header of a BIK data source.
- */
+/** Decoded header of a BIK data source. */
 interface BikHeader {
-  /**
-   * Version of the encoding format.
-   */
+  /** Version of the encoding format. */
   version: 1 | 2;
 
-  /**
-   * Sub-version of the encoding format.
-   */
+  /** Sub-version of the encoding format. */
   subVersion: number;
 
-  /**
-   * Total size of the encoded video data (in bytes).
-   */
+  /** Total size of the encoded video data (in bytes). */
   totalSize: number;
 
   /**
    * Number of frames in the video.
    *
-   * Note that audio is stored with each frame but doesn't necessarily correspond to the audio
-   * that should be played when the video frame is shown.
+   * Note that audio is stored with each frame but doesn't necessarily correspond to the audio that
+   * should be played when the video frame is shown.
    */
   numFrames: number;
 
   /**
-   * The total size of the largest frame (in bytes), including both audio and video that are
-   * stored with that frame.
+   * The total size of the largest frame (in bytes), including both audio and video that are stored
+   * with that frame.
    */
   largestFrameSize: number;
 
-  /**
-   * Width of each video frame (in pixels).
-   */
+  /** Width of each video frame (in pixels). */
   width: number;
 
-  /**
-   * Height of each video frame (in pixels).
-   */
+  /** Height of each video frame (in pixels). */
   height: number;
 
-  /**
-   * Number of frames per second that the video should be played at.
-   */
+  /** Number of frames per second that the video should be played at. */
   fps: number;
 
-  /**
-   * Flags providing additional information about the encoded video.
-   */
+  /** Flags providing additional information about the encoded video. */
   videoFlags: {
     /**
      * When `true`, the encoded video contains an alpha plane for each frame. Otherwise the video
@@ -141,9 +123,7 @@ interface BikHeader {
   frames: BikFrameHeader[];
 }
 
-/**
- * Decoded header of an audio track of a BIK video.
- */
+/** Decoded header of an audio track of a BIK video. */
 interface BikAudioTrackHeader {
   /**
    * Identifier for the audio track. This may not match the index of the track in the
@@ -154,29 +134,23 @@ interface BikAudioTrackHeader {
   /**
    * Number of separate audio channels stored by the track.
    *
-   * Stereo channels (when {@link flags stereo} is `true`) are separate planes for audio
-   * encoded via DCTs (when {@link flags usesDCT} is `true`), so the value of {@link numChannels}
-   * will include the number of stereo channels.
+   * Stereo channels (when {@link flags stereo} is `true`) are separate planes for audio encoded via
+   * DCTs (when {@link flags usesDCT} is `true`), so the value of {@link numChannels} will include
+   * the number of stereo channels.
    *
    * When audio is encoded via RDFTs (when {@link flags usesDCT} is `false`) then stereo channels
-   * are interleaved, so the value of {@link numChannels} will _not_ include the number of
-   * channels. This means that for a regular stereo track (when {@link flags stereo} is `true`),
+   * are interleaved, so the value of {@link numChannels} will _not_ include the number of channels.
+   * This means that for a regular stereo track (when {@link flags stereo} is `true`),
    * {@link numChannels} will have the value `1`.
    */
   numChannels: number;
 
-  /**
-   * Sample rate/frequency of the audio data (in Hz).
-   */
+  /** Sample rate/frequency of the audio data (in Hz). */
   sampleRate: number;
 
-  /**
-   * Flags indicating whether specific features apply to the audio track.
-   */
+  /** Flags indicating whether specific features apply to the audio track. */
   flags: {
-    /**
-     * `true` when the audio track is stereo, otherwise `false` (usually indicating mono audio).
-     */
+    /** `true` when the audio track is stereo, otherwise `false` (usually indicating mono audio). */
     stereo: boolean;
 
     /**
@@ -187,13 +161,9 @@ interface BikAudioTrackHeader {
   };
 }
 
-/**
- * Decoded header of a frame of a BIK video.
- */
+/** Decoded header of a frame of a BIK video. */
 interface BikFrameHeader {
-  /**
-   * Offset of the start of the frame in the encoded video.
-   */
+  /** Offset of the start of the frame in the encoded video. */
   offset: number;
 
   /**
@@ -203,53 +173,41 @@ interface BikFrameHeader {
   size: number;
 
   /**
-   * When `true`, this frame is a "key frame" that can be used as a starting point for random
-   * access decoding. Must be `true` for the first frame.
+   * When `true`, this frame is a "key frame" that can be used as a starting point for random access
+   * decoding. Must be `true` for the first frame.
    */
   keyframe: boolean;
 }
 
-/**
- * Decoded contents of a single frame of a BIK video.
- */
+/** Decoded contents of a single frame of a BIK video. */
 interface BikFrame {
-  /**
-   * Tracks containing audio data. Indexed by track number (_not_ track ID).
-   */
+  /** Tracks containing audio data. Indexed by track number (_not_ track ID). */
   audioTracks: BikAudioTrack[];
 
-  /**
-   * Decoded video frame image data.
-   */
+  /** Decoded video frame image data. */
   videoFrame: BikVideoFrame | null;
 }
 
 /**
  * Decoded contents of a single "packet" of data for an audio track in a BIK video.
  *
- * In each packet, audio samples are stored in one or more blocks, each block containing one or
- * more stereo-interleaved channels (so the number of stereo-interleaved channels in a stereo
- * audio block will be one, even though it should be played as two separate channels).
+ * In each packet, audio samples are stored in one or more blocks, each block containing one or more
+ * stereo-interleaved channels (so the number of stereo-interleaved channels in a stereo audio block
+ * will be one, even though it should be played as two separate channels).
  */
 interface BikAudioTrack {
-  /**
-   * Header associated with the audio track.
-   */
+  /** Header associated with the audio track. */
   header: BikAudioTrackHeader;
 
-  /**
-   * Total size (in bytes) of the samples in the packet.
-   */
+  /** Total size (in bytes) of the samples in the packet. */
   size: number;
 
-  /**
-   * Total number of samples in the packet.
-   */
+  /** Total number of samples in the packet. */
   numSamples: number;
 
   /**
-   * Actual audio data for the frame (PCM, floating-point, interleaved stereo channels).
-   * Indexed by block number and then by (non-stereo) channel.
+   * Actual audio data for the frame (PCM, floating-point, interleaved stereo channels). Indexed by
+   * block number and then by (non-stereo) channel.
    */
   blocks: Float32Array[][];
 }
@@ -259,24 +217,16 @@ interface BikAudioTrack {
  * video from a single data source at a time.
  */
 class BikDecoder {
-  /**
-   * Source of the video.
-   */
+  /** Source of the video. */
   #dataSource: Blob | File | URL | Request;
 
-  /**
-   * A {@link ReadableStreamDefaultReader} for the current position in the encoded video data.
-   */
+  /** A {@link ReadableStreamDefaultReader} for the current position in the encoded video data. */
   #streamReader: ReadableStreamDefaultReader<Uint8Array> | null = null;
 
-  /**
-   * Buffer of encoded video data being processed by the decoder.
-   */
+  /** Buffer of encoded video data being processed by the decoder. */
   #bufBytes: Uint8Array | null = null;
 
-  /**
-   * Start of the {@link #bufBytes} buffer relative to the start of the encoded video data.
-   */
+  /** Start of the {@link #bufBytes} buffer relative to the start of the encoded video data. */
   #bufPos = 0;
 
   #curFrame = -1;
@@ -292,11 +242,10 @@ class BikDecoder {
   }
 
   /**
-   * Set the current video data read position to the specified position, updating the read
-   * buffer and potentially creating a new readable stream if the read position actually
-   * changes.
-   * @param pos Position in the video to seek to. Specified in bytes from the start of the
-   *   video.
+   * Set the current video data read position to the specified position, updating the read buffer
+   * and potentially creating a new readable stream if the read position actually changes.
+   *
+   * @param pos Position in the video to seek to. Specified in bytes from the start of the video.
    */
   async #seek(pos: number): Promise<void> {
     if (pos < 0) {
@@ -356,10 +305,11 @@ class BikDecoder {
 
   /**
    * Read data from the readable stream.
+   *
    * @param len Number of bytes to read.
    * @returns The requested bytes of data. Will be at most `len` bytes, but may be fewer.
-   * @throws {@link Error} Thrown if the stream ends before the requested number of bytes have
-   *   been read.
+   * @throws {@link Error} Thrown if the stream ends before the requested number of bytes have been
+   *   read.
    */
   async #readBytes(len: number): Promise<Uint8Array | null> {
     if (!this.#streamReader || len < 1) {
@@ -379,6 +329,7 @@ class BikDecoder {
     // that we've managed to get.
     let bufLen = this.#bufBytes.byteLength;
     while (len > bufLen) {
+      // oxlint-disable-next-line no-await-in-loop
       const { value, done } = await this.#streamReader.read();
       if (!value || done) {
         this.#bufPos += bufLen;
@@ -409,10 +360,11 @@ class BikDecoder {
 
   /**
    * Read data from the readable stream.
+   *
    * @param len Number of bytes to read.
    * @returns The requested bytes of data.
-   * @throws {@link Error} Thrown if the stream ends before the requested number of bytes have
-   *   been read.
+   * @throws {@link Error} Thrown if the stream ends before the requested number of bytes have been
+   *   read.
    */
   async #ensureReadBytes(len: number): Promise<Uint8Array> {
     const bufBytes = await this.#readBytes(len);
@@ -555,6 +507,7 @@ class BikDecoder {
 
   /**
    * Decoded header of the video.
+   *
    * @returns Decoded header.
    */
   get header(): BikHeader | null {
@@ -563,6 +516,7 @@ class BikDecoder {
 
   /**
    * Whether the audio/images in the video can be processed by the decoder or not.
+   *
    * @returns `true` when the audio/images can be processed by the decoder, otherwise `false`.
    */
   get isSupported(): boolean {
@@ -571,6 +525,7 @@ class BikDecoder {
 
   /**
    * Get the next frame of the video and decode it.
+   *
    * @param prevFrame Optional data structure for a previously decoded frame to re-use (to reduce
    *   garbage collection).
    * @returns Next decoded frame (audio and video).
@@ -645,11 +600,13 @@ class BikDecoder {
   /**
    * Skip the specified number of frames of the video. They will still be decoded as decoding a
    * frame can effectively require data from any number of earlier frames.
+   *
    * @param numFrames Number of frames to skip, but still decode.
    */
   async skipFrames(numFrames: number): Promise<void> {
     let frame: BikFrame | null = null;
     for (let i = 0; i < numFrames; i++) {
+      // oxlint-disable-next-line no-await-in-loop
       frame = await this.getNextFrame(frame);
       if (!frame) {
         return;
@@ -671,6 +628,7 @@ class BikDecoder {
   /**
    * Read and parse the headers of a BIK video. If successful, return an instance of
    * {@link BikDecoder} for decoding the rest of the video from the data source.
+   *
    * @param source Data source that will provide the encoded video data.
    * @returns Decoder instance. Use {@link BikDecoder.header} to access the parsed headers.
    */
@@ -682,8 +640,9 @@ class BikDecoder {
 }
 
 /**
- * Read and parse the headers of a BIK video. If successful, return an instance of
- * {@link BikDecoder} for decoding the rest of the video from the data source.
+ * Read and parse the headers of a BIK video. If successful, return an instance of {@link BikDecoder}
+ * for decoding the rest of the video from the data source.
+ *
  * @function
  * @param source Data source that will provide the encoded video data.
  * @returns Decoder instance. Use {@link BikDecoder.header} to access the parsed headers.

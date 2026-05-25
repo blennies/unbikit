@@ -1,0 +1,7 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "embeddedLanguageFormatting": "auto",
+  "jsdoc": true,
+  "sortImports": { "partitionByComment": true },
+  "sortTailwindcss": true
+}

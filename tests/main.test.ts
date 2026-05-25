@@ -1,12 +1,13 @@
 /**
- * Test a set of media files by decoding (most of) the frames in each and outputting screenshots
- * of a small selection of the frames.
+ * Test a set of media files by decoding (most of) the frames in each and outputting screenshots of
+ * a small selection of the frames.
  *
- * Test valid BIK 1 files that should be decoded correctly, along with valid BIK 1b and 2 files
- * that the decoder should refuse to decode but handle gracefully.
+ * Test valid BIK 1 files that should be decoded correctly, along with valid BIK 1b and 2 files that
+ * the decoder should refuse to decode but handle gracefully.
  */
 
 import { suite, type TestContext, test } from "vitest";
+
 import type { BikDecoder } from "../src/bik-decoder.ts";
 import { frameToPng, getMediaFileDecoder, getShaSum, mediaFiles } from "./common.ts";
 

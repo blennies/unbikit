@@ -1,5 +1,6 @@
 import esbuild from "rollup-plugin-esbuild";
 import { defineConfig, type ViteUserConfig } from "vitest/config";
+
 import {
   commonBuildInputOptions,
   commonBuildTestConfig,
@@ -18,8 +19,8 @@ const config: ViteUserConfig = defineConfig({
           ...commonEsbuildOptions,
         }),
       ],
+  build: { rolldownOptions: commonBuildInputOptions },
   // output: { minify: true },
-  rolldownOptions: commonBuildInputOptions,
   test: {
     coverage: { exclude: ["./tests/**/*"] },
     // globalSetup: "tests/global-setup.ts",
@@ -31,6 +32,6 @@ const config: ViteUserConfig = defineConfig({
     // fileParallelism: false,
     // execArgv: ["--cpu-prof", "--cpu-prof-dir=test-runner-profile"],
   },
-} as ViteUserConfig);
+});
 
 export default config;

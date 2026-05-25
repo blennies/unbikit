@@ -473,124 +473,13 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
     }
   </style>
 
-  <div class="video-player">
-    <div class="video-container">
-      <canvas id="video-canvas" width="1280px"></canvas>
-      <div class="video-overlay" id="video-overlay">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-          ></path>
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-        <div id="video-overlay-text">
-          <p>Please select a BIK video file to play.</p>
-          <p>
-            You can either select one of the sample videos or a video on your local file system.
-            Your files will be processed on your computer and will
-            <b><i>not</i></b> be transferred to any external systems.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <div class="controls">
-      <div class="video-selector">
-        <div class="video-selector-label">Select Video</div>
-        <div class="video-selector-buttons">
-          <button id="sample-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-              <path
-                d="M22 1v2h-2v-2h-2v4h-12v-4h-2v2h-2v-2h-2v22h2v-2h2v2h2v-4h12v4h2v-2h2v2h2v-22h-2zm-18 18h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2v-2h2v2zm14 9h-12v-8h12v8zm4 3h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2v-2h2v2z"
-              ></path>
-            </svg>
-            <span>Sample Video</span>
-          </button>
-          <button id="upload-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-              <path
-                d="M12 24c6.627 0 12-5.373 12-12s-5.373-12-12-12-12 5.373-12 12 5.373 12 12 12zm0-22c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm2 14h-4v-1h4v1zm0 1v1h-4v-1h4zm-4-6h-4l6-6 6 6h-4v3h-4v-3z"
-              ></path>
-            </svg>
-            <span>Local Video</span>
-          </button>
-        </div>
-        <input type="file" id="file-input" accept=".bik" />
-      </div>
-
-      <div class="control-buttons">
-        <div class="toggle-btn-wrapper">
-          <button id="toggle-btn" class="btn-primary" disabled>
-            <svg
-              class="toggle-state-stop"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M2 2h20v20h-20z"></path>
-            </svg>
-            <span class="toggle-state-stop">Stop</span>
-            <svg
-              class="toggle-state-play"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M3 22v-20l18 10-18 10z"></path>
-            </svg>
-            <span class="toggle-state-play">Play</span>
-          </button>
-        </div>
-
-        <div class="progress-container">
-          <div class="time-display">
-            <span id="current-time">00:00</span>
-            <span id="duration">00:00</span>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-fill" id="progress-fill"></div>
-          </div>
-        </div>
-
-        <div class="volume-control">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              d="M10 3.75a.75.75 0 00-1.264-.546L4.703 7H3.167a.75.75 0 00-.7.48A6.985 6.985 0 002 10c0 .887.165 1.737.468 2.52.111.29.39.48.7.48h1.535l4.033 3.796A.75.75 0 0010 16.25V3.75zM15.95 5.05a.75.75 0 00-1.06 1.061 5.5 5.5 0 010 7.778.75.75 0 001.06 1.06 7 7 0 000-9.899z"
-            ></path>
-            <path
-              d="M13.829 7.172a.75.75 0 00-1.061 1.06 2.5 2.5 0 010 3.536.75.75 0 001.06 1.06 4 4 0 000-5.656z"
-            ></path>
-          </svg>
-          <input type="range" id="volume-slider" min="0" max="100" value="100" disabled />
-        </div>
-      </div>
-
-      <div class="status-indicator" id="status-indicator">Ready to play</div>
-    </div>
-  </div>
-
-  <!-- Video sample list dialog -->
-  <dialog class="modal" id="video-modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>BIK Video Samples</h2>
-        <button class="modal-close" id="modal-close">
+  <video-player>
+    <div class="video-player">
+      <div class="video-container" id="video-container">
+        <canvas id="video-canvas" width="1280px"></canvas>
+        <div class="video-overlay" id="video-overlay">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -599,91 +488,204 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"></path>
+              d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+            ></path>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
-        </button>
+          <div id="video-overlay-text">
+            <p>Please select a BIK video file to play.</p>
+            <p>
+              You can either select one of the sample videos or a video on your local file system.
+              Your files will be processed on your computer and will
+              <b><i>not</i></b> be transferred to any external systems.
+            </p>
+          </div>
+        </div>
       </div>
-      <div class="modal-info"><b>Warning:</b> some of these videos contain flashing lights.</div>
-      <div class="modal-info">
-        All trademarks, copyrights, and intellectual property rights associated with these
-        third-party media remain the property of their respective owners.
-      </div>
-      <div class="video-list" id="video-list">
-        <div
-          class="video-list-item"
-          data-video-url="https://sembiance.com/fileFormatSamples/video/bink/ATI-9700-Animusic-Movie-v1.0.bik"
-          data-video-origin="https://sembiance.com"
-          data-video-origin-name="sembiance.com"
-        >
-          <div class="video-title">ATI 9700 Animusic Movie</div>
-          <div class="video-origin">source: sembiance.com</div>
+
+      <div class="controls">
+        <div class="video-selector">
+          <div class="video-selector-label">Select Video</div>
+          <div class="video-selector-buttons">
+            <button id="sample-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M22 1v2h-2v-2h-2v4h-12v-4h-2v2h-2v-2h-2v22h2v-2h2v2h2v-4h12v4h2v-2h2v2h2v-22h-2zm-18 18h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2v-2h2v2zm14 9h-12v-8h12v8zm4 3h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2v-2h2v2z"
+                ></path>
+              </svg>
+              <span>Sample Video</span>
+            </button>
+            <button id="upload-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M12 24c6.627 0 12-5.373 12-12s-5.373-12-12-12-12 5.373-12 12 5.373 12 12 12zm0-22c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm2 14h-4v-1h4v1zm0 1v1h-4v-1h4zm-4-6h-4l6-6 6 6h-4v3h-4v-3z"
+                ></path>
+              </svg>
+              <span>Local Video</span>
+            </button>
+          </div>
+          <input type="file" id="file-input" accept=".bik" />
         </div>
-        <div
-          class="video-list-item"
-          data-video-url="https://sembiance.com/fileFormatSamples/video/bink/logo_lucas.bik"
-          data-video-origin="https://sembiance.com"
-          data-video-origin-name="sembiance.com"
-        >
-          <div class="video-title">Lucas Arts logo</div>
-          <div class="video-origin">source: sembiance.com</div>
+
+        <div class="control-buttons">
+          <div class="toggle-btn-wrapper">
+            <button id="toggle-btn" class="btn-primary" disabled>
+              <svg
+                class="toggle-state-stop"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M2 2h20v20h-20z"></path>
+              </svg>
+              <span class="toggle-state-stop">Stop</span>
+              <svg
+                class="toggle-state-play"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M3 22v-20l18 10-18 10z"></path>
+              </svg>
+              <span class="toggle-state-play">Play</span>
+            </button>
+          </div>
+
+          <div class="progress-container">
+            <div class="time-display">
+              <span id="current-time">00:00</span>
+              <span id="duration">00:00</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="progress-fill"></div>
+            </div>
+          </div>
+
+          <div class="volume-control">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                d="M10 3.75a.75.75 0 00-1.264-.546L4.703 7H3.167a.75.75 0 00-.7.48A6.985 6.985 0 002 10c0 .887.165 1.737.468 2.52.111.29.39.48.7.48h1.535l4.033 3.796A.75.75 0 0010 16.25V3.75zM15.95 5.05a.75.75 0 00-1.06 1.061 5.5 5.5 0 010 7.778.75.75 0 001.06 1.06 7 7 0 000-9.899z"
+              ></path>
+              <path
+                d="M13.829 7.172a.75.75 0 00-1.061 1.06 2.5 2.5 0 010 3.536.75.75 0 001.06 1.06 4 4 0 000-5.656z"
+              ></path>
+            </svg>
+            <input type="range" id="volume-slider" min="0" max="100" value="100" disabled />
+          </div>
         </div>
-        <div
-          class="video-list-item"
-          data-video-url="https://raw.githubusercontent.com/dimhotepus/Bink-1-and-2-async-media-player/refs/heads/master/valve.bik"
-          data-video-origin="https://github.com/dimhotepus/Bink-1-and-2-async-media-player"
-          data-video-origin-name="source"
-        >
-          <div class="video-title">Valve logo</div>
-          <div class="video-origin">source: GitHub repository</div>
-        </div>
-        <div
-          class="video-list-item"
-          data-video-url="https://sembiance.com/fileFormatSamples/video/bink/phar_intro.bik"
-          data-video-origin="https://sembiance.com"
-          data-video-origin-name="sembiance.com"
-        >
-          <div class="video-title">Pharaoh intro (interlaced)</div>
-          <div class="video-origin">source: sembiance.com</div>
-        </div>
-        <div
-          class="video-list-item"
-          data-video-url="https://sembiance.com/fileFormatSamples/video/bink/original.bik"
-          data-video-origin="https://sembiance.com"
-          data-video-origin-name="sembiance.com"
-        >
-          <div class="video-title">Bugbear Entertainment intro</div>
-          <div class="video-origin">source: sembiance.com</div>
-        </div>
-        <div
-          class="video-list-item"
-          data-video-url="https://sembiance.com/fileFormatSamples/video/bink/intro.bik"
-          data-video-origin="https://sembiance.com"
-          data-video-origin-name="sembiance.com"
-        >
-          <div class="video-title">intro.bik (anime-style)</div>
-          <div class="video-origin">source: sembiance.com</div>
-        </div>
-        <div
-          class="video-list-item"
-          data-video-url="https://sembiance.com/fileFormatSamples/video/bink/OpenPt1.bik"
-          data-video-origin="https://sembiance.com"
-          data-video-origin-name="sembiance.com"
-        >
-          <div class="video-title">OpenPt1.bik</div>
-          <div class="video-origin">source: sembiance.com</div>
-        </div>
-        <div
-          class="video-list-item"
-          data-video-url="https://sembiance.com/fileFormatSamples/video/bink/end_victory.bik"
-          data-video-origin="https://sembiance.com"
-          data-video-origin-name="sembiance.com"
-        >
-          <div class="video-title">end_victory.bik</div>
-          <div class="video-origin">source: sembiance.com</div>
-        </div>
+
+        <div class="status-indicator" id="status-indicator">Ready to play</div>
       </div>
     </div>
-  </dialog>
+
+    <!-- Video sample list dialog -->
+    <dialog class="modal" id="video-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>BIK Video Samples</h2>
+          <button class="modal-close" id="modal-close">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-info"><b>Warning:</b> some of these videos contain flashing lights.</div>
+        <div class="modal-info">
+          All trademarks, copyrights, and intellectual property rights associated with these
+          third-party media remain the property of their respective owners.
+        </div>
+        <div class="video-list" id="video-list">
+          <div
+            class="video-list-item"
+            data-video-url="https://sembiance.com/fileFormatSamples/video/bink/ATI-9700-Animusic-Movie-v1.0.bik"
+            data-video-origin="https://sembiance.com"
+            data-video-origin-name="sembiance.com"
+          >
+            <div class="video-title">ATI 9700 Animusic Movie</div>
+            <div class="video-origin">source: sembiance.com</div>
+          </div>
+          <div
+            class="video-list-item"
+            data-video-url="https://sembiance.com/fileFormatSamples/video/bink/logo_lucas.bik"
+            data-video-origin="https://sembiance.com"
+            data-video-origin-name="sembiance.com"
+          >
+            <div class="video-title">Lucas Arts logo</div>
+            <div class="video-origin">source: sembiance.com</div>
+          </div>
+          <div
+            class="video-list-item"
+            data-video-url="https://raw.githubusercontent.com/dimhotepus/Bink-1-and-2-async-media-player/refs/heads/master/valve.bik"
+            data-video-origin="https://github.com/dimhotepus/Bink-1-and-2-async-media-player"
+            data-video-origin-name="source"
+          >
+            <div class="video-title">Valve logo</div>
+            <div class="video-origin">source: GitHub repository</div>
+          </div>
+          <div
+            class="video-list-item"
+            data-video-url="https://sembiance.com/fileFormatSamples/video/bink/phar_intro.bik"
+            data-video-origin="https://sembiance.com"
+            data-video-origin-name="sembiance.com"
+          >
+            <div class="video-title">Pharaoh intro (interlaced)</div>
+            <div class="video-origin">source: sembiance.com</div>
+          </div>
+          <div
+            class="video-list-item"
+            data-video-url="https://sembiance.com/fileFormatSamples/video/bink/original.bik"
+            data-video-origin="https://sembiance.com"
+            data-video-origin-name="sembiance.com"
+          >
+            <div class="video-title">Bugbear Entertainment intro</div>
+            <div class="video-origin">source: sembiance.com</div>
+          </div>
+          <div
+            class="video-list-item"
+            data-video-url="https://sembiance.com/fileFormatSamples/video/bink/intro.bik"
+            data-video-origin="https://sembiance.com"
+            data-video-origin-name="sembiance.com"
+          >
+            <div class="video-title">intro.bik (anime-style)</div>
+            <div class="video-origin">source: sembiance.com</div>
+          </div>
+          <div
+            class="video-list-item"
+            data-video-url="https://sembiance.com/fileFormatSamples/video/bink/OpenPt1.bik"
+            data-video-origin="https://sembiance.com"
+            data-video-origin-name="sembiance.com"
+          >
+            <div class="video-title">OpenPt1.bik</div>
+            <div class="video-origin">source: sembiance.com</div>
+          </div>
+          <div
+            class="video-list-item"
+            data-video-url="https://sembiance.com/fileFormatSamples/video/bink/end_victory.bik"
+            data-video-origin="https://sembiance.com"
+            data-video-origin-name="sembiance.com"
+          >
+            <div class="video-title">end_victory.bik</div>
+            <div class="video-origin">source: sembiance.com</div>
+          </div>
+        </div>
+      </div>
+    </dialog>
+  </video-player>
 
   <script>
     import { BikPlayer } from "../components/bik-player.ts";
@@ -700,79 +702,7 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
       volume: number;
     }
 
-    const playerState: PlayerState = {
-      playing: false,
-      currentVideo: null,
-      currentVideoOrigin: null,
-      currentVideoOriginName: null,
-      currentTime: 0,
-      currentFrame: 0,
-      totalFrames: 0,
-      targetFps: 0,
-      volume: 100,
-    };
-    let player: BikPlayer | null = null;
-
-    // Create the video player (with the decoder), supplying it with the video canvas.
-    const canvas = document.getElementById("video-canvas") as HTMLCanvasElement | undefined;
-    if (canvas) {
-      player = new BikPlayer({
-        canvas,
-        onAspectRatioSet: (ratio) => {
-          const videoContainer = document.getElementsByClassName("video-container")?.[0] as
-            | HTMLDivElement
-            | undefined;
-          if (videoContainer) {
-            videoContainer.style = `aspect-ratio: ${ratio}`;
-          }
-        },
-        onUpdateUI,
-      });
-    }
-
-    // UI Elements
-    const uploadBtn = document.getElementById("upload-btn") as HTMLButtonElement;
-    const sampleBtn = document.getElementById("sample-btn") as HTMLButtonElement;
-    const fileInput = document.getElementById("file-input") as HTMLInputElement;
-    const toggleBtn = document.getElementById("toggle-btn") as HTMLButtonElement;
-    const progressFill = document.getElementById("progress-fill") as HTMLDivElement;
-    const currentTimeEl = document.getElementById("current-time") as HTMLDivElement;
-    const durationEl = document.getElementById("duration") as HTMLDivElement;
-    const volumeSlider = document.getElementById("volume-slider") as HTMLInputElement;
-    const statusIndicator = document.getElementById("status-indicator") as HTMLDivElement;
-    const videoOverlay = document.getElementById("video-overlay") as HTMLDivElement;
-    const videoOverlayText = document.getElementById("video-overlay-text") as HTMLDivElement;
-    const videoModal = document.getElementById("video-modal") as HTMLDialogElement;
-    const videoList = document.getElementById("video-list") as HTMLDivElement;
-    const modalClose = document.getElementById("modal-close") as HTMLButtonElement;
-
-    // Handlers for events from the video player module
-    async function onUpdateUI({
-      currentFrame,
-      totalFrames,
-      fps,
-    }: {
-      currentFrame: number;
-      totalFrames: number;
-      fps: number;
-    }) {
-      playerState.currentFrame = currentFrame;
-      playerState.totalFrames = totalFrames;
-      playerState.targetFps = fps;
-      updateTimeDisplay();
-
-      if (playerState.currentFrame >= playerState.totalFrames - 1) {
-        await stopVideo();
-      }
-
-      // Enable the play button and update the overlay if we're now ready to play a video
-      if (toggleBtn.disabled) {
-        toggleBtn.disabled = false;
-        await playVideo();
-      }
-    }
-
-    // Format time helper
+    // Helper to format a timestamp as a suitable string.
     function formatTime(seconds: number) {
       if (Number.isFinite(seconds)) {
         const mins = Math.floor(seconds / 60);
@@ -783,174 +713,270 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
       }
     }
 
-    // Update display
-    function updateTimeDisplay() {
-      currentTimeEl.textContent = formatTime(playerState.currentFrame / playerState.targetFps);
-      durationEl.textContent = formatTime(playerState.totalFrames / playerState.targetFps);
-      progressFill.style.width = `${(playerState.currentFrame / playerState.totalFrames) * 100}%`;
-    }
+    class VideoPlayer extends HTMLElement {
+      #playerState: PlayerState;
+      #player: BikPlayer | null = null;
 
-    // Update toggle button appearance
-    function updateToggleButton() {
-      if (playerState.playing) {
-        toggleBtn.classList.add("btn-stop");
-        toggleBtn.classList.remove("btn-primary");
-        uploadBtn.disabled = true;
-        sampleBtn.disabled = true;
-      } else {
-        toggleBtn.classList.add("btn-primary");
-        toggleBtn.classList.remove("btn-stop");
-        uploadBtn.disabled = false;
-        sampleBtn.disabled = false;
+      #currentTimeEl: HTMLDivElement | null = null;
+      #durationEl: HTMLDivElement | null = null;
+      #progressFill: HTMLDivElement | null = null;
+      #sampleBtn: HTMLButtonElement | null = null;
+      #statusIndicator: HTMLDivElement | null = null;
+      #toggleBtn: HTMLButtonElement | null = null;
+      #uploadBtn: HTMLButtonElement | null = null;
+      #videoContainer: HTMLDivElement | null = null;
+      #videoOverlay: HTMLDivElement | null = null;
+      #videoOverlayText: HTMLDivElement | null = null;
+
+      constructor() {
+        super();
+        this.#playerState = {
+          playing: false,
+          currentVideo: null,
+          currentVideoOrigin: null,
+          currentVideoOriginName: null,
+          currentTime: 0,
+          currentFrame: 0,
+          totalFrames: 0,
+          targetFps: 0,
+          volume: 100,
+        };
       }
-    }
 
-    function getVideoOriginLink() {
-      return `<a href="${playerState.currentVideoOrigin}" rel="noreferrer noopener" target="_blank" style="pointer-events: all">${playerState.currentVideoOriginName}</a>`;
-    }
+      connectedCallback() {
+        console.log("Connecting...");
+        // Create the video player (with the decoder), supplying it with the video canvas.
+        const canvas = this.querySelector("#video-canvas") as HTMLCanvasElement | undefined;
+        if (canvas) {
+          this.#player = new BikPlayer({
+            canvas,
+            onAspectRatioSet: (ratio) => {
+              this.#videoContainer.style = `aspect-ratio: ${ratio}`;
+            },
+            onUpdateUI: async ({
+              currentFrame,
+              totalFrames,
+              fps,
+            }: {
+              currentFrame: number;
+              totalFrames: number;
+              fps: number;
+            }) => {
+              this.#playerState.currentFrame = currentFrame;
+              this.#playerState.totalFrames = totalFrames;
+              this.#playerState.targetFps = fps;
+              this.updateTimeDisplay();
 
-    // Placeholder functions for controls
-    async function playVideo() {
-      await player?.play();
+              if (this.#playerState.currentFrame >= this.#playerState.totalFrames - 1) {
+                await this.stopVideo();
+              }
 
-      playerState.playing = true;
-      videoOverlay.style.display = "none";
-      updateToggleButton();
-      updateStatus(
-        `Playing: ${playerState.currentVideo}${playerState.currentVideoOrigin ? ` (${getVideoOriginLink()})` : ""}`,
-        true
-      );
-    }
-
-    async function stopVideo() {
-      await player?.stop();
-
-      playerState.playing = false;
-      playerState.currentTime = 0;
-      updateToggleButton();
-      videoOverlay.style.display = "block";
-      updateTimeDisplay();
-      updateStatus(
-        `Stopped: ${playerState.currentVideo}${playerState.currentVideoOrigin ? ` (${getVideoOriginLink()})` : ""}`,
-        false
-      );
-
-      videoOverlayText.innerHTML = `<p>Ready to play: ${playerState.currentVideo}</p>`;
-      if (playerState.currentVideoOrigin) {
-        videoOverlayText.innerHTML += `<p>Video streamed from:</p><p>${getVideoOriginLink()}</p>`;
-      }
-    }
-
-    async function togglePlayStop() {
-      if (playerState.playing) {
-        await stopVideo();
-      } else {
-        await playVideo();
-      }
-    }
-
-    function selectVideo(videoName: string, videoOrigin: string, videoOriginName: string) {
-      playerState.currentVideo = videoName;
-      playerState.currentVideoOrigin = videoOrigin;
-      playerState.currentVideoOriginName = videoOriginName;
-      setReadyingVideoState();
-    }
-
-    function uploadVideoFile(file: File) {
-      playerState.currentVideo = file.name;
-      playerState.currentVideoOrigin = null;
-      playerState.currentVideoOriginName = null;
-      setReadyingVideoState();
-    }
-
-    function setReadyingVideoState() {
-      playerState.currentTime = 0;
-      playerState.playing = false;
-      toggleBtn.disabled = true;
-
-      updateToggleButton();
-      updateStatus(
-        `Selected: ${playerState.currentVideo}${playerState.currentVideoOrigin ? ` (${getVideoOriginLink()})` : ""}`,
-        false
-      );
-
-      // Update overlay
-      videoOverlayText.innerHTML = "Preparing video...";
-    }
-
-    function changeVolume(volume: number) {
-      playerState.volume = volume;
-    }
-
-    // Update status indicator
-    function updateStatus(message: string, isActive: boolean) {
-      statusIndicator.innerHTML = message;
-      statusIndicator.classList.toggle("active", isActive);
-    }
-
-    // Event listeners
-    toggleBtn.addEventListener("click", (e) => {
-      togglePlayStop();
-      (e?.target as HTMLButtonElement | undefined)?.blur();
-    });
-
-    uploadBtn.addEventListener("click", (e) => {
-      fileInput.click();
-      (e?.target as HTMLButtonElement | undefined)?.blur();
-    });
-
-    fileInput.addEventListener("change", async (e) => {
-      const files = (e?.target as HTMLInputElement | undefined)?.files;
-      if (files && files[0]) {
-        if (playerState.playing) {
-          await stopVideo();
+              // Enable the play button and update the overlay if we're now ready to play a video
+              if (this.#toggleBtn.disabled) {
+                this.#toggleBtn.disabled = false;
+                await this.playVideo();
+              }
+            },
+          });
         }
-        uploadVideoFile(files[0]);
-        await player?.loadFile(files[0]);
+
+        // UI Elements
+        this.#uploadBtn = this.querySelector("#upload-btn") as HTMLButtonElement;
+        this.#sampleBtn = this.querySelector("#sample-btn") as HTMLButtonElement;
+        const fileInput = this.querySelector("#file-input") as HTMLInputElement;
+        this.#toggleBtn = this.querySelector("#toggle-btn") as HTMLButtonElement;
+        this.#progressFill = this.querySelector("#progress-fill") as HTMLDivElement;
+        this.#currentTimeEl = this.querySelector("#current-time") as HTMLDivElement;
+        this.#durationEl = this.querySelector("#duration") as HTMLDivElement;
+        const volumeSlider = this.querySelector("#volume-slider") as HTMLInputElement;
+        this.#statusIndicator = this.querySelector("#status-indicator") as HTMLDivElement;
+        this.#videoContainer = this.querySelector("#video-container") as HTMLDivElement;
+        this.#videoOverlay = this.querySelector("#video-overlay") as HTMLDivElement;
+        this.#videoOverlayText = this.querySelector("#video-overlay-text") as HTMLDivElement;
+        const videoModal = this.querySelector("#video-modal") as HTMLDialogElement;
+        const videoList = this.querySelector("#video-list") as HTMLDivElement;
+        const modalClose = this.querySelector("#modal-close") as HTMLButtonElement;
+
+        // Event listeners
+        this.#toggleBtn.addEventListener("click", (e) => {
+          this.togglePlayStop();
+          (e?.target as HTMLButtonElement | undefined)?.blur();
+        });
+
+        this.#uploadBtn.addEventListener("click", (e) => {
+          fileInput.click();
+          (e?.target as HTMLButtonElement | undefined)?.blur();
+        });
+
+        fileInput.addEventListener("change", async (e) => {
+          const files = (e?.target as HTMLInputElement | undefined)?.files;
+          if (files && files[0]) {
+            if (this.#playerState.playing) {
+              await this.stopVideo();
+            }
+            this.uploadVideoFile(files[0]);
+            await this.#player?.loadFile(files[0]);
+          }
+        });
+
+        this.#sampleBtn.addEventListener("click", () => {
+          videoModal.showModal();
+        });
+
+        modalClose.addEventListener("click", () => {
+          videoModal.close();
+        });
+
+        videoModal.addEventListener("click", (e) => {
+          if (e.target === videoModal) {
+            videoModal.close();
+          }
+        });
+
+        videoList.addEventListener("click", async (e) => {
+          const item = (e?.target as HTMLDivElement | undefined)?.closest(".video-list-item") as
+            | HTMLElement
+            | undefined;
+          if (item) {
+            const videoUrl = item.dataset.videoUrl ?? "";
+            const videoOrigin = item.dataset.videoOrigin ?? "";
+            const videoOriginName = item.dataset.videoOriginName ?? "Unknown";
+            const videoTitle = item.querySelector(".video-title")?.textContent ?? "Unknown";
+            if (this.#playerState.playing) {
+              await this.stopVideo();
+            }
+            this.selectVideo(videoTitle, videoOrigin, videoOriginName);
+            videoModal.close();
+            await this.#player?.loadFile(videoUrl);
+          }
+        });
+
+        volumeSlider.addEventListener("input", (e) => {
+          this.changeVolume(
+            ((e?.target as HTMLInputElement | undefined)?.value as number | undefined) ?? 0,
+          );
+        });
+
+        // Initialize
+        this.updateTimeDisplay();
+        this.updateToggleButton();
+        this.updateStatus("Select a video to play", false);
       }
-    });
 
-    sampleBtn.addEventListener("click", () => {
-      videoModal.showModal();
-    });
-
-    modalClose.addEventListener("click", () => {
-      videoModal.close();
-    });
-
-    videoModal.addEventListener("click", (e) => {
-      if (e.target === videoModal) {
-        videoModal.close();
+      disconnectedCallback() {
+        console.log("Disconnecting...");
+        this.#player?.close();
       }
-    });
 
-    videoList.addEventListener("click", async (e) => {
-      const item = (e?.target as HTMLDivElement | undefined)?.closest(".video-list-item") as
-        | HTMLElement
-        | undefined;
-      if (item) {
-        const videoUrl = item.dataset.videoUrl ?? "";
-        const videoOrigin = item.dataset.videoOrigin ?? "";
-        const videoOriginName = item.dataset.videoOriginName ?? "Unknown";
-        const videoTitle = item.querySelector(".video-title")?.textContent ?? "Unknown";
-        if (playerState.playing) {
-          await stopVideo();
+      // Update display
+      updateTimeDisplay() {
+        this.#currentTimeEl.textContent = formatTime(
+          this.#playerState.currentFrame / this.#playerState.targetFps,
+        );
+        this.#durationEl.textContent = formatTime(
+          this.#playerState.totalFrames / this.#playerState.targetFps,
+        );
+        this.#progressFill.style.width = `${(this.#playerState.currentFrame / this.#playerState.totalFrames) * 100}%`;
+      }
+
+      // Update toggle button appearance
+      updateToggleButton() {
+        if (this.#playerState.playing) {
+          this.#toggleBtn.classList.add("btn-stop");
+          this.#toggleBtn.classList.remove("btn-primary");
+          this.#uploadBtn.disabled = true;
+          this.#sampleBtn.disabled = true;
+        } else {
+          this.#toggleBtn.classList.add("btn-primary");
+          this.#toggleBtn.classList.remove("btn-stop");
+          this.#uploadBtn.disabled = false;
+          this.#sampleBtn.disabled = false;
         }
-        selectVideo(videoTitle, videoOrigin, videoOriginName);
-        videoModal.close();
-        await player?.loadFile(videoUrl);
       }
-    });
 
-    volumeSlider.addEventListener("input", (e) => {
-      changeVolume(
-        ((e?.target as HTMLInputElement | undefined)?.value as number | undefined) ?? 0
-      );
-    });
+      getVideoOriginLink() {
+        return `<a href="${this.#playerState.currentVideoOrigin}" rel="noreferrer noopener" target="_blank" style="pointer-events: all">${this.#playerState.currentVideoOriginName}</a>`;
+      }
 
-    // Initialize
-    updateTimeDisplay();
-    updateToggleButton();
-    updateStatus("Select a video to play", false);
+      async playVideo() {
+        await this.#player?.play();
+
+        this.#playerState.playing = true;
+        this.#videoOverlay.style.display = "none";
+        this.updateToggleButton();
+        this.updateStatus(
+          `Playing: ${this.#playerState.currentVideo}${this.#playerState.currentVideoOrigin ? ` (${this.getVideoOriginLink()})` : ""}`,
+          true,
+        );
+      }
+
+      async stopVideo() {
+        await this.#player?.stop();
+
+        this.#playerState.playing = false;
+        this.#playerState.currentTime = 0;
+        this.updateToggleButton();
+        this.#videoOverlay.style.display = "block";
+        this.updateTimeDisplay();
+        this.updateStatus(
+          `Stopped: ${this.#playerState.currentVideo}${this.#playerState.currentVideoOrigin ? ` (${this.getVideoOriginLink()})` : ""}`,
+          false,
+        );
+
+        this.#videoOverlayText.innerHTML = `<p>Ready to play: ${this.#playerState.currentVideo}</p>`;
+        if (this.#playerState.currentVideoOrigin) {
+          this.#videoOverlayText.innerHTML += `<p>Video streamed from:</p><p>${this.getVideoOriginLink()}</p>`;
+        }
+      }
+
+      async togglePlayStop() {
+        if (this.#playerState.playing) {
+          await this.stopVideo();
+        } else {
+          await this.playVideo();
+        }
+      }
+
+      selectVideo(videoName: string, videoOrigin: string, videoOriginName: string) {
+        this.#playerState.currentVideo = videoName;
+        this.#playerState.currentVideoOrigin = videoOrigin;
+        this.#playerState.currentVideoOriginName = videoOriginName;
+        this.setReadyingVideoState();
+      }
+
+      uploadVideoFile(file: File) {
+        this.#playerState.currentVideo = file.name;
+        this.#playerState.currentVideoOrigin = null;
+        this.#playerState.currentVideoOriginName = null;
+        this.setReadyingVideoState();
+      }
+
+      setReadyingVideoState() {
+        this.#playerState.currentTime = 0;
+        this.#playerState.playing = false;
+        this.#toggleBtn.disabled = true;
+
+        this.updateToggleButton();
+        this.updateStatus(
+          `Selected: ${this.#playerState.currentVideo}${this.#playerState.currentVideoOrigin ? ` (${this.getVideoOriginLink()})` : ""}`,
+          false,
+        );
+
+        // Update overlay
+        this.#videoOverlayText.innerHTML = "Preparing video...";
+      }
+
+      changeVolume(volume: number) {
+        this.#playerState.volume = volume;
+      }
+
+      // Update status indicator
+      updateStatus(message: string, isActive: boolean) {
+        this.#statusIndicator.innerHTML = message;
+        this.#statusIndicator.classList.toggle("active", isActive);
+      }
+    }
+
+    customElements.define("video-player", VideoPlayer);
   </script>
 </StarlightPage>

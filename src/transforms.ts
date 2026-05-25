@@ -11,8 +11,8 @@ interface IDxT extends Generator<void, void, Float32Array> {
    * For IRDFT, a forward FFT/DFT is used and pre-processing applied to ensure the result is an
    * inverse transformation.
    *
-   * Input format for IRDFT: data[0]=Re[0] (DC), data[1]=Re[N/2] (Nyquist),
-   *                         data[2k]=Re[k],     data[2k+1]=Im[k] for k=1..N/2-1
+   * Input format for IRDFT: data[0]=Re[0] (DC), data[1]=Re[N/2] (Nyquist), data[2k]=Re[k],
+   * data[2k+1]=Im[k] for k=1..N/2-1
    *
    * @param value Real-valued frequency domain samples of length `n`, which are converted in-place
    *   to real-valued time domain samples.
@@ -30,14 +30,14 @@ interface IDxT extends Generator<void, void, Float32Array> {
  *
  * ### 1D Inverse Real Discrete Fourier Transform (IRDFT)
  *
- * This implementation provides the inverse RDFT transform for real-valued data, optimized using
- * the Cooley-Tukey FFT algorithm.
+ * This implementation provides the inverse RDFT transform for real-valued data, optimized using the
+ * Cooley-Tukey FFT algorithm.
  *
- * @param nBits Number of values passed for processing with each iteration. Expressed as a power
- *   of 2.
+ * @param nBits Number of values passed for processing with each iteration. Expressed as a power of
+ *   2.
  * @param useDCT `true` when the values passed for processing are encoded using DCTs (discrete
- *   cosine transforms), otherwise `false` when they are encoded using RDFTs (real discrete
- *   Fourier transforms).
+ *   cosine transforms), otherwise `false` when they are encoded using RDFTs (real discrete Fourier
+ *   transforms).
  */
 function* genIDxT(nBits: IntRange<4, 17>, useDCT: boolean): IDxT {
   /*
@@ -179,8 +179,8 @@ interface FFT extends Generator<void, void, Float32Array> {
  *
  * Standard Cooley-Tukey radix-2 decimation-in-time FFT.
  *
- * @param nBits Number of values passed for processing with each iteration. Expressed as a power
- *   of 2.
+ * @param nBits Number of values passed for processing with each iteration. Expressed as a power of
+ *   2.
  */
 function* genFFT(nBits: IntRange<2, 17>): FFT {
   /*
@@ -276,11 +276,11 @@ function* genFFT(nBits: IntRange<2, 17>): FFT {
 /**
  * 1D DCT-III (inverse of DCT-II, sometimes just called IDCT).
  *
- * Fast approximation using signed integers. Optimized for 8 element arrays.
- * Based on the Arai-Agui-Nakajima (AAN) algorithm.
+ * Fast approximation using signed integers. Optimized for 8 element arrays. Based on the
+ * Arai-Agui-Nakajima (AAN) algorithm.
  *
- * This function can be run on each column and row of an 8x8 block as part of calculating a
- * 2D IDCT.
+ * This function can be run on each column and row of an 8x8 block as part of calculating a 2D IDCT.
+ *
  * @param src Input buffer containing the coefficients to transform.
  * @param srcOffset Offset in the input buffer of the start of the coefficients to transform.
  * @param dest Output buffer to write the result of the transformation to.
@@ -342,22 +342,17 @@ const idct = (
 /**
  * 2D DCT-III (inverse of DCT-II, sometimes just called IDCT).
  *
- * Fast approximation using signed integers. Optimized for 8x8 element blocks.
- * Based on the Arai-Agui-Nakajima (AAN) algorithm.
+ * Fast approximation using signed integers. Optimized for 8x8 element blocks. Based on the
+ * Arai-Agui-Nakajima (AAN) algorithm.
  *
  * Runs the 1D variant on each column and row of the 8x8 entry block.
+ *
  * @param block Input buffer containing the 64 (8x8) coefficients to transform.
  * @param dest Output buffer to write the result of the transformation to.
  * @param destOffset Offset in the output buffer to write the output of the transformation to.
- * @param stride Amount to add to `destOffset` to get the next block row in the output
- *   buffer.
+ * @param stride Amount to add to `destOffset` to get the next block row in the output buffer.
  */
-const idctPut = (
-  block: Int32Array,
-  dest: Uint8Array,
-  destOffset: number,
-  stride: number,
-): void => {
+const idctPut = (block: Int32Array, dest: Uint8Array, destOffset: number, stride: number): void => {
   let i: number;
 
   for (i = 0; i < 8; i++) {
@@ -374,15 +369,10 @@ const idctPut = (
 };
 
 /**
- * Variant of {@link #idctPut} that adds the result of the transformation to the values in the
- * output buffer instead of overwriting them.
+ * Variant of {@link #idctPut} that adds the result of the transformation to the values in the output
+ * buffer instead of overwriting them.
  */
-const idctAdd = (
-  block: Int32Array,
-  dest: Uint8Array,
-  destOffset: number,
-  stride: number,
-): void => {
+const idctAdd = (block: Int32Array, dest: Uint8Array, destOffset: number, stride: number): void => {
   let i: number;
 
   for (i = 0; i < 8; i++) {
@@ -398,11 +388,12 @@ const idctAdd = (
 
 /**
  * Add one 8x8 block of values to another, and store the resulting values in the latter block.
+ *
  * @param block 8x8 block of consecutive values to add to the destination block.
  * @param dest Array of values containing the destination block.
  * @param destOffset Offset of the start of the destination block within {@link dest}.
- * @param stride Length of a "line" or "row" of values in {@link dest}. This value will be added
- *   to get from one row of the destination block to the next.
+ * @param stride Length of a "line" or "row" of values in {@link dest}. This value will be added to
+ *   get from one row of the destination block to the next.
  */
 const addBlock8x8 = (
   block: Int32Array,
