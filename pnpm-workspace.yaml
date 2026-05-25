@@ -1,0 +1,17 @@
+allowBuilds:
+  "esbuild": false
+  "sharp": false
+
+overrides:
+  "tinybench": "https://registry.npmjs.org/tinybench/-/tinybench-5.1.0.tgz"
+  "typescript": "$typescript"
+  "vitest>vite": "$vite"
+  "@vitest/mocker>vite": "$vite"
+
+patchedDependencies:
+  "@arethetypeswrong/core": patches/@arethetypeswrong__core.patch
+  "starlight-theme-rapide": "patches/starlight-theme-rapide.patch"
+
+peerDependencyRules:
+  allowedVersions:
+    "vite": "8.x"

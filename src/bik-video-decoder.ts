@@ -1,8 +1,7 @@
-/**
- * Module holding video decoding logic for the BIK decoder.
- */
+/** Module holding video decoding logic for the BIK decoder. */
 
 import type { FixedLengthArray, IntRange, Simplify, TupleOf } from "type-fest";
+
 import {
   buildQuantTables,
   createArrayOfLen,
@@ -31,48 +30,40 @@ let constantsInitialized = false;
  * not used by the decoder for any subsequent processing, so can be used by an application freely.
  */
 export interface BikVideoFrame {
-  /**
-   * Coded width of the video frame (in pixels).
-   */
+  /** Coded width of the video frame (in pixels). */
   width: number;
 
-  /**
-   * Coded height of the video frame (in pixels).
-   */
+  /** Coded height of the video frame (in pixels). */
   height: number;
 
   /**
    * Pixel data for the video frame, encoded in Planar YUV 4:2:0 format with an optional alpha
    * channel. The planes are stored in the order: Y, U, V, alpha. Each of the Y and alpha planes
    * occupy 4 times as much space in the buffer as either the U or V plane (as would be expected
-   * given the encoding format), and the total buffer size is set to be just enough to hold all
-   * of the planes.
+   * given the encoding format), and the total buffer size is set to be just enough to hold all of
+   * the planes.
    */
   yuv: Uint8Array<ArrayBuffer>;
 
   /**
-   * The number of pixels per line of the video frame, stored as an array of per-plane values in
-   * the order: Y, U, V, alpha.
+   * The number of pixels per line of the video frame, stored as an array of per-plane values in the
+   * order: Y, U, V, alpha.
    */
   lineSize: number[];
 }
 
 interface Tree {
-  /**
-   * Index of the pre-defined variable length coding table to use.
-   */
+  /** Index of the pre-defined variable length coding table to use. */
   table_: HuffTable;
 
-  /**
-   * Mapping of symbols decoded from the table to final decoded values.
-   */
+  /** Mapping of symbols decoded from the table to final decoded values. */
   symbolMap_: FixedLenUint8Array<16>;
 }
 
 /**
- * Stores an array of values (items) for a parameter used during block decoding. Each entry in
- * the array represents a decoded value for that parameter, stored in the order that the decoder
- * should read them.
+ * Stores an array of values (items) for a parameter used during block decoding. Each entry in the
+ * array represents a decoded value for that parameter, stored in the order that the decoder should
+ * read them.
  */
 interface BlockParamValues {
   len_: number;
@@ -95,10 +86,10 @@ type TPlaneIndex = IntRange<0, 4>;
 /**
  * Huffman table implementation for variable length coding.
  *
- * A Huffman table can be used to decode a prefix code in a bit-stream by reading ahead
- * ("peeking at") a number of bits from the bit-stream equal to the length of the longest
- * prefix code in the table. A cache is then used to lookup the code and get the actual code
- * length and the decoded symbol.
+ * A Huffman table can be used to decode a prefix code in a bit-stream by reading ahead ("peeking
+ * at") a number of bits from the bit-stream equal to the length of the longest prefix code in the
+ * table. A cache is then used to lookup the code and get the actual code length and the decoded
+ * symbol.
  */
 class HuffTable {
   // Symbols and lengths combined. Most significant 4 bits hold the symbol; least significant
@@ -136,6 +127,7 @@ class HuffTable {
 
   /**
    * Decode the next Huffman symbol in a bit-stream.
+   *
    * @param reader Bit-stream to read from.
    * @param tree Huffman tree to use for decoding.
    * @returns 4-bit value, Huffman-decoded from the bit-stream.
@@ -154,13 +146,16 @@ export interface BikVideoDecoderPayload {
   existingFrame_: BikVideoFrame | null | undefined;
 }
 
-export interface BikVideoDecoder
-  extends Generator<BikVideoFrame | null, BikVideoFrame | null, BikVideoDecoderPayload> {
+export interface BikVideoDecoder extends Generator<
+  BikVideoFrame | null,
+  BikVideoFrame | null,
+  BikVideoDecoderPayload
+> {
   /**
    * Decode a byte array of encoded BIK video data.
    *
-   * @param payload Encoded BIK video data with an optional previously decoded frame to re-use
-   *   (to reduce garbage collection).
+   * @param payload Encoded BIK video data with an optional previously decoded frame to re-use (to
+   *   reduce garbage collection).
    * @returns Decoded frame.
    */
   next(
@@ -168,9 +163,7 @@ export interface BikVideoDecoder
   ): IteratorResult<BikVideoFrame | null, BikVideoFrame | null>;
 }
 
-/**
- * Create a generator for decoding packets of BIK video data.
- */
+/** Create a generator for decoding packets of BIK video data. */
 export function* genBikVideoDecoder(
   width: number,
   height: number,
@@ -238,7 +231,7 @@ export function* genBikVideoDecoder(
   // Input bit-stream for the current frame
   const reader = new BitReader(EMPTY_UINT8_ARRAY);
 
-  const blockParams = (Array<BlockParamValues>).from({ length: NUM_BLOCK_PARAMS }) as TupleOf<
+  const blockParams = Array.from({ length: NUM_BLOCK_PARAMS }) as TupleOf<
     typeof NUM_BLOCK_PARAMS,
     BlockParamValues
   >;
@@ -248,7 +241,7 @@ export function* genBikVideoDecoder(
   const blocks = (numPixels + 63) >>> 6;
   const numBlockPixels = blocks << 6;
   for (let i = 0; i < NUM_BLOCK_PARAMS; i++) {
-    (blockParams[i as IntRange<0, typeof NUM_BLOCK_PARAMS>] as BlockParamValues) = {
+    blockParams[i as IntRange<0, typeof NUM_BLOCK_PARAMS>] = {
       len_: 0,
       tree_: {
         table_: PREDEFINED_HUFF_TABLES[0],
@@ -535,8 +528,9 @@ export function* genBikVideoDecoder(
   };
 
   /**
-   * For a tree with a pre-defined Huffman table, rearrange the symbols based on the symbol
-   * order information read from the bit-stream.
+   * For a tree with a pre-defined Huffman table, rearrange the symbols based on the symbol order
+   * information read from the bit-stream.
+   *
    * @param tree Huffman tree
    */
   const readTree = (tree: Tree): void => {
@@ -623,8 +617,8 @@ export function* genBikVideoDecoder(
   };
 
   /**
-   * Read Huffman tree information from the bit-stream for each block type in the current
-   * plane.
+   * Read Huffman tree information from the bit-stream for each block type in the current plane.
+   *
    * @param width Coded width of the video (pixels).
    * @param blockWidth Coded width of the video (number of 8x8 blocks).
    */
@@ -670,6 +664,7 @@ export function* genBikVideoDecoder(
 
   /**
    * Calculate the number of block parameter values that should be read from the bit-stream.
+   *
    * @param blockParamValues State of the block parameter.
    * @returns Number of block parameter values.
    */
@@ -732,11 +727,7 @@ export function* genBikVideoDecoder(
       }
 
       if (isRun) {
-        blockParamValues.items_.fill(
-          v,
-          blockParamValues.curDec_,
-          blockParamValues.curDec_ + count,
-        );
+        blockParamValues.items_.fill(v, blockParamValues.curDec_, blockParamValues.curDec_ + count);
         blockParamValues.curDec_ += count;
       } else {
         blockParamValues.items_[blockParamValues.curDec_++] = v;
@@ -848,6 +839,7 @@ export function* genBikVideoDecoder(
 
   /**
    * Get the next block parameter value for the current line.
+   *
    * @param blockParamNum Index of the block parameter.
    * @returns Next value for the block parameter.
    */
@@ -860,8 +852,9 @@ export function* genBikVideoDecoder(
    * Mini-VM (virtual machine) to decode and optionally unquantize a block of integer values.
    * Updates the block in-place with the decoded/unquantized values.
    *
-   * Block is decoded as a "residue" block of small values when to quantization table is
-   * supplied, otherwise the block is decoded and unquantized to DCT coefficients.
+   * Block is decoded as a "residue" block of small values when to quantization table is supplied,
+   * otherwise the block is decoded and unquantized to DCT coefficients.
+   *
    * @param block Block to decode/unquantize (updated in-place).
    * @param quant Quantization lookup table to use.
    */

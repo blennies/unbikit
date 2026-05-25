@@ -1,0 +1,42 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": { "correctness": "error", "perf": "warn", "suspicious": "warn" },
+  "options": { "typeAware": true, "typeCheck": true },
+  "plugins": [
+    "eslint",
+    "import",
+    "jsdoc",
+    "node",
+    "oxc",
+    "promise",
+    "typescript",
+    "unicorn",
+    "vitest"
+  ],
+  "rules": {
+    "import/no-unassigned-import": ["warn", { "allow": ["**/*.css"] }],
+    "eslint/no-unused-private-class-members": "warn",
+    "eslint/no-unused-vars": "warn",
+
+    // Some shadowing is currently used.
+    "eslint/no-shadow": "off",
+
+    // We use dangling underscores to assist optimization.
+    "eslint/no-underscore-dangle": "off",
+
+    // Incorrectly flags `undefined` as a type for optional properties.
+    "typescript/no-duplicate-type-constituents": "off",
+
+    // Code makes extensive use of `as`.
+    "typescript/no-unsafe-type-assertion": "off",
+
+    // We use TypeDoc tags that aren't known to the linter.
+    "jsdoc/check-tag-names": "off",
+
+    // Yields are not currently documented for generator functions.
+    "jsdoc/require-yields": "off",
+
+    // "expect" checking doesn't currently function correctly with the tests.
+    "vitest/expect-expect": "off"
+  }
+}

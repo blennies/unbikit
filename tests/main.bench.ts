@@ -1,15 +1,17 @@
 /**
  * Benchmark (speed test) of the time taken to decode a single frame of a media file.
  *
- * Tests against a selection of media files. The benchmark will cycle repeatedly through all
- * the frames in each video until the benchmark ends.
+ * Tests against a selection of media files. The benchmark will cycle repeatedly through all the
+ * frames in each video until the benchmark ends.
  */
 import { bench, suite } from "vitest";
+
 import { getMediaFileDecoder, mediaFiles } from "./common.ts";
 
 /**
- * Benchmark the time taken to decode a single frame of the specified media file. The benchmark
- * will cycle repeatedly through all the frames in the video until the test ends.
+ * Benchmark the time taken to decode a single frame of the specified media file. The benchmark will
+ * cycle repeatedly through all the frames in the video until the test ends.
+ *
  * @param fileIndex Index name of the media file to use for benchmarking.
  */
 const createBench = async (fileIndex: keyof typeof mediaFiles): Promise<void> => {

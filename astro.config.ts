@@ -4,11 +4,13 @@ import type { ViteUserConfig } from "astro";
 import { defineConfig } from "astro/config";
 import starlightThemeRapide from "starlight-theme-rapide";
 import { createStarlightTypeDocPlugin } from "starlight-typedoc";
+
 import viteConfig from "./app/vite.config";
 
 const [publicStarlightTypeDoc, publicTypeDocSidebarGroup] = createStarlightTypeDocPlugin();
 
 const config: ReturnType<typeof defineConfig> = defineConfig({
+  experimental: { contentIntellisense: true, rustCompiler: true },
   base: "/unbikit/",
   integrations: [
     starlight({

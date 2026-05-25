@@ -21,9 +21,10 @@ class BitReader {
 
   /**
    * Read the specified number of bits from the bit-stream.
+   *
    * @param n Number of bits to read. Must be less than or equal to 32.
-   * @param peek When `true`, do not update the bit position in the bit-stream, otherwise do
-   *   update it.
+   * @param peek When `true`, do not update the bit position in the bit-stream, otherwise do update
+   *   it.
    * @returns The bits read from the bit-stream.
    */
   readBits_(n: number, peek: boolean = false): number {

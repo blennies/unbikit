@@ -6,6 +6,8 @@
 *.json
 *.jsonc
 *.ts
+*.yaml
+*.yml
 
 pnpm-lock.yaml
 

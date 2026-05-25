@@ -1,6 +1,4 @@
-/**
- * Worker thread
- */
+/** Worker thread */
 import {
   type BikAudioTrackHeader,
   type BikDecoder,
@@ -18,9 +16,7 @@ let currentFrame = 0;
 let framesPlayed = 0;
 let nextPlayLoopTimer: ReturnType<typeof setTimeout> | null = null;
 
-/**
- * Single-function converter of YUV420p to RGBA (no alpha plane input support)
- */
+/** Single-function converter of YUV420p to RGBA (no alpha plane input support) */
 const yuv420PlanarToRgb = (
   yuv: Uint8Array,
   rgba: ImageDataArray | Uint8Array,
@@ -54,6 +50,7 @@ const yuv420PlanarToRgb = (
 
 /**
  * Handles messages sent to this thread.
+ *
  * @param evt
  */
 globalThis.onmessage = async (evt) => {
@@ -167,7 +164,7 @@ async function playLoop() {
           codedWidth: frame.width,
           codedHeight: frame.height,
           timestamp: 0,
-          transfer: [frame.yuv.buffer as ArrayBuffer],
+          transfer: [frame.yuv.buffer],
         });
         try {
           await videoFrame.copyTo(imageData.data, {

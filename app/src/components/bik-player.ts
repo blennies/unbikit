@@ -4,7 +4,7 @@ export interface BikPlayerOptions {
   canvas: HTMLCanvasElement;
   onAspectRatioSet?: ((ratio: number) => void) | null | undefined;
   onUpdateUI?:
-    | ((info: { currentFrame: number; totalFrames: number; fps: number }) => void)
+    | ((info: { currentFrame: number; totalFrames: number; fps: number }) => Promise<void>)
     | null
     | undefined;
 }
@@ -16,7 +16,9 @@ async function sleep(duration: number): Promise<void> {
 // Player implementation
 export class BikPlayer {
   offscreenCanvas: OffscreenCanvas;
-  onUpdateUI: ((info: { currentFrame: number; totalFrames: number; fps: number }) => void) | null;
+  onUpdateUI:
+    | ((info: { currentFrame: number; totalFrames: number; fps: number }) => Promise<void>)
+    | null;
   onAspectRatioSet: ((ratio: number) => void) | null;
   worker: Worker;
   playing = false;
@@ -50,7 +52,7 @@ export class BikPlayer {
         }
 
         case "updateUI": {
-          this.onUpdateUI?.(payload);
+          await this.onUpdateUI?.(payload);
           break;
         }
 
@@ -98,6 +100,11 @@ export class BikPlayer {
     };
   }
 
+  async close(): Promise<void> {
+    this.worker.terminate();
+    await this.audioContext?.close();
+  }
+
   async loadFile(file: string | File): Promise<void> {
     try {
       this.worker.postMessage({
@@ -133,10 +140,7 @@ export class BikPlayer {
     if (this.audioContext && this.gainNode) {
       // Fade out audio rapidly to avoid "clicking"
       this.gainNode.gain.setValueAtTime(this.gainNode.gain.value, this.audioContext.currentTime);
-      this.gainNode.gain.exponentialRampToValueAtTime(
-        0.0001,
-        this.audioContext.currentTime + 0.03,
-      );
+      this.gainNode.gain.exponentialRampToValueAtTime(0.0001, this.audioContext.currentTime + 0.03);
       await sleep(0.03);
     }
     this.worker.postMessage({ type: "stop", payload: null });

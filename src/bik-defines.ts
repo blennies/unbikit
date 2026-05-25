@@ -1,8 +1,8 @@
 /**
  * Various timing-critical constants used by the decoder.
  *
- * This file is not imported directly in the decoder source code but is instead processed by
- * the build tool and the constants inlined in the output code (to boost performance).
+ * This file is not imported directly in the decoder source code but is instead processed by the
+ * build tool and the constants inlined in the output code (to boost performance).
  */
 export const BIK_DEFINES = {
   /**
@@ -21,9 +21,7 @@ export const BIK_DEFINES = {
   // C3 rounded from -(Math.sqrt(2 + Math.SQRT2) + Math.sqrt(2 - Math.SQRT2)) * 2048 ~= -5351.68
   DCT_C3: -5352,
 
-  /**
-   * Block type constants
-   */
+  /** Block type constants */
   BIK_BLOCK_TYPE_SKIP: 0,
   BIK_BLOCK_TYPE_SCALED: 1,
   BIK_BLOCK_TYPE_MOTION: 2,
@@ -35,9 +33,7 @@ export const BIK_DEFINES = {
   BIK_BLOCK_TYPE_PATTERN: 8,
   BIK_BLOCK_TYPE_RAW: 9,
 
-  /**
-   * Block parameter indices
-   */
+  /** Block parameter indices */
   BIK_PARAM_BLOCK_TYPES: 0,
   BIK_PARAM_SUB_BLOCK_TYPES: 1,
   BIK_PARAM_COLORS: 2,

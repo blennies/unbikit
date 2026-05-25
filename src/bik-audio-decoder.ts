@@ -1,7 +1,6 @@
-/**
- * Module holding audio decoding logic for the BIK decoder.
- */
+/** Module holding audio decoding logic for the BIK decoder. */
 import type { IntRange, TupleOf } from "type-fest";
+
 import {
   createArrayOfLen,
   PACKED_AUDIO_CRITICAL_FREQS,
@@ -16,13 +15,16 @@ let AUDIO_RLE_LENGTH_TABLE: TupleOf<16, number>;
 
 let constantsInitialized = false;
 
-export interface BikAudioDecoder
-  extends Generator<Float32Array[][], Float32Array[][], Uint8Array | null | undefined> {
+export interface BikAudioDecoder extends Generator<
+  Float32Array[][],
+  Float32Array[][],
+  Uint8Array | null | undefined
+> {
   /**
    * Decode a byte array of encoded BIK audio data.
    *
-   * @param value Encoded BIK audio data. When `null` or `undefined`, the audio decoder state
-   *   is reset ready to decode a new audio stream from the start.
+   * @param value Encoded BIK audio data. When `null` or `undefined`, the audio decoder state is
+   *   reset ready to decode a new audio stream from the start.
    * @returns Decoded audio samples, indexed by block and then by channel.
    */
   next(
@@ -32,6 +34,7 @@ export interface BikAudioDecoder
 
 /**
  * Create a generator for decoding packets of BIK audio data.
+ *
  * @param sampleRate Sample rate/frequency of the audio data (in Hz).
  * @param numChannels Number of separate audio channels (may or may not have interleaved stereo).
  * @param useDCT `true` when the audio data is encoded using DCTs (discrete cosine transforms),
