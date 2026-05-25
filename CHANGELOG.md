@@ -2,10 +2,18 @@
 
 ## [0.10.4](https://github.com/blennies/unbikit/compare/v0.10.3...v0.10.4) (2026-05-25)
 
-
 ### Bug Fixes
 
-* **demo:** Convert video player to a custom element to avoid issues from view transitions ([#109](https://github.com/blennies/unbikit/issues/109)) ([ba0f06f](https://github.com/blennies/unbikit/commit/ba0f06f7724f01a5f10c83e6610356ba462088f6))
+- Fix the video player on the demo site so it correctly handles moving between different pages of
+  the site
+  ([#109](https://github.com/blennies/unbikit/issues/109))
+  ([ba0f06f](https://github.com/blennies/unbikit/commit/ba0f06f7724f01a5f10c83e6610356ba462088f6))
+
+### Maintenance
+
+- Update build dependencies
+  ([#109](https://github.com/blennies/unbikit/issues/109))
+  ([ba0f06f](https://github.com/blennies/unbikit/commit/ba0f06f7724f01a5f10c83e6610356ba462088f6))
 
 ## [0.10.3](https://github.com/blennies/unbikit/compare/v0.10.2...v0.10.3) (2026-04-07)
 
