@@ -696,7 +696,7 @@ export function* genBikVideoDecoder(
         const v = HuffTable.getHuff_(reader, blockParamValues.tree_);
         if (v < 12) {
           prevValue = v as IntRange<0, 12>;
-          blockParamValues.items_[blockParamValues.curDec_++] = v as IntRange<0, 12>;
+          blockParamValues.items_[blockParamValues.curDec_++] = v;
         } else {
           const runLength = ([4, 8, 12, 32] as const)[(v - 12) as IntRange<0, 4>];
           for (let j = 0; j < runLength; j++) {
