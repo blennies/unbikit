@@ -10,7 +10,7 @@ import viteConfig from "./app/vite.config";
 const [publicStarlightTypeDoc, publicTypeDocSidebarGroup] = createStarlightTypeDocPlugin();
 
 const config: ReturnType<typeof defineConfig> = defineConfig({
-  experimental: { contentIntellisense: true, rustCompiler: true },
+  experimental: { contentIntellisense: true },
   base: "/unbikit/",
   integrations: [
     starlight({
@@ -97,7 +97,7 @@ const config: ReturnType<typeof defineConfig> = defineConfig({
   site: "https://blennies.github.io/unbikit/",
   srcDir: "./app/src",
   // REVISIT: type mismatch with esbuild plugin type, but seems safe to ignore
-  vite: { ...viteConfig } as ViteUserConfig,
+  vite: { ...viteConfig },
 });
 
 export default config;

@@ -2,7 +2,7 @@
 node_modules
 
 # output
-app/.astro
+.astro
 out
 dist
 dist-app

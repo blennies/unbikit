@@ -835,8 +835,7 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 
         videoList.addEventListener("click", async (e) => {
           const item = (e?.target as HTMLDivElement | undefined)?.closest(".video-list-item") as
-            | HTMLElement
-            | undefined;
+            HTMLElement | undefined;
           if (item) {
             const videoUrl = item.dataset.videoUrl ?? "";
             const videoOrigin = item.dataset.videoOrigin ?? "";
