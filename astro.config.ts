@@ -16,6 +16,7 @@ const config: ReturnType<typeof defineConfig> = defineConfig({
     starlight({
       components: {
         Footer: "./src/components/Footer.astro",
+        Search: "./src/components/Search.astro",
         ThemeProvider: "./src/components/ThemeProvider.astro",
       },
       customCss: ["./src/styles/global.css", "@fontsource-variable/sora/index.css"],
