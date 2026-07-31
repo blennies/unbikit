@@ -33,6 +33,7 @@ since been used in many classic computer games.
 - Isomorphic
   - runs on client/server runtimes that support at least ES2022
   - can be run with older runtimes by using the syntax lowering feature of some bundlers
+- Surprisingly fast! (typically 1,000+ frames per second when run on a single thread)
 
 ## Getting started
 
