@@ -1,6 +1,6 @@
 import mdx from "@astrojs/mdx";
 import starlight from "@astrojs/starlight";
-import type { ViteUserConfig } from "astro";
+// import type { ViteUserConfig } from "astro";
 import { defineConfig } from "astro/config";
 import starlightThemeRapide from "starlight-theme-rapide";
 import { createStarlightTypeDocPlugin } from "starlight-typedoc";
@@ -44,17 +44,16 @@ const config: ReturnType<typeof defineConfig> = defineConfig({
       ],
       sidebar: [
         {
-          label: "Start",
-          items: [
-            {
-              label: "Getting Started",
-              link: "/getting-started",
-            },
-            {
-              label: "⭐ Demo",
-              link: "/demo",
-            },
-          ],
+          label: "Introduction",
+          link: "/",
+        },
+        {
+          label: "Getting Started",
+          link: "/getting-started",
+        },
+        {
+          label: "⭐ Demo",
+          link: "/demo",
         },
 
         {
