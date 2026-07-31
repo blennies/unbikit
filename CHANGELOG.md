@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.10.6](https://github.com/blennies/unbikit/compare/v0.10.6...v0.10.6) (2026-07-31)
+
+
+### Bug Fixes
+
+* **demo:** Convert video player to a custom element to avoid issues from view transitions ([#109](https://github.com/blennies/unbikit/issues/109)) ([ba0f06f](https://github.com/blennies/unbikit/commit/ba0f06f7724f01a5f10c83e6610356ba462088f6))
+* Fix warnings raised by Oxc lint (including missing `await`s) ([#58](https://github.com/blennies/unbikit/issues/58)) ([90d7f34](https://github.com/blennies/unbikit/commit/90d7f3492fb7d26636b97413c800f75d643b0030))
+
+
+### Miscellaneous Chores
+
+* Push empty commit to create a release PR for 0.10.3 ([26cced0](https://github.com/blennies/unbikit/commit/26cced01a1dd1c70ec3d064ba1c4112754f92039))
+
+
+### Build System
+
+* **deps-dev:** Update dependencies ([e924b7f](https://github.com/blennies/unbikit/commit/e924b7f901e4632431f9dec93614c5d1764c7d9e))
+
 ## [0.10.6](https://github.com/blennies/unbikit/compare/v0.10.5...v0.10.6) (2026-07-31)
 
 ### Documentation Fixes
