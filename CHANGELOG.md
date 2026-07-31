@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.10.6](https://github.com/blennies/unbikit/compare/v0.10.5...v0.10.6) (2026-07-31)
+
+### Documentation Fixes
+
+- Fix the page search feature on the documentation site so that the feature continues to function
+  after a page transition
+  ([e924b7f](https://github.com/blennies/unbikit/commit/e924b7f901e4632431f9dec93614c5d1764c7d9e))
+
 ## [0.10.5](https://github.com/blennies/unbikit/compare/v0.10.3...v0.10.5) (2026-05-25)
 
 ### Bug Fixes
