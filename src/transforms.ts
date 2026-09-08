@@ -33,8 +33,7 @@ interface IDxT extends Generator<void, void, Float32Array> {
  * This implementation provides the inverse RDFT transform for real-valued data, optimized using the
  * Cooley-Tukey FFT algorithm.
  *
- * @param nBits Number of values passed for processing with each iteration. Expressed as a power of
- *   2.
+ * @param nBits Number of values passed for processing with each iteration. Expressed as a power of 2.
  * @param useDCT `true` when the values passed for processing are encoded using DCTs (discrete
  *   cosine transforms), otherwise `false` when they are encoded using RDFTs (real discrete Fourier
  *   transforms).
@@ -179,8 +178,7 @@ interface FFT extends Generator<void, void, Float32Array> {
  *
  * Standard Cooley-Tukey radix-2 decimation-in-time FFT.
  *
- * @param nBits Number of values passed for processing with each iteration. Expressed as a power of
- *   2.
+ * @param nBits Number of values passed for processing with each iteration. Expressed as a power of 2.
  */
 function* genFFT(nBits: IntRange<2, 17>): FFT {
   /*

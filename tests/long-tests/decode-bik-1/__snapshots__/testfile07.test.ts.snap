@@ -1,0 +1,41 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should decode BIK 1 frames from across the file (testfile07; interlaced) > numTracks_audio_testfile07_frame_0 1`] = `1`;
+
+exports[`should decode BIK 1 frames from across the file (testfile07; interlaced) > numTracks_audio_testfile07_frame_250 1`] = `1`;
+
+exports[`should decode BIK 1 frames from across the file (testfile07; interlaced) > numTracks_audio_testfile07_frame_500 1`] = `1`;
+
+exports[`should decode BIK 1 frames from across the file (testfile07; interlaced) > numTracks_audio_testfile07_frame_750 1`] = `1`;
+
+exports[`should decode BIK 1 frames from across the file (testfile07; interlaced) > numTracks_audio_testfile07_frame_1000 1`] = `1`;
+
+exports[`should decode BIK 1 frames from across the file (testfile07; interlaced) > sampleBytes_audio_testfile07_frame_0 1`] = `276480`;
+
+exports[`should decode BIK 1 frames from across the file (testfile07; interlaced) > sampleBytes_audio_testfile07_frame_250 1`] = `15360`;
+
+exports[`should decode BIK 1 frames from across the file (testfile07; interlaced) > sampleBytes_audio_testfile07_frame_500 1`] = `15360`;
+
+exports[`should decode BIK 1 frames from across the file (testfile07; interlaced) > sampleBytes_audio_testfile07_frame_750 1`] = `0`;
+
+exports[`should decode BIK 1 frames from across the file (testfile07; interlaced) > sampleBytes_audio_testfile07_frame_1000 1`] = `15360`;
+
+exports[`should decode BIK 1 frames from across the file (testfile07; interlaced) > sampleHash_audio_testfile07_frame_0 1`] = `"33adbc02ff11ffc118c4e927132c8b7839e372b66bffad14e2dd3b9106c475dd"`;
+
+exports[`should decode BIK 1 frames from across the file (testfile07; interlaced) > sampleHash_audio_testfile07_frame_250 1`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
+
+exports[`should decode BIK 1 frames from across the file (testfile07; interlaced) > sampleHash_audio_testfile07_frame_500 1`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
+
+exports[`should decode BIK 1 frames from across the file (testfile07; interlaced) > sampleHash_audio_testfile07_frame_750 1`] = `"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"`;
+
+exports[`should decode BIK 1 frames from across the file (testfile07; interlaced) > sampleHash_audio_testfile07_frame_1000 1`] = `"0299f757a85a1aad6cbe1ad2b0eda925d8df667cd04e646af8917f65cbf24537"`;
+
+exports[`should decode BIK 1 frames from across the file (testfile07; interlaced) > screenshot_testfile07_frame_0.png 1`] = `"4850c08f1a7be3f7d7714590d303fede5a71a08d7d99713bb83fccc8e9795901"`;
+
+exports[`should decode BIK 1 frames from across the file (testfile07; interlaced) > screenshot_testfile07_frame_250.png 1`] = `"665438667291942877b9c73b5fc47212083ba932f7bb597b60dbcc4820f10082"`;
+
+exports[`should decode BIK 1 frames from across the file (testfile07; interlaced) > screenshot_testfile07_frame_500.png 1`] = `"63af766a6e28473748b782fb9fe0cbe2edf1e871d52209f21d57fa9ff2a752ff"`;
+
+exports[`should decode BIK 1 frames from across the file (testfile07; interlaced) > screenshot_testfile07_frame_750.png 1`] = `"e28058fcb0b16e83c70f72aaed120afcba3fb6ec2dd34386d2692b526d710c18"`;
+
+exports[`should decode BIK 1 frames from across the file (testfile07; interlaced) > screenshot_testfile07_frame_1000.png 1`] = `"34c149df93a40b247ee23c96c6c45bec294016747aa3f3a7972e4abb322ee2e3"`;

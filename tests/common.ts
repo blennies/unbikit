@@ -9,6 +9,7 @@ import { pipeline } from "node:stream/promises";
 
 import { PNG } from "pngjs";
 import { objectEntries } from "ts-extras";
+import { type TestContext } from "vitest";
 
 import { type BikDecoder, type BikFrame, createBikDecoder } from "../src/bik-decoder.ts";
 
@@ -198,6 +199,71 @@ const getMediaFileDecoder = async (file: MediaFile): Promise<BikDecoder> => {
 };
 
 /**
+ * @param fileIndex
+ * @param param Test helper
+ * @param existingDecoder Decoder to use instead of creating a new one.
+ */
+const fetchSelectionOfFrames = async (
+  fileIndex: keyof typeof mediaFiles,
+  { annotate, expect }: Pick<TestContext, "annotate" | "expect">,
+  existingDecoder: BikDecoder | null = null,
+): Promise<void> => {
+  const file = mediaFiles[fileIndex];
+  const decoder = existingDecoder ?? (await getMediaFileDecoder(mediaFiles[fileIndex]));
+  const header = decoder?.header;
+  const numFrames = Math.min((header?.numFrames ?? 1) - 1, 1000);
+  const frameQuarters = ~~(numFrames / 4);
+  expect(header).toBeTruthy();
+  await annotate(
+    `header info for ${file.name} -- version: ${header?.version}${String.fromCharCode(header?.subVersion ?? 63)}, frames: ${header?.numFrames}, image size: ${header?.width}x${header?.height}, flags: ${JSON.stringify(header?.videoFlags)}`,
+  );
+
+  let frameNum = 0;
+  while (frameNum <= frameQuarters * 4) {
+    const frame = await decoder.getNextFrame();
+    expect(frame?.audioTracks).toBeDefined();
+    expect(frame?.videoFrame).toBeDefined();
+
+    // Convert video frame to a PNG and verify the hash
+    const videoFrameName = `screenshot_${file.name}_frame_${frameNum}.png`;
+    const png = frameToPng(frame);
+    await annotate(videoFrameName, {
+      body: png,
+      contentType: "image/png",
+    });
+    expect(await getShaSum(png)).toMatchSnapshot(videoFrameName);
+
+    // Verify hash of the audio data attached to the frame
+    const audioFrameName = `audio_${file.name}_frame_${frameNum}`;
+    const tracks = frame?.audioTracks ?? [];
+    expect(tracks.length).toMatchSnapshot(`numTracks_${audioFrameName}`);
+    if (tracks.length) {
+      let totalBuffer = new Uint8Array(0);
+      for (const track of tracks) {
+        const buffers = track.blocks.flat();
+        const tmp = new Uint8Array(
+          totalBuffer.byteLength +
+            buffers.reduce((prevValue, buf) => prevValue + buf.byteLength, 0),
+        );
+        tmp.set(totalBuffer);
+        let offset = totalBuffer.byteLength;
+        for (const buffer of buffers) {
+          tmp.set(buffer, offset);
+          offset += buffer.byteLength;
+        }
+        totalBuffer = tmp;
+      }
+      expect(totalBuffer.byteLength).toMatchSnapshot(`sampleBytes_${audioFrameName}`);
+      expect(await getShaSum(totalBuffer)).toMatchSnapshot(`sampleHash_${audioFrameName}`);
+    }
+
+    // Skip to the next frame to test (or the end of the video)
+    await decoder.skipFrames(frameQuarters - 1);
+    frameNum += frameQuarters;
+  }
+};
+
+/**
  * Generate a SHA-256 digest (256-bit hash).
  *
  * @param data Data to generate a SHA-256 digest from.
@@ -252,7 +318,7 @@ const yuv420PlanarToRgb = (yuv: Uint8Array, width: number, height: number): Uint
 const frameToPng = (frame: BikFrame | null | undefined): Uint8Array<ArrayBuffer> | undefined => {
   const videoFrame = frame?.videoFrame;
   if (!videoFrame) {
-    return;
+    return undefined;
   }
   const rgba = yuv420PlanarToRgb(videoFrame.yuv, videoFrame.width, videoFrame.height);
   const png = new PNG({
@@ -265,6 +331,7 @@ const frameToPng = (frame: BikFrame | null | undefined): Uint8Array<ArrayBuffer>
 };
 
 export {
+  fetchSelectionOfFrames,
   frameToPng,
   getMediaFileDecoder,
   getShaSum,

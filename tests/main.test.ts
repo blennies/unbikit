@@ -2,99 +2,29 @@
  * Test a set of media files by decoding (most of) the frames in each and outputting screenshots of
  * a small selection of the frames.
  *
- * Test valid BIK 1 files that should be decoded correctly, along with valid BIK 1b and 2 files that
- * the decoder should refuse to decode but handle gracefully.
+ * Test valid BIK 1 (d, f, g, h, i) files that should be decoded correctly, along with valid BIK 1b
+ * and 2 files that the decoder should refuse to decode but handle gracefully.
+ *
+ * Long tests are run as separate test files under the `long-tests` directory, so that they can be
+ * run in parallel.
  */
 
-import { suite, type TestContext, test } from "vitest";
+import { suite, test } from "vitest";
 
-import type { BikDecoder } from "../src/bik-decoder.ts";
-import { frameToPng, getMediaFileDecoder, getShaSum, mediaFiles } from "./common.ts";
-
-const fetchSelectionOfFrames = async (
-  fileIndex: keyof typeof mediaFiles,
-  { annotate, expect }: Pick<TestContext, "annotate" | "expect">,
-  existingDecoder: BikDecoder | null = null,
-): Promise<void> => {
-  const file = mediaFiles[fileIndex];
-  const decoder = existingDecoder ?? (await getMediaFileDecoder(mediaFiles[fileIndex]));
-  const header = decoder?.header;
-  const numFrames = Math.min((header?.numFrames ?? 1) - 1, 1000);
-  const frameQuarters = ~~(numFrames / 4);
-  expect(header).toBeTruthy();
-  await annotate(
-    `header info for ${file.name} -- version: ${header?.version}${String.fromCharCode(header?.subVersion ?? 63)}, frames: ${header?.numFrames}, image size: ${header?.width}x${header?.height}, flags: ${JSON.stringify(header?.videoFlags)}`,
-  );
-
-  let frameNum = 0;
-  while (frameNum <= frameQuarters * 4) {
-    const frame = await decoder.getNextFrame();
-    expect(frame?.audioTracks).toBeDefined();
-    expect(frame?.videoFrame).toBeDefined();
-
-    // Convert video frame to a PNG and verify the hash
-    const videoFrameName = `screenshot_${file.name}_frame_${frameNum}.png`;
-    const png = frameToPng(frame);
-    await annotate(videoFrameName, {
-      body: png,
-      contentType: "image/png",
-    });
-    expect(await getShaSum(png)).toMatchSnapshot(videoFrameName);
-
-    // Verify hash of the audio data attached to the frame
-    const audioFrameName = `audio_${file.name}_frame_${frameNum}`;
-    const tracks = frame?.audioTracks ?? [];
-    expect(tracks.length).toMatchSnapshot(`numTracks_${audioFrameName}`);
-    if (tracks.length) {
-      let totalBuffer = new Uint8Array(0);
-      for (const track of tracks) {
-        const buffers = track.blocks.flat();
-        const tmp = new Uint8Array(
-          totalBuffer.byteLength +
-            buffers.reduce((prevValue, buf) => prevValue + buf.byteLength, 0),
-        );
-        tmp.set(totalBuffer);
-        let offset = totalBuffer.byteLength;
-        for (const buffer of buffers) {
-          tmp.set(buffer, offset);
-          offset += buffer.byteLength;
-        }
-        totalBuffer = tmp;
-      }
-      expect(totalBuffer.byteLength).toMatchSnapshot(`sampleBytes_${audioFrameName}`);
-      expect(await getShaSum(totalBuffer)).toMatchSnapshot(`sampleHash_${audioFrameName}`);
-    }
-
-    // Skip to the next frame to test (or the end of the video)
-    await decoder.skipFrames(frameQuarters - 1);
-    frameNum += frameQuarters;
-  }
-};
+import { getMediaFileDecoder, fetchSelectionOfFrames, mediaFiles } from "./common.ts";
 
 suite("decode BIK 1 (d, f, g, h, i) media files", async () => {
-  test("should decode frames from across the file (testfile01)", async ({ annotate, expect }) => {
-    await fetchSelectionOfFrames("testfile01", { annotate, expect });
-  });
   test("should decode frames from across the file (testfile02)", async ({ annotate, expect }) => {
     await fetchSelectionOfFrames("testfile02", { annotate, expect });
   });
   test("should decode frames from across the file (testfile03)", async ({ annotate, expect }) => {
     await fetchSelectionOfFrames("testfile03", { annotate, expect });
   });
-  test("should decode frames from across the file (testfile04)", async ({ annotate, expect }) => {
-    await fetchSelectionOfFrames("testfile04", { annotate, expect });
-  });
   test("should decode frames from across the file (testfile05)", async ({ annotate, expect }) => {
     await fetchSelectionOfFrames("testfile05", { annotate, expect });
   });
   test("should decode frames from across the file (testfile06)", async ({ annotate, expect }) => {
     await fetchSelectionOfFrames("testfile06", { annotate, expect });
-  });
-  test("should decode frames from across the file (testfile07; interlaced)", async ({
-    annotate,
-    expect,
-  }) => {
-    await fetchSelectionOfFrames("testfile07", { annotate, expect });
   });
 });
 
