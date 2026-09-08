@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.10.7](https://github.com/blennies/unbikit/compare/v0.10.6...v0.10.7) (2026-09-08)
+
+### Maintenance
+
+- Update build dependencies and improve code quality metrics
+  ([#141](https://github.com/blennies/unbikit/issues/141))
+  ([92ec127](https://github.com/blennies/unbikit/commit/92ec127a070c720f01e12ed57492424170150623))
+
 ## [0.10.6](https://github.com/blennies/unbikit/compare/v0.10.5...v0.10.6) (2026-07-31)
 
 ### Documentation Fixes
