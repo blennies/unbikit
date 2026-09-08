@@ -36,6 +36,9 @@
     // Yields are not currently documented for generator functions.
     "jsdoc/require-yields": "off",
 
+    // Incorrectly flags worker threads calling `postMessage()`.
+    "unicorn/require-post-message-target-origin": "off",
+
     // "expect" checking doesn't currently function correctly with the tests.
     "vitest/expect-expect": "off"
   }

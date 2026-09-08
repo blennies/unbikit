@@ -4,7 +4,7 @@
  * Tests against a selection of media files. The benchmark will cycle repeatedly through all the
  * frames in each video until the benchmark ends.
  */
-import { bench, suite } from "vitest";
+import { suite, test } from "vitest";
 
 import { getMediaFileDecoder, mediaFiles } from "./common.ts";
 
@@ -15,25 +15,27 @@ import { getMediaFileDecoder, mediaFiles } from "./common.ts";
  * @param fileIndex Index name of the media file to use for benchmarking.
  */
 const createBench = async (fileIndex: keyof typeof mediaFiles): Promise<void> => {
-  const decoder = await getMediaFileDecoder(mediaFiles[fileIndex]);
-  bench(
-    `decode a frame of ${fileIndex}`,
-    async (): Promise<void> => {
-      let frame = await decoder.getNextFrame();
-      if (!frame) {
-        decoder.reset();
-        frame = await decoder.getNextFrame();
+  test(`decode a frame of ${fileIndex}`, async ({ bench }) => {
+    const decoder = await getMediaFileDecoder(mediaFiles[fileIndex]);
+
+    await bench(
+      `decode a frame of ${fileIndex}`,
+      {
+        async: true,
+      },
+      async (): Promise<any> => {
+        let frame = await decoder.getNextFrame();
         if (!frame) {
-          throw new Error("Failed to reset decoder");
+          decoder.reset();
+          frame = await decoder.getNextFrame();
+          if (!frame) {
+            throw new Error("Failed to reset decoder");
+          }
         }
-      }
-    },
-    {
-      async: true,
-      iterations: 10000,
-      throws: false,
-    },
-  );
+        return frame;
+      },
+    ).run({ iterations: 10000, throws: false });
+  });
 };
 
 suite("benchmark", async () => {
